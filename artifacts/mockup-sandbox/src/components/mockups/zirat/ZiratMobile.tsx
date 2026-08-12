@@ -156,14 +156,16 @@ export function ZiratMobile() {
         {view === "home" && (
           <div className="overflow-y-auto pb-24">
             {/* Red header */}
-            <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{
-              background:[
-                "linear-gradient(148deg, rgba(255,220,220,0.18) 0%, rgba(255,180,180,0.04) 22%, transparent 38%)",
-                "linear-gradient(148deg, transparent 24%, rgba(0,0,0,0.14) 36%, rgba(0,0,0,0.09) 50%, transparent 62%)",
-                "linear-gradient(148deg, transparent 56%, rgba(255,180,180,0.12) 68%, transparent 82%)",
-                "#e8001c"
-              ].join(",")
-            }}>
+            <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{background:"#e8001c"}}>
+              {/* SVG wave — bezier curves simulating silk/fabric fold */}
+              <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 390 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                {/* bright highlight — upper left sweep */}
+                <path d="M-60 -10 Q 60 30 180 10 Q 290 -10 450 15 L 450 55 Q 290 30 180 50 Q 60 70 -60 30 Z" fill="rgba(255,180,180,0.22)"/>
+                {/* dark fold — main diagonal shadow */}
+                <path d="M-60 35 Q 70 65 200 48 Q 310 32 450 58 L 450 95 Q 310 70 200 86 Q 70 103 -60 73 Z" fill="rgba(0,0,0,0.17)"/>
+                {/* secondary light — below the fold */}
+                <path d="M-60 88 Q 80 108 210 94 Q 330 80 450 100 L 450 140 Q 330 125 210 140 L -60 140 Z" fill="rgba(255,140,140,0.13)"/>
+              </svg>
 
               <div className="relative">
                 <div className="mb-4" />
