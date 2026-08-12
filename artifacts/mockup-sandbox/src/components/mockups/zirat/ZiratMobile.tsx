@@ -64,10 +64,10 @@ const MY_ACCOUNT = "Ziraat Süper Şube · Vadesiz TL";
 const MY_NAME = "Muhammed Yılmaz";
 
 // Custom SVG for ATM withdrawal (QR ile Para Çekme)
-function AtmDownIcon({ size = 28 }: { size?: number }) {
+function AtmDownIcon({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
       {/* ATM body */}
       <rect x="3" y="2" width="18" height="20" rx="2.5" />
       {/* Screen */}
@@ -294,7 +294,7 @@ export function ZiratMobile() {
                     }}
                     className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
                     <span className="text-[#e30620]">
-                      {customIcon ?? (Icon && <Icon size={28} strokeWidth={1.7} />)}
+                      {customIcon ?? (Icon && <Icon size={24} strokeWidth={1.4} />)}
                     </span>
                     <span className="whitespace-pre-line leading-tight">{label}</span>
                   </button>
