@@ -34,7 +34,7 @@ _Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Her değişiklik sonrasında Ziraat mockup preview linkini paylaş: `https://acd3a2d2-f7c6-4f1a-9b11-53f826e93fe1-00-3l1c4ru192nz4.pike.replit.dev/__mockup/preview/zirat/ZiratMobile`
 
 ## Gotchas
 
