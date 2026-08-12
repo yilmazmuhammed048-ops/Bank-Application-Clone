@@ -292,7 +292,7 @@ export function ZiratMobile() {
                       else if (action === "deposit")  openPanel("deposit");
                       else setView("products");
                     }}
-                    className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
+                    className="flex h-[108px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
                     <span className="text-[#e30620]">
                       {customIcon ?? (Icon && <Icon size={24} strokeWidth={1.4} />)}
                     </span>
