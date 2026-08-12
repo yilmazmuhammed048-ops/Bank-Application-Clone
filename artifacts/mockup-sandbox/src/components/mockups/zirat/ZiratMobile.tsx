@@ -1,12 +1,18 @@
 import { useState } from "react";
 import headerWaveUrl from "@/assets/header-wave.jpg";
+import tileAracim   from "@/assets/tile-aracim.jpg";
+import tileEvim     from "@/assets/tile-evim.jpg";
+import tileIsim     from "@/assets/tile-isim.jpg";
+import tileAilem    from "@/assets/tile-ailem.jpg";
+import tileSeyahat  from "@/assets/tile-seyahatim.jpg";
+import tileEtkinlik from "@/assets/tile-etkinlik.jpg";
 import {
-  ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight,
-  Check, ChevronDown, ChevronRight, Copy, CreditCard,
-  FileText, Home, Landmark, Menu, MessageSquare,
-  MoreVertical, PiggyBank, QrCode,
-  ReceiptText, Search, Send, Share2, ShieldCheck, Sparkles,
-  User, WalletCards, X,
+  AlignJustify, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowRight,
+  Check, ChevronDown, ChevronRight, ClipboardCheck, Copy, CreditCard,
+  FileText, Home, Landmark, LayoutGrid, MessageSquare,
+  MoreVertical, QrCode, Receipt,
+  ReceiptText, RefreshCw, Repeat2, Search, Send, Share2, ShieldCheck, Sparkles,
+  TrendingUp, User, WalletCards, X,
 } from "lucide-react";
 
 type View = "home" | "products" | "actions" | "applications" | "menu" | "transactions";
@@ -57,18 +63,18 @@ const MY_ACCOUNT = "Ziraat Süper Şube · Vadesiz TL";
 const MY_NAME = "Muhammed Yılmaz";
 
 const shortcuts = [
-  { label: "Varlıklarım",        icon: PiggyBank,    tone: "bg-[#fde6e9] text-[#d3132b]",  action: "assets"    },
-  { label: "Son İşlemler",       icon: FileText,     tone: "bg-[#eeeafb] text-[#7466b6]",  action: "txns"      },
-  { label: "QR ile Para\nÇekme", icon: QrCode,       tone: "bg-[#fff0e8] text-[#e07c4f]",  action: "qr"        },
-  { label: "Para\nTransferi",    icon: Send,         tone: "bg-[#e7f0f9] text-[#40739f]",  action: "transfer"  },
+  { label: "Varlıklarım",        icon: TrendingUp,      tone: "bg-[#fde6e9] text-[#d3132b]",  action: "assets"    },
+  { label: "Son İşlemler",       icon: Receipt,         tone: "bg-[#eeeafb] text-[#7466b6]",  action: "txns"      },
+  { label: "QR ile Para\nÇekme", icon: QrCode,          tone: "bg-[#fff0e8] text-[#e07c4f]",  action: "qr"        },
+  { label: "Para\nTransferi",    icon: ArrowLeftRight,  tone: "bg-[#e7f0f9] text-[#40739f]",  action: "transfer"  },
 ];
 
 const navItems: { label: string; view: View; icon: React.ElementType }[] = [
-  { label: "Ana Sayfa",  view: "home",         icon: Home        },
-  { label: "Ürünler",    view: "products",     icon: WalletCards },
-  { label: "İşlemler",  view: "actions",      icon: ArrowRight  },
-  { label: "Başvurular", view: "applications", icon: Check       },
-  { label: "Tüm Menü",  view: "menu",         icon: Menu        },
+  { label: "Ana Sayfa",  view: "home",         icon: Home           },
+  { label: "Ürünler",    view: "products",     icon: LayoutGrid     },
+  { label: "İşlemler",   view: "actions",      icon: Repeat2        },
+  { label: "Başvurular", view: "applications", icon: ClipboardCheck },
+  { label: "Tüm Menü",   view: "menu",         icon: AlignJustify   },
 ];
 
 /* ═══════════════════════════════════════════════════════
@@ -208,8 +214,8 @@ export function ZiratMobile() {
                 <section className="pt-5">
                   <div className="flex items-center justify-between">
                     <h2 className="text-[17px] font-bold tracking-wide text-[#c9162d]">ZİRAAT SÜPER ŞUBE</h2>
-                    <button aria-label="Paylaş" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
-                      <Share2 size={17} className="text-[#555]" />
+                    <button aria-label="Hesap İşlemleri" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
+                      <RefreshCw size={17} className="text-[#555]" />
                     </button>
                   </div>
                   <div className="mt-3 flex items-center gap-3">
@@ -300,21 +306,26 @@ export function ZiratMobile() {
             {/* Hayatın Artısı Ziraat'te */}
             <section className="mt-2 bg-white px-5 pt-5 pb-6">
               <div className="mb-4 flex items-center gap-2">
-                <span className="text-[#e30620]">✦</span>
+                {/* Clover/plus icon matching reference */}
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
+                  <path d="M10 2C10 2 10 6 10 8C10 6 14 4 16 6C18 8 16 12 14 12C16 12 18 14 16 16C14 18 10 16 10 14C10 16 6 18 4 16C2 14 4 12 6 12C4 12 2 8 4 6C6 4 10 6 10 8C10 6 10 2 10 2Z" fill="#e30620"/>
+                </svg>
                 <h2 className="text-[17px] font-bold">Hayatın Artısı Ziraat&apos;te</h2>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                {[
-                  { label: "Aracım",       bg: "from-[#1a3a5c] to-[#2d6aad]" },
-                  { label: "Evim",         bg: "from-[#2d4a1e] to-[#4e8a32]" },
-                  { label: "İşim",         bg: "from-[#2a1a4a] to-[#5c3a9a]" },
-                  { label: "Ailem",        bg: "from-[#6b2a1a] to-[#c85a3a]" },
-                  { label: "Seyahatim",    bg: "from-[#1a4a3a] to-[#c88a2a]" },
-                  { label: "Etkinliklerim",bg: "from-[#1a1a2a] to-[#3a3a5a]" },
-                ].map(({ label, bg }) => (
+                {([
+                  ["Aracım",        tileAracim  ],
+                  ["Evim",          tileEvim    ],
+                  ["İşim",          tileIsim    ],
+                  ["Ailem",         tileAilem   ],
+                  ["Seyahatim",     tileSeyahat ],
+                  ["Etkinliklerim", tileEtkinlik],
+                ] as [string, string][]).map(([label, src]) => (
                   <button key={label}
-                    className={`relative h-[108px] overflow-hidden rounded-xl bg-gradient-to-br ${bg} text-left active:scale-[.98]`}>
-                    <span className="absolute bottom-2 left-2.5 text-[13px] font-bold text-white drop-shadow">{label}</span>
+                    className="relative h-[108px] overflow-hidden rounded-xl text-left active:scale-[.98]">
+                    <img src={src} alt={label} className="absolute inset-0 h-full w-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
+                    <span className="absolute bottom-2 left-2.5 text-[13px] font-bold text-white drop-shadow leading-tight">{label}</span>
                   </button>
                 ))}
               </div>
@@ -384,6 +395,55 @@ export function ZiratMobile() {
                 <button className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-semibold text-white active:scale-[.98]">Döviz İşlemleri</button>
                 <button className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-semibold text-white active:scale-[.98]">Altın İşlemleri</button>
               </div>
+            </section>
+
+            {/* Size Özel Fırsatlar */}
+            <section className="bg-[#e8001c] px-5 pt-5 pb-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-[18px] font-bold text-white">Size Özel Fırsatlar</h2>
+                <button className="flex items-center gap-1 text-[13px] text-white font-semibold">
+                  Tüm Kampanyalar <ArrowRight size={15} />
+                </button>
+              </div>
+              {/* Campaign card */}
+              <div className="overflow-hidden rounded-2xl bg-white">
+                <div className="flex h-[160px]">
+                  <div className="relative w-[140px] shrink-0 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#2a4a7a] to-[#1a2a5a]" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="h-16 w-16 rounded-full border-4 border-white/30 flex items-center justify-center">
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="white"><path d="M14 2L4 8v12l10 6 10-6V8L14 2z" strokeWidth="1.5" stroke="white" fill="none"/><path d="M10 14l3 3 5-5" strokeWidth="2" stroke="white" strokeLinecap="round"/></svg>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-3 left-3 text-[10px] font-bold text-white/80">BANKKART</div>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-center px-4">
+                    <p className="text-[15px] font-bold text-[#242326]">Bankkart Mobil</p>
+                    <p className="mt-1.5 text-[13px] leading-snug text-[#6c6a6c]">Bankkart kampanyalarına katılmak için tıklayınız.</p>
+                  </div>
+                </div>
+              </div>
+              {/* Page dots */}
+              <div className="mt-3 flex justify-center gap-1.5">
+                <span className="h-1.5 w-4 rounded-full bg-white" />
+                <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
+                <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
+              </div>
+            </section>
+
+            {/* Son Giriş footer */}
+            <section className="flex items-center justify-between border-t border-[#ece8e8] bg-white px-5 py-5">
+              <div>
+                <p className="text-[11px] text-[#999598]">Son Giriş</p>
+                <p className="mt-0.5 text-[13px] font-bold text-[#242326]">12 Ağustos 2026 / 20:56</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[11px] text-[#999598]">Son Hatalı Giriş</p>
+                <p className="mt-0.5 text-[13px] font-bold text-[#242326]">12 Ağustos 2026 / 20:11</p>
+              </div>
+              <button className="ml-3 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f5f3f3]">
+                <ArrowRight size={17} className="text-[#e30620]" />
+              </button>
             </section>
           </div>
         )}
@@ -818,8 +878,8 @@ function UtilityView({ view, onBack, onTransfer }: { view: View; onBack: () => v
   const titles: Record<string, string> = { products: "Ürünler", actions: "İşlemler", applications: "Başvurular", menu: "Tüm Menü" };
   const items: [string, React.ElementType][] =
     view === "actions"      ? [["Para transferi", Send],    ["QR ile para çekme", QrCode], ["Fatura ödeme", ReceiptText]] :
-    view === "products"     ? [["Yeni hesap aç", Landmark], ["Kartlarım", CreditCard],     ["Birikim hedefi", PiggyBank]] :
-                              [["Kredi başvurusu", FileText],["Limit artırımı", ArrowUpRight],["Güvenlik merkezi", ShieldCheck]];
+    view === "products"     ? [["Yeni hesap aç", Landmark], ["Kartlarım", CreditCard],     ["Birikim hedefi", TrendingUp]] :
+                              [["Kredi başvurusu", FileText],["Limit artırımı", ArrowRight],["Güvenlik merkezi", ShieldCheck]];
   return (
     <div className="min-h-[calc(100dvh-76px)] bg-[#f8f7f7] px-5 pb-28 pt-6">
       <div className="flex items-center gap-3">
