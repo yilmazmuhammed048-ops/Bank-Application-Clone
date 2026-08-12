@@ -52,7 +52,7 @@ function shortTime() {
 }
 
 const MY_IBAN = "TR31 0001 0090 1041 2062 7050 01";
-const MY_ACCOUNT = "Zirat Süper Şube · Vadesiz TL";
+const MY_ACCOUNT = "Ziraat Süper Şube · Vadesiz TL";
 const MY_NAME = "Muhammed Yılmaz";
 
 const shortcuts = [
@@ -128,7 +128,7 @@ export function ZiratMobile() {
     const r   = buildDepositReceipt();
     setBalance(b => b + num);
     setTransactions(t => [{
-      id: r.id, title: "Para Yatırma", subtitle: "Zirat Süper Şube",
+      id: r.id, title: "Para Yatırma", subtitle: "Ziraat Süper Şube",
       amount: `+${r.amount}`, rawAmount: num,
       date: `Bugün · ${shortTime()}`, kind: "credit", receipt: r,
     }, ...t]);
@@ -170,7 +170,7 @@ export function ZiratMobile() {
                   </button>
                   <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/50 bg-white/15 px-4">
                     <Search size={19} />
-                    <span className="text-[14px]">Zirat Mobil&apos;de Ara</span>
+                    <span className="text-[14px]">Ziraat Mobil&apos;de Ara</span>
                   </div>
                   <button aria-label="Mesajlar" className="grid h-11 w-11 place-items-center rounded-xl border border-white/40 bg-white/15 active:scale-95">
                     <MessageSquare size={21} />
@@ -202,7 +202,7 @@ export function ZiratMobile() {
               {tab === "accounts" ? (
                 <section className="pt-5">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-[17px] font-bold uppercase tracking-wide text-[#c9162d]">Zirat Süper Şube</h2>
+                    <h2 className="text-[17px] font-bold uppercase tracking-wide text-[#c9162d]">Ziraat Süper Şube</h2>
                     <button aria-label="Paylaş" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
                       <Share2 size={17} className="text-[#555]" />
                     </button>
@@ -230,7 +230,7 @@ export function ZiratMobile() {
                 <section className="mt-5 rounded-2xl bg-[#f1eded] p-5">
                   <div className="flex items-center gap-3">
                     <CreditCard className="text-[#d3132b]" />
-                    <div><p className="font-bold">Zirat Bonus Kart</p><p className="text-sm text-[#777276]">•••• 2468</p></div>
+                    <div><p className="font-bold">Ziraat Bonus Kart</p><p className="text-sm text-[#777276]">•••• 2468</p></div>
                   </div>
                   <p className="mt-5 text-sm text-[#777276]">Kullanılabilir limit</p>
                   <p className="text-2xl font-bold">28.750,00 TL</p>
