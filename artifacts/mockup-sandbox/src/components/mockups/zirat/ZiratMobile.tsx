@@ -64,10 +64,10 @@ const MY_ACCOUNT = "Ziraat Süper Şube · Vadesiz TL";
 const MY_NAME = "Muhammed Yılmaz";
 
 // Custom SVG for ATM withdrawal (QR ile Para Çekme)
-function AtmDownIcon({ size = 20 }: { size?: number }) {
+function AtmDownIcon({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       {/* ATM body */}
       <rect x="3" y="2" width="18" height="20" rx="2.5" />
       {/* Screen */}
@@ -80,10 +80,10 @@ function AtmDownIcon({ size = 20 }: { size?: number }) {
 }
 
 const shortcuts = [
-  { label: "Varlıklarım",        icon: PieChart,     tone: "bg-[#fde6e9] text-[#d3132b]",  action: "assets",   customIcon: null              },
-  { label: "Son İşlemler",       icon: ClipboardList,tone: "bg-[#eeeafb] text-[#7466b6]",  action: "txns",     customIcon: null              },
-  { label: "QR ile Para\nÇekme", icon: null,         tone: "bg-[#fff0e8] text-[#e07c4f]",  action: "qr",       customIcon: <AtmDownIcon />   },
-  { label: "Para\nTransferi",    icon: Banknote,     tone: "bg-[#e7f0f9] text-[#40739f]",  action: "transfer", customIcon: null              },
+  { label: "Varlıklarım",        icon: PieChart,      action: "assets",   customIcon: null            },
+  { label: "Son İşlemler",       icon: ClipboardList, action: "txns",     customIcon: null            },
+  { label: "QR ile Para\nÇekme", icon: null,          action: "qr",       customIcon: <AtmDownIcon /> },
+  { label: "Para\nTransferi",    icon: Banknote,      action: "transfer", customIcon: null            },
 ];
 
 const navItems: { label: string; view: View; icon: React.ElementType }[] = [
@@ -283,7 +283,7 @@ export function ZiratMobile() {
                 </button>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                {shortcuts.map(({ label, icon: Icon, tone, action, customIcon }) => (
+                {shortcuts.map(({ label, icon: Icon, action, customIcon }) => (
                   <button key={label}
                     onClick={() => {
                       if (action === "txns")          setView("transactions");
@@ -293,8 +293,8 @@ export function ZiratMobile() {
                       else setView("products");
                     }}
                     className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
-                    <span className={`grid h-9 w-9 place-items-center rounded-full ${tone}`}>
-                      {customIcon ?? (Icon && <Icon size={20} />)}
+                    <span className="text-[#e30620]">
+                      {customIcon ?? (Icon && <Icon size={28} strokeWidth={1.7} />)}
                     </span>
                     <span className="whitespace-pre-line leading-tight">{label}</span>
                   </button>
