@@ -156,11 +156,14 @@ export function ZiratMobile() {
         {view === "home" && (
           <div className="overflow-y-auto pb-24">
             {/* Red header */}
-            <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{background:"#e8001c"}}>
-              {/* Diagonal silk-wave texture — 3 layered gradients */}
-              <div className="pointer-events-none absolute inset-0" style={{background:"linear-gradient(155deg,rgba(255,70,70,0.22) 0%,transparent 36%)"}} />
-              <div className="pointer-events-none absolute inset-0" style={{background:"linear-gradient(155deg,transparent 26%,rgba(0,0,0,0.20) 40%,rgba(0,0,0,0.10) 54%,transparent 68%)"}} />
-              <div className="pointer-events-none absolute inset-0" style={{background:"linear-gradient(155deg,transparent 50%,rgba(255,50,50,0.14) 64%,transparent 78%)"}} />
+            <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{
+              background:[
+                "linear-gradient(148deg, rgba(255,160,160,0.50) 0%, rgba(255,100,100,0.10) 20%, transparent 38%)",
+                "linear-gradient(148deg, transparent 20%, rgba(0,0,0,0.42) 34%, rgba(0,0,0,0.28) 50%, transparent 62%)",
+                "linear-gradient(148deg, transparent 54%, rgba(255,110,110,0.32) 67%, rgba(255,70,70,0.08) 80%, transparent 93%)",
+                "#e8001c"
+              ].join(",")
+            }}>
 
               <div className="relative">
                 <div className="mb-4" />
