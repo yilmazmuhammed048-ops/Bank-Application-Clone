@@ -230,7 +230,7 @@ export function ZiratMobile() {
               {tab === "accounts" ? (
                 <section className="pt-5">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-[17px] font-bold tracking-wide text-[#c9162d]">ZİRAAT SÜPER ŞUBE</h2>
+                    <h2 className="text-[17px] font-semibold tracking-wide text-[#c9162d]">ZİRAAT SÜPER ŞUBE</h2>
                     <button aria-label="Hesap İşlemleri" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
                       {/* Person + circular arrows — matches Ziraat reference */}
                       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
