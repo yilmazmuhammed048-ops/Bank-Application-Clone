@@ -156,27 +156,38 @@ export function ZiratMobile() {
         {view === "home" && (
           <div className="overflow-y-auto pb-24">
             {/* Red header */}
-            <header className="relative overflow-hidden bg-[#e30620] px-5 pb-5 pt-4 text-white">
-              <div className="absolute -right-16 -top-20 h-48 w-72 rotate-[22deg] rounded-[42%] bg-[#be071c]/50" />
-              <div className="absolute -left-20 top-20 h-20 w-72 rotate-[22deg] rounded-[50%] bg-[#f13a49]/35" />
+            <header className="relative overflow-hidden bg-[#d0021b] px-5 pb-6 pt-4 text-white">
+              {/* Background wave shapes — matching reference */}
+              <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 390 130" preserveAspectRatio="none" aria-hidden="true">
+                <ellipse cx="370" cy="10" rx="110" ry="90" fill="#b80018" opacity="0.55" />
+                <ellipse cx="340" cy="55" rx="80" ry="70" fill="#a5001500" opacity="0" />
+                <ellipse cx="390" cy="80" rx="100" ry="60" fill="#c0001a" opacity="0.4" />
+                <ellipse cx="50" cy="110" rx="130" ry="45" fill="#e8102a" opacity="0.25" />
+              </svg>
               <div className="relative">
-                <div className="mb-4 flex items-center justify-between text-[12px] font-semibold">
-                  <span>19:18</span>
-                  <span>▮▮▮　5G　<span className="rounded border border-white/70 px-1">50</span></span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button aria-label="Profil" className="grid h-10 w-10 place-items-center rounded-full bg-white/20 border border-white/40 text-white active:scale-95">
-                    <User size={20} />
-                  </button>
-                  <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/50 bg-white/15 px-4">
-                    <Search size={19} />
-                    <span className="text-[14px]">Ziraat Mobil&apos;de Ara</span>
+                {/* Status bar */}
+                <div className="mb-4 flex items-center justify-between text-[12px] font-medium">
+                  <span>20:13</span>
+                  <div className="flex items-center gap-1.5">
+                    <svg width="18" height="12" viewBox="0 0 18 12" fill="white" opacity="0.9"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2.5" width="3" height="9.5" rx="1"/><rect x="10" y="1" width="3" height="11" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+                    <svg width="14" height="12" viewBox="0 0 14 12" fill="white" opacity="0.9"><path d="M7 2.5C9.5 2.5 11.7 3.6 13.2 5.4L14 4.5C12.2 2.4 9.8 1 7 1 4.2 1 1.8 2.4 0 4.5l.8.9C2.3 3.6 4.5 2.5 7 2.5z"/><path d="M7 5.5c1.5 0 2.8.6 3.8 1.6l.8-.9C10.4 5 8.8 4.2 7 4.2c-1.8 0-3.4.8-4.6 2l.8.9C4.2 6.1 5.5 5.5 7 5.5z"/><circle cx="7" cy="10" r="1.5"/></svg>
+                    <span className="rounded border border-white/60 px-1 text-[11px] font-bold">38</span>
                   </div>
-                  <button aria-label="Mesajlar" className="grid h-11 w-11 place-items-center rounded-xl border border-white/40 bg-white/15 active:scale-95">
-                    <MessageSquare size={21} />
+                </div>
+                {/* Nav row */}
+                <div className="flex items-center gap-3">
+                  <button aria-label="Profil" className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full border border-white/30 bg-white/15 active:scale-95">
+                    <User size={21} />
+                  </button>
+                  <div className="flex h-[42px] flex-1 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4">
+                    <Search size={17} className="shrink-0 opacity-80" />
+                    <span className="text-[14px] opacity-90">Ziraat Mobil&apos;de Ara</span>
+                  </div>
+                  <button aria-label="Mesajlar" className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[14px] border border-white/30 bg-white/15 active:scale-95">
+                    <MessageSquare size={20} />
                   </button>
                 </div>
-                <div className="mt-5 text-[15px]">İyi Akşamlar <strong>Muhammed Yılmaz</strong></div>
+                <div className="mt-4 text-[15px]">İyi Akşamlar <strong>Muhammed Yılmaz</strong></div>
               </div>
             </header>
 
@@ -202,7 +213,7 @@ export function ZiratMobile() {
               {tab === "accounts" ? (
                 <section className="pt-5">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-[17px] font-bold tracking-wide text-[#c9162d]">Ziraat Süper Şube</h2>
+                    <h2 className="text-[17px] font-bold tracking-wide text-[#c9162d]">ZİRAAT SÜPER ŞUBE</h2>
                     <button aria-label="Paylaş" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
                       <Share2 size={17} className="text-[#555]" />
                     </button>
