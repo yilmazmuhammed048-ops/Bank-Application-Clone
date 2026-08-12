@@ -3,9 +3,9 @@ import {
   ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight,
   Check, ChevronDown, ChevronRight, Copy, CreditCard,
   FileText, Home, Landmark, Menu, MessageSquare,
-  MoreVertical, PanelLeft, PiggyBank, QrCode,
-  ReceiptText, Search, Send, ShieldCheck, Sparkles,
-  WalletCards, X,
+  MoreVertical, PiggyBank, QrCode,
+  ReceiptText, Search, Send, Share2, ShieldCheck, Sparkles,
+  User, WalletCards, X,
 } from "lucide-react";
 
 type View = "home" | "products" | "actions" | "applications" | "menu" | "transactions";
@@ -76,11 +76,13 @@ const navItems: { label: string; view: View; icon: React.ElementType }[] = [
 export function ZiratMobile() {
   const [view, setView]               = useState<View>("home");
   const [panel, setPanel]             = useState<Panel>(null);
-  const [balanceVisible, setBalanceVisible] = useState(true);
   const [tab, setTab]                 = useState<"accounts" | "cards">("accounts");
-  const [balance, setBalance]         = useState(12_480.75);
+  const [balance, setBalance]         = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
+  const [talimatlarOpen, setTalimatlarOpen] = useState(false);
+  const [ajandaOpen, setAjandaOpen]   = useState(false);
+  const [kurTab, setKurTab]           = useState<"ziraat" | "piyasa" | "borsa">("ziraat");
 
   /* transfer / deposit inputs */
   const [recipient, setRecipient]     = useState("Ayşe Demir");
@@ -152,20 +154,21 @@ export function ZiratMobile() {
 
         {/* ── HOME ─────────────────────────────────────── */}
         {view === "home" && (
-          <>
+          <div className="overflow-y-auto pb-24">
+            {/* Red header */}
             <header className="relative overflow-hidden bg-[#e30620] px-5 pb-5 pt-4 text-white">
               <div className="absolute -right-16 -top-20 h-48 w-72 rotate-[22deg] rounded-[42%] bg-[#be071c]/50" />
               <div className="absolute -left-20 top-20 h-20 w-72 rotate-[22deg] rounded-[50%] bg-[#f13a49]/35" />
               <div className="relative">
                 <div className="mb-4 flex items-center justify-between text-[12px] font-semibold">
-                  <span>09:41</span>
-                  <span>▮▮▮　5G　<span className="rounded border border-white/70 px-1">82</span></span>
+                  <span>19:18</span>
+                  <span>▮▮▮　5G　<span className="rounded border border-white/70 px-1">50</span></span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button aria-label="Profil" className="grid h-10 w-10 place-items-center rounded-full bg-white text-[#72767b] active:scale-95">
-                    <PanelLeft size={20} />
+                  <button aria-label="Profil" className="grid h-10 w-10 place-items-center rounded-full bg-white/20 border border-white/40 text-white active:scale-95">
+                    <User size={20} />
                   </button>
-                  <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/70 bg-[#c70a20]/30 px-4">
+                  <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/50 bg-white/15 px-4">
                     <Search size={19} />
                     <span className="text-[14px]">Zirat Mobil&apos;de Ara</span>
                   </div>
@@ -177,12 +180,13 @@ export function ZiratMobile() {
               </div>
             </header>
 
-            <button className="flex w-full items-center justify-between bg-[#f0eeee] px-5 py-4 text-left text-[17px] font-bold">
+            {/* İpuçları banner */}
+            <button className="flex w-full items-center justify-between border-b border-[#e8e3e3] bg-white px-5 py-4 text-left text-[16px] font-semibold">
               İpuçlarına hemen göz at! <ChevronDown size={20} className="text-[#db1028]" />
             </button>
 
-            <div className="px-5 pb-28">
-              {/* Tabs */}
+            <div className="px-5">
+              {/* Account tabs */}
               <div className="mt-5 flex items-end gap-7 border-b border-[#dedada]">
                 {(["accounts","cards"] as const).map(t => (
                   <button key={t} onClick={() => setTab(t)}
@@ -190,8 +194,8 @@ export function ZiratMobile() {
                     {t === "accounts" ? "Hesaplarım" : "Kredi Kartlarım"}
                   </button>
                 ))}
-                <button aria-label="Daha fazla" className="ml-auto mb-2 grid h-10 w-10 place-items-center rounded-xl bg-[#efeeee]">
-                  <MoreVertical size={19} />
+                <button aria-label="Daha fazla" className="ml-auto mb-2 grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
+                  <MoreVertical size={18} />
                 </button>
               </div>
 
@@ -199,7 +203,9 @@ export function ZiratMobile() {
                 <section className="pt-5">
                   <div className="flex items-center justify-between">
                     <h2 className="text-[17px] font-bold uppercase tracking-wide text-[#c9162d]">Zirat Süper Şube</h2>
-                    <button aria-label="Seçenekler" className="grid h-10 w-10 place-items-center rounded-xl bg-[#efeeee]"><MoreVertical size={19} /></button>
+                    <button aria-label="Paylaş" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
+                      <Share2 size={17} className="text-[#555]" />
+                    </button>
                   </div>
                   <div className="mt-3 flex items-center gap-3">
                     <span className="rounded-lg bg-[#b7a66d] px-3 py-1.5 text-[12px] font-bold text-white">Vadesiz TL</span>
@@ -207,25 +213,18 @@ export function ZiratMobile() {
                   </div>
                   <div className="mt-4 flex items-center justify-between text-[14px] text-[#49494d]">
                     <span>{MY_IBAN}</span>
-                    <ArrowUpRight size={19} className="text-[#d3132b]" />
+                    <button aria-label="Paylaş" className="text-[#d3132b] active:scale-90">
+                      <Share2 size={18} />
+                    </button>
                   </div>
-                  <div className="mt-5">
-                    <div className="flex items-center gap-2 text-[12px] text-[#6c6a6c]">
-                      Bakiye
-                      <button onClick={() => setBalanceVisible(v => !v)} className="text-[#c9162d]">
-                        {balanceVisible ? "Gizle" : "Göster"}
-                      </button>
-                    </div>
-                    <div className="text-[22px] font-bold">{balanceVisible ? formatTry(balance) : "•••••• TL"}</div>
+                  <div className="mt-4">
+                    <p className="text-[12px] text-[#6c6a6c]">Bakiye</p>
+                    <p className="text-[24px] font-bold">{formatTry(balance)}</p>
                   </div>
                   <div className="mt-5 grid grid-cols-2 gap-3">
                     <button onClick={() => setView("products")} className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-semibold text-white active:scale-[.98]">Tüm Hesaplarım</button>
                     <button onClick={() => setView("transactions")} className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-semibold text-white active:scale-[.98]">Hesap Hareketleri</button>
                   </div>
-                  <button onClick={() => openPanel("deposit")}
-                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#e30620] bg-white py-3.5 text-[14px] font-bold text-[#d3132b] active:scale-[.98]">
-                    <ArrowDownToLine size={18} /> Para Yatır
-                  </button>
                 </section>
               ) : (
                 <section className="mt-5 rounded-2xl bg-[#f1eded] p-5">
@@ -237,44 +236,151 @@ export function ZiratMobile() {
                   <p className="text-2xl font-bold">28.750,00 TL</p>
                 </section>
               )}
-
-              {/* Shortcuts */}
-              <section className="mt-7 -mx-5 bg-[#f0eeee] px-5 py-5">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-[18px] font-bold">Kısayollarım</h2>
-                  <button onClick={() => setView("actions")} className="flex items-center gap-1 text-[13px]">
-                    Tüm Kısayollarım <ArrowRight size={17} className="text-[#e30620]" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {shortcuts.map(({ label, icon: Icon, tone, action }) => (
-                    <button key={label}
-                      onClick={() => {
-                        if (action === "txns")     setView("transactions");
-                        else if (action === "qr")  openPanel("qr");
-                        else if (action === "transfer") openPanel("transfer");
-                        else setView("products");
-                      }}
-                      className="flex min-h-[102px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
-                      <span className={`grid h-9 w-9 place-items-center rounded-full ${tone}`}><Icon size={20} /></span>
-                      <span className="whitespace-pre-line leading-tight">{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              {/* Upcoming */}
-              <section className="mt-6 flex items-center justify-between py-2">
-                <h2 className="text-[18px] font-bold">Yaklaşan Talimatlar</h2>
-                <ChevronDown size={20} className="text-[#d3132b]" />
-              </section>
-              <div className="mt-1 flex items-center gap-3 rounded-xl border border-[#ece7e7] bg-white p-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-[#fff0f1] text-[#d3132b]"><ReceiptText size={19} /></div>
-                <div className="flex-1"><p className="text-sm font-semibold">Kira ödemesi</p><p className="text-xs text-[#858083]">12 Haziran · 4.500,00 TL</p></div>
-                <ChevronRight size={18} className="text-[#b2abad]" />
-              </div>
             </div>
-          </>
+
+            {/* Kısayollarım */}
+            <section className="mt-6 bg-[#f5f3f3] px-5 py-5">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-[18px] font-bold">Kısayollarım</h2>
+                <button onClick={() => setView("actions")} className="flex items-center gap-1 text-[13px] text-[#242326]">
+                  Tüm Kısayollarım <ArrowRight size={16} className="text-[#e30620]" />
+                </button>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {shortcuts.map(({ label, icon: Icon, tone, action }) => (
+                  <button key={label}
+                    onClick={() => {
+                      if (action === "txns")          setView("transactions");
+                      else if (action === "qr")       openPanel("qr");
+                      else if (action === "transfer") openPanel("transfer");
+                      else if (action === "deposit")  openPanel("deposit");
+                      else setView("products");
+                    }}
+                    className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
+                    <span className={`grid h-9 w-9 place-items-center rounded-full ${tone}`}><Icon size={20} /></span>
+                    <span className="whitespace-pre-line leading-tight">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Yaklaşan Talimatlarım */}
+            <button onClick={() => setTalimatlarOpen(o => !o)}
+              className="flex w-full items-center justify-between border-b border-[#ece8e8] bg-white px-5 py-4 text-left text-[17px] font-bold">
+              Yaklaşan Talimatlarım
+              <ChevronDown size={20} className={`text-[#d3132b] transition-transform ${talimatlarOpen ? "rotate-180" : ""}`} />
+            </button>
+            {talimatlarOpen && (
+              <div className="bg-white px-5 pb-4">
+                <div className="flex items-center gap-3 rounded-xl border border-[#ece7e7] p-3">
+                  <div className="grid h-10 w-10 place-items-center rounded-full bg-[#fff0f1] text-[#d3132b]"><ReceiptText size={19} /></div>
+                  <div className="flex-1"><p className="text-sm font-semibold">Kira ödemesi</p><p className="text-xs text-[#858083]">12 Ağustos · 4.500,00 TL</p></div>
+                  <ChevronRight size={18} className="text-[#b2abad]" />
+                </div>
+              </div>
+            )}
+
+            {/* Finansal Ajanda */}
+            <button onClick={() => setAjandaOpen(o => !o)}
+              className="flex w-full items-center justify-between border-b border-[#ece8e8] bg-white px-5 py-4 text-left text-[17px] font-bold">
+              Finansal Ajanda
+              <ChevronDown size={20} className={`text-[#d3132b] transition-transform ${ajandaOpen ? "rotate-180" : ""}`} />
+            </button>
+            {ajandaOpen && (
+              <div className="bg-white px-5 pb-4 text-sm text-[#777276]">
+                <p className="py-3">Yaklaşan finansal etkinlik bulunmamaktadır.</p>
+              </div>
+            )}
+
+            {/* Hayatın Artısı Ziraat'te */}
+            <section className="mt-2 bg-white px-5 pt-5 pb-6">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="text-[#e30620]">✦</span>
+                <h2 className="text-[17px] font-bold">Hayatın Artısı Ziraat&apos;te</h2>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: "Aracım",       bg: "from-[#1a3a5c] to-[#2d6aad]" },
+                  { label: "Evim",         bg: "from-[#2d4a1e] to-[#4e8a32]" },
+                  { label: "İşim",         bg: "from-[#2a1a4a] to-[#5c3a9a]" },
+                  { label: "Ailem",        bg: "from-[#6b2a1a] to-[#c85a3a]" },
+                  { label: "Seyahatim",    bg: "from-[#1a4a3a] to-[#c88a2a]" },
+                  { label: "Etkinliklerim",bg: "from-[#1a1a2a] to-[#3a3a5a]" },
+                ].map(({ label, bg }) => (
+                  <button key={label}
+                    className={`relative h-[108px] overflow-hidden rounded-xl bg-gradient-to-br ${bg} text-left active:scale-[.98]`}>
+                    <span className="absolute bottom-2 left-2.5 text-[13px] font-bold text-white drop-shadow">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Süper Şube dark banner */}
+            <section className="bg-[#1c2b33] px-5 py-6 text-white">
+              <div className="flex items-center gap-2 text-[#d4a93a] text-[13px] font-bold mb-3">
+                <span>⏳</span> Süper Şube
+              </div>
+              <p className="text-[14px] leading-relaxed text-white/85">
+                Bir sonraki ay <strong className="text-white">Süper Şube Platin Müşteri</strong> avantajlarından faydalanabilmek için{" "}
+                <strong className="text-white">5 hedefi</strong> veya yıldızlı kriterlerden birini tamamlayın.
+              </p>
+              <button className="mt-4 rounded-full bg-[#e30620] px-5 py-2.5 text-[14px] font-bold text-white active:scale-[.98]">
+                Süper Şube İşlemleri
+              </button>
+            </section>
+
+            {/* Kur tablosu */}
+            <section className="bg-white px-5 pt-5 pb-6">
+              {/* Tabs */}
+              <div className="flex border-b border-[#e8e3e3] mb-4">
+                {(["ziraat","piyasa","borsa"] as const).map(k => (
+                  <button key={k} onClick={() => setKurTab(k)}
+                    className={`mr-5 pb-3 text-[14px] font-semibold transition-colors ${kurTab === k ? "border-b-2 border-[#e30620] text-[#242326]" : "text-[#999598]"}`}>
+                    {k === "ziraat" ? "Ziraat Verileri" : k === "piyasa" ? "Piyasa Verileri" : "Borsa Verileri"}
+                  </button>
+                ))}
+              </div>
+
+              {kurTab === "ziraat" && (
+                <>
+                  <div className="flex justify-between text-[12px] text-[#999598] mb-2 px-1">
+                    <span className="w-16" />
+                    <span>Alış</span>
+                    <span>Satış</span>
+                  </div>
+                  <div className="divide-y divide-[#f0ecec]">
+                    {[
+                      ["USD", "46,3461",         "49,1676"       ],
+                      ["EUR", "53,4926",         "56,7493"       ],
+                      ["GBP", "62,6042",         "66,4154"       ],
+                      ["A02", "6.519,434925",    "7.462,719400"  ],
+                      ["G02", "97,157092",       "111,214565"    ],
+                    ].map(([cur, alis, satis]) => (
+                      <div key={cur} className="flex items-center justify-between py-3 px-1 text-[14px]">
+                        <span className="w-16 font-semibold">{cur}</span>
+                        <span className="text-[#242326]">₺{alis}</span>
+                        <span className="text-[#242326]">₺{satis}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between text-[12px] text-[#999598]">
+                    <span>12/08/2026 17:55</span>
+                    <button className="flex items-center gap-1 text-[#242326] font-semibold">
+                      Diğer Kurları Göster <ArrowRight size={14} className="text-[#e30620]" />
+                    </button>
+                  </div>
+                </>
+              )}
+              {kurTab !== "ziraat" && (
+                <p className="py-8 text-center text-[14px] text-[#999598]">Veri yükleniyor…</p>
+              )}
+
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <button className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-semibold text-white active:scale-[.98]">Döviz İşlemleri</button>
+                <button className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-semibold text-white active:scale-[.98]">Altın İşlemleri</button>
+              </div>
+            </section>
+          </div>
         )}
 
         {/* ── TRANSACTIONS ─────────────────────────────── */}
