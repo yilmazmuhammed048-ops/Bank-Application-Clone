@@ -7,12 +7,13 @@ import tileAilem    from "@/assets/tile-ailem.jpg";
 import tileSeyahat  from "@/assets/tile-seyahatim.jpg";
 import tileEtkinlik from "@/assets/tile-etkinlik.jpg";
 import {
-  AlignJustify, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowRight,
-  Check, ChevronDown, ChevronRight, ClipboardCheck, Copy, CreditCard,
+  AlignJustify, ArrowDownToLine, ArrowLeft, ArrowRight,
+  Banknote, Check, ChevronDown, ChevronRight, ClipboardCheck, ClipboardList,
+  Clock, Copy, CreditCard,
   FileText, Home, Landmark, LayoutGrid, MessageSquare,
-  MoreVertical, QrCode, Receipt,
-  ReceiptText, RefreshCw, Repeat2, Search, Send, Share2, ShieldCheck, Sparkles,
-  TrendingUp, User, WalletCards, X,
+  MoreVertical, QrCode,
+  ReceiptText, Repeat2, Search, Send, Share2, ShieldCheck, Sparkles,
+  TrendingUp, User, X,
 } from "lucide-react";
 
 type View = "home" | "products" | "actions" | "applications" | "menu" | "transactions";
@@ -63,10 +64,10 @@ const MY_ACCOUNT = "Ziraat Süper Şube · Vadesiz TL";
 const MY_NAME = "Muhammed Yılmaz";
 
 const shortcuts = [
-  { label: "Varlıklarım",        icon: TrendingUp,      tone: "bg-[#fde6e9] text-[#d3132b]",  action: "assets"    },
-  { label: "Son İşlemler",       icon: Receipt,         tone: "bg-[#eeeafb] text-[#7466b6]",  action: "txns"      },
-  { label: "QR ile Para\nÇekme", icon: QrCode,          tone: "bg-[#fff0e8] text-[#e07c4f]",  action: "qr"        },
-  { label: "Para\nTransferi",    icon: ArrowLeftRight,  tone: "bg-[#e7f0f9] text-[#40739f]",  action: "transfer"  },
+  { label: "Varlıklarım",        icon: Clock,         tone: "bg-[#fde6e9] text-[#d3132b]",  action: "assets"    },
+  { label: "Son İşlemler",       icon: ClipboardList, tone: "bg-[#eeeafb] text-[#7466b6]",  action: "txns"      },
+  { label: "QR ile Para\nÇekme", icon: ArrowDownToLine, tone: "bg-[#fff0e8] text-[#e07c4f]", action: "qr"       },
+  { label: "Para\nTransferi",    icon: Banknote,      tone: "bg-[#e7f0f9] text-[#40739f]",  action: "transfer"  },
 ];
 
 const navItems: { label: string; view: View; icon: React.ElementType }[] = [
@@ -215,7 +216,15 @@ export function ZiratMobile() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-[17px] font-bold tracking-wide text-[#c9162d]">ZİRAAT SÜPER ŞUBE</h2>
                     <button aria-label="Hesap İşlemleri" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
-                      <RefreshCw size={17} className="text-[#555]" />
+                      {/* Person + circular arrows — matches Ziraat reference */}
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="8" r="3" />
+                        <path d="M6 20v-1a6 6 0 0 1 12 0v1" />
+                        <path d="M3.5 10.5A9 9 0 0 1 20 7.5" />
+                        <path d="M20.5 13.5A9 9 0 0 1 4 16.5" />
+                        <polyline points="19 4 20 7.5 16.5 8" />
+                        <polyline points="5 20 4 16.5 7.5 16" />
+                      </svg>
                     </button>
                   </div>
                   <div className="mt-3 flex items-center gap-3">
