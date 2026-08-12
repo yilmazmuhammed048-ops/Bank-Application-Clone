@@ -165,15 +165,7 @@ export function ZiratMobile() {
                 <ellipse cx="50" cy="110" rx="130" ry="45" fill="#e8102a" opacity="0.25" />
               </svg>
               <div className="relative">
-                {/* Status bar */}
-                <div className="mb-4 flex items-center justify-between text-[12px] font-medium">
-                  <span>20:13</span>
-                  <div className="flex items-center gap-1.5">
-                    <svg width="18" height="12" viewBox="0 0 18 12" fill="white" opacity="0.9"><rect x="0" y="4" width="3" height="8" rx="1"/><rect x="5" y="2.5" width="3" height="9.5" rx="1"/><rect x="10" y="1" width="3" height="11" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
-                    <svg width="14" height="12" viewBox="0 0 14 12" fill="white" opacity="0.9"><path d="M7 2.5C9.5 2.5 11.7 3.6 13.2 5.4L14 4.5C12.2 2.4 9.8 1 7 1 4.2 1 1.8 2.4 0 4.5l.8.9C2.3 3.6 4.5 2.5 7 2.5z"/><path d="M7 5.5c1.5 0 2.8.6 3.8 1.6l.8-.9C10.4 5 8.8 4.2 7 4.2c-1.8 0-3.4.8-4.6 2l.8.9C4.2 6.1 5.5 5.5 7 5.5z"/><circle cx="7" cy="10" r="1.5"/></svg>
-                    <span className="rounded border border-white/60 px-1 text-[11px] font-bold">38</span>
-                  </div>
-                </div>
+                <div className="mb-4" />
                 {/* Nav row */}
                 <div className="flex items-center gap-3">
                   <button aria-label="Profil" className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full border border-white/30 bg-white/15 active:scale-95">
