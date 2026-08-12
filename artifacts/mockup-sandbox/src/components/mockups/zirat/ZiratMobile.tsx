@@ -157,13 +157,10 @@ export function ZiratMobile() {
           <div className="overflow-y-auto pb-24">
             {/* Red header */}
             <header className="relative overflow-hidden bg-[#d0021b] px-5 pb-6 pt-4 text-white">
-              {/* Background wave shapes — matching reference */}
-              <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 390 130" preserveAspectRatio="none" aria-hidden="true">
-                <ellipse cx="370" cy="10" rx="110" ry="90" fill="#b80018" opacity="0.55" />
-                <ellipse cx="340" cy="55" rx="80" ry="70" fill="#a5001500" opacity="0" />
-                <ellipse cx="390" cy="80" rx="100" ry="60" fill="#c0001a" opacity="0.4" />
-                <ellipse cx="50" cy="110" rx="130" ry="45" fill="#e8102a" opacity="0.25" />
-              </svg>
+              {/* Background circles — matching reference */}
+              <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#a50019]" style={{opacity:0.75}} />
+              <div className="pointer-events-none absolute right-12 top-4 h-40 w-40 rounded-full bg-[#8c0014]" style={{opacity:0.55}} />
+              <div className="pointer-events-none absolute -left-10 bottom-0 h-32 w-48 rounded-full bg-[#e8203a]" style={{opacity:0.18}} />
               <div className="relative">
                 <div className="mb-4" />
                 {/* Nav row */}
