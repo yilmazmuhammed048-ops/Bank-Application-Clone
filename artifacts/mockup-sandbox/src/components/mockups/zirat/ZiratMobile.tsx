@@ -331,11 +331,15 @@ export function ZiratMobile() {
             )}
 
             {/* Hayatın Artısı Ziraat'te */}
-            <section className="mt-2 bg-white px-5 pt-5 pb-6">
+            <section className="bg-[#f4f2f2] px-5 pt-5 pb-6">
               <div className="mb-4 flex items-center gap-2">
-                {/* Clover/plus icon matching reference */}
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
-                  <path d="M10 2C10 2 10 6 10 8C10 6 14 4 16 6C18 8 16 12 14 12C16 12 18 14 16 16C14 18 10 16 10 14C10 16 6 18 4 16C2 14 4 12 6 12C4 12 2 8 4 6C6 4 10 6 10 8C10 6 10 2 10 2Z" fill="#e30620"/>
+                {/* Ziraat 4-petal clover — outlined style */}
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" className="shrink-0">
+                  <circle cx="11" cy="5.5" r="4" fill="#e30620"/>
+                  <circle cx="11" cy="16.5" r="4" fill="#e30620"/>
+                  <circle cx="5.5" cy="11" r="4" fill="#e30620"/>
+                  <circle cx="16.5" cy="11" r="4" fill="#e30620"/>
+                  <circle cx="11" cy="11" r="3.2" fill="#f4f2f2"/>
                 </svg>
                 <h2 className="text-[17px] font-bold">Hayatın Artısı Ziraat&apos;te</h2>
               </div>
@@ -359,17 +363,39 @@ export function ZiratMobile() {
             </section>
 
             {/* Süper Şube dark banner */}
-            <section className="bg-[#1c2b33] px-5 py-6 text-white">
-              <div className="flex items-center gap-2 text-[#d4a93a] text-[13px] font-bold mb-3">
-                <span>⏳</span> Süper Şube
+            <section className="relative overflow-hidden bg-[#1e2c34] px-5 py-6 text-white">
+              {/* Diagonal chevron watermark */}
+              <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <pattern id="ssChevron" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
+                      <text x="2" y="24" fontSize="22" fill="white" opacity="0.07" fontFamily="sans-serif" fontWeight="bold">&gt;</text>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#ssChevron)"/>
+                </svg>
               </div>
-              <p className="text-[14px] leading-relaxed text-white/85">
-                Bir sonraki ay <strong className="text-white">Süper Şube Platin Müşteri</strong> avantajlarından faydalanabilmek için{" "}
-                <strong className="text-white">5 hedefi</strong> veya yıldızlı kriterlerden birini tamamlayın.
-              </p>
-              <button className="mt-4 rounded-full bg-[#e30620] px-5 py-2.5 text-[14px] font-bold text-white active:scale-[.98]">
-                Süper Şube İşlemleri
-              </button>
+
+              {/* Content */}
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-3">
+                  {/* Hourglass SVG icon */}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4a93a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 3h14"/>
+                    <path d="M5 21h14"/>
+                    <path d="M5 3l7 8.5L5 21"/>
+                    <path d="M19 3l-7 8.5L19 21"/>
+                  </svg>
+                  <span className="text-[#d4a93a] text-[13px] font-bold">Süper Şube</span>
+                </div>
+                <p className="text-[14px] leading-relaxed text-white/85">
+                  Bir sonraki ay <strong className="text-white">Süper Şube Platin Müşteri</strong> avantajlarından faydalanabilmek için{" "}
+                  <strong className="text-white">5 hedefi</strong> veya yıldızlı kriterlerden birini tamamlayın.
+                </p>
+                <button className="mt-4 rounded-full bg-[#e30620] px-5 py-2.5 text-[14px] font-bold text-white active:scale-[.98]">
+                  Süper Şube İşlemleri
+                </button>
+              </div>
             </section>
 
             {/* Kur tablosu */}
