@@ -156,23 +156,27 @@ export function ZiratMobile() {
         {view === "home" && (
           <div className="overflow-y-auto pb-24">
             {/* Red header */}
-            <header className="relative overflow-hidden bg-[#d0021b] px-5 pb-6 pt-4 text-white">
-              {/* Background circles — matching reference */}
-              <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-[#a50019]" style={{opacity:0.75}} />
-              <div className="pointer-events-none absolute right-12 top-4 h-40 w-40 rounded-full bg-[#8c0014]" style={{opacity:0.55}} />
-              <div className="pointer-events-none absolute -left-10 bottom-0 h-32 w-48 rounded-full bg-[#e8203a]" style={{opacity:0.18}} />
+            <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{background:"#e8001c"}}>
+              {/* Diagonal silk-wave texture — 3 layered gradients */}
+              <div className="pointer-events-none absolute inset-0" style={{background:"linear-gradient(155deg,rgba(255,70,70,0.22) 0%,transparent 36%)"}} />
+              <div className="pointer-events-none absolute inset-0" style={{background:"linear-gradient(155deg,transparent 26%,rgba(0,0,0,0.20) 40%,rgba(0,0,0,0.10) 54%,transparent 68%)"}} />
+              <div className="pointer-events-none absolute inset-0" style={{background:"linear-gradient(155deg,transparent 50%,rgba(255,50,50,0.14) 64%,transparent 78%)"}} />
+
               <div className="relative">
                 <div className="mb-4" />
                 {/* Nav row */}
                 <div className="flex items-center gap-3">
-                  <button aria-label="Profil" className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full border border-white/30 bg-white/15 active:scale-95">
-                    <User size={21} />
+                  {/* Profile: solid white circle */}
+                  <button aria-label="Profil" className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-full bg-white active:scale-95">
+                    <User size={22} className="text-[#aaa]" />
                   </button>
-                  <div className="flex h-[42px] flex-1 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4">
-                    <Search size={17} className="shrink-0 opacity-80" />
-                    <span className="text-[14px] opacity-90">Ziraat Mobil&apos;de Ara</span>
+                  {/* Search bar */}
+                  <div className="flex h-[44px] flex-1 items-center gap-2 rounded-full border border-white/55 bg-white/10 px-4">
+                    <Search size={17} className="shrink-0" />
+                    <span className="text-[14px]">Ziraat Mobil&apos;de Ara</span>
                   </div>
-                  <button aria-label="Mesajlar" className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[14px] border border-white/30 bg-white/15 active:scale-95">
+                  {/* Message button */}
+                  <button aria-label="Mesajlar" className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-2xl bg-white/20 active:scale-95">
                     <MessageSquare size={20} />
                   </button>
                 </div>
