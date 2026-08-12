@@ -202,7 +202,7 @@ export function ZiratMobile() {
               {tab === "accounts" ? (
                 <section className="pt-5">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-[17px] font-bold uppercase tracking-wide text-[#c9162d]">Ziraat Süper Şube</h2>
+                    <h2 className="text-[17px] font-bold tracking-wide text-[#c9162d]">Ziraat Süper Şube</h2>
                     <button aria-label="Paylaş" className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
                       <Share2 size={17} className="text-[#555]" />
                     </button>
