@@ -158,9 +158,9 @@ export function ZiratMobile() {
             {/* Red header */}
             <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{
               background:[
-                "linear-gradient(148deg, rgba(255,160,160,0.50) 0%, rgba(255,100,100,0.10) 20%, transparent 38%)",
-                "linear-gradient(148deg, transparent 20%, rgba(0,0,0,0.42) 34%, rgba(0,0,0,0.28) 50%, transparent 62%)",
-                "linear-gradient(148deg, transparent 54%, rgba(255,110,110,0.32) 67%, rgba(255,70,70,0.08) 80%, transparent 93%)",
+                "linear-gradient(148deg, rgba(255,220,220,0.18) 0%, rgba(255,180,180,0.04) 22%, transparent 38%)",
+                "linear-gradient(148deg, transparent 24%, rgba(0,0,0,0.14) 36%, rgba(0,0,0,0.09) 50%, transparent 62%)",
+                "linear-gradient(148deg, transparent 56%, rgba(255,180,180,0.12) 68%, transparent 82%)",
                 "#e8001c"
               ].join(",")
             }}>
