@@ -9,9 +9,9 @@ import tileEtkinlik from "@/assets/tile-etkinlik.jpg";
 import {
   AlignJustify, ArrowDownToLine, ArrowLeft, ArrowRight,
   Banknote, Check, ChevronDown, ChevronRight, ClipboardCheck, ClipboardList,
-  Clock, Copy, CreditCard,
+  Copy, CreditCard,
   FileText, Home, Landmark, LayoutGrid, MessageSquare,
-  MoreVertical, QrCode,
+  MoreVertical, PieChart, QrCode,
   ReceiptText, Repeat2, Search, Send, Share2, ShieldCheck, Sparkles,
   TrendingUp, User, X,
 } from "lucide-react";
@@ -63,11 +63,27 @@ const MY_IBAN = "TR31 0001 0090 1041 2062 7050 01";
 const MY_ACCOUNT = "Ziraat Süper Şube · Vadesiz TL";
 const MY_NAME = "Muhammed Yılmaz";
 
+// Custom SVG for ATM withdrawal (QR ile Para Çekme)
+function AtmDownIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {/* ATM body */}
+      <rect x="3" y="2" width="18" height="20" rx="2.5" />
+      {/* Screen */}
+      <rect x="6" y="5" width="12" height="8" rx="1.5" />
+      {/* Down arrow */}
+      <line x1="12" y1="15" x2="12" y2="20" />
+      <polyline points="9 17.5 12 20.5 15 17.5" />
+    </svg>
+  );
+}
+
 const shortcuts = [
-  { label: "Varlıklarım",        icon: Clock,         tone: "bg-[#fde6e9] text-[#d3132b]",  action: "assets"    },
-  { label: "Son İşlemler",       icon: ClipboardList, tone: "bg-[#eeeafb] text-[#7466b6]",  action: "txns"      },
-  { label: "QR ile Para\nÇekme", icon: ArrowDownToLine, tone: "bg-[#fff0e8] text-[#e07c4f]", action: "qr"       },
-  { label: "Para\nTransferi",    icon: Banknote,      tone: "bg-[#e7f0f9] text-[#40739f]",  action: "transfer"  },
+  { label: "Varlıklarım",        icon: PieChart,     tone: "bg-[#fde6e9] text-[#d3132b]",  action: "assets",   customIcon: null              },
+  { label: "Son İşlemler",       icon: ClipboardList,tone: "bg-[#eeeafb] text-[#7466b6]",  action: "txns",     customIcon: null              },
+  { label: "QR ile Para\nÇekme", icon: null,         tone: "bg-[#fff0e8] text-[#e07c4f]",  action: "qr",       customIcon: <AtmDownIcon />   },
+  { label: "Para\nTransferi",    icon: Banknote,     tone: "bg-[#e7f0f9] text-[#40739f]",  action: "transfer", customIcon: null              },
 ];
 
 const navItems: { label: string; view: View; icon: React.ElementType }[] = [
@@ -267,7 +283,7 @@ export function ZiratMobile() {
                 </button>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                {shortcuts.map(({ label, icon: Icon, tone, action }) => (
+                {shortcuts.map(({ label, icon: Icon, tone, action, customIcon }) => (
                   <button key={label}
                     onClick={() => {
                       if (action === "txns")          setView("transactions");
@@ -277,7 +293,9 @@ export function ZiratMobile() {
                       else setView("products");
                     }}
                     className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
-                    <span className={`grid h-9 w-9 place-items-center rounded-full ${tone}`}><Icon size={20} /></span>
+                    <span className={`grid h-9 w-9 place-items-center rounded-full ${tone}`}>
+                      {customIcon ?? (Icon && <Icon size={20} />)}
+                    </span>
                     <span className="whitespace-pre-line leading-tight">{label}</span>
                   </button>
                 ))}
