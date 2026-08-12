@@ -1,4 +1,5 @@
 import { useState } from "react";
+import headerWaveUrl from "@/assets/header-wave.jpg";
 import {
   ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight,
   Check, ChevronDown, ChevronRight, Copy, CreditCard,
@@ -156,16 +157,11 @@ export function ZiratMobile() {
         {view === "home" && (
           <div className="overflow-y-auto pb-24">
             {/* Red header */}
-            <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{background:"#e8001c"}}>
-              {/* SVG wave — exact fold shape from reference: bright upper-left, dark diagonal band, lighter below */}
-              <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 390 140" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                {/* highlight: upper-left wedge, thick on left (0→62), thin on right (0→14) */}
-                <path d="M 0,0 L 390,0 L 390,14 C 280,22 160,40 0,62 Z" fill="rgba(255,210,210,0.22)"/>
-                {/* dark fold band: left 62→90, right 14→46 */}
-                <path d="M 0,62 C 160,40 280,22 390,14 L 390,46 C 280,56 160,74 0,90 Z" fill="rgba(0,0,0,0.18)"/>
-                {/* secondary lighter band below: left 90→118, right 46→76 */}
-                <path d="M 0,90 C 160,74 280,56 390,46 L 390,76 C 280,88 160,104 0,118 Z" fill="rgba(255,180,180,0.12)"/>
-              </svg>
+            <header className="relative overflow-hidden px-5 pb-6 pt-4 text-white" style={{
+              backgroundImage: `url(${headerWaveUrl})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center top",
+            }}>
 
               <div className="relative">
                 <div className="mb-4" />
