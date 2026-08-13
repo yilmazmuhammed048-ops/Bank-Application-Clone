@@ -743,9 +743,6 @@ function DepositPanel({ amount, setAmount, step, onConfirm, onClose }: {
               </div>
             </label>
           </div>
-          <p className="mt-3 rounded-xl bg-[#fff0f1] px-3 py-2.5 text-[12px] text-[#9a4c54]">
-            Demo işlem — gerçek para transferi yapılmaz.
-          </p>
           <button onClick={onConfirm}
             className="mt-5 w-full rounded-full bg-[#e30620] py-4 text-[15px] font-bold text-white active:scale-[.98]">
             Parayı Yatır
@@ -836,9 +833,6 @@ function TransferPanel({ recipient, setRecipient, iban, setIban, amount, setAmou
               <span className="text-[14px] font-bold text-[#8a8588]">TL</span>
             </div>
           </label>
-          <p className="rounded-xl bg-[#fff0f1] px-3 py-2.5 text-[12px] text-[#9a4c54]">
-            Demo işlem — gerçek para transferi yapılmaz.
-          </p>
           <button onClick={onConfirm} className="w-full rounded-full bg-[#e30620] py-4 text-[15px] font-bold text-white active:scale-[.98]">
             Transferi Onayla
           </button>
@@ -885,13 +879,13 @@ function SimplePanel({ panel, step, onConfirm, onClose }: { panel: Panel; step: 
           </div>
           <p className="mt-5 text-[14px] text-[#706a6d]">{panel === "qr" ? "ATM ekranındaki QR kodu tarayın." : "Ödemek istediğiniz faturayı seçin."}</p>
           <button onClick={onConfirm} className="mt-6 w-full rounded-full bg-[#e30620] py-4 text-[15px] font-bold text-white active:scale-[.98]">
-            {panel === "qr" ? "Demo QR Okut" : "Fatura Seç"}
+            {panel === "qr" ? "QR Okut" : "Fatura Seç"}
           </button>
         </div>
       ) : (
         <div className="py-10 text-center">
           <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#e6f7ee] text-[#15803d]"><Check size={32} /></div>
-          <p className="mt-4 text-[18px] font-bold">Demo işlem tamamlandı</p>
+          <p className="mt-4 text-[18px] font-bold">İşlem Tamamlandı</p>
           <button onClick={onClose} className="mt-7 w-full rounded-full bg-[#e30620] py-4 text-[15px] font-bold text-white">Kapat</button>
         </div>
       )}
