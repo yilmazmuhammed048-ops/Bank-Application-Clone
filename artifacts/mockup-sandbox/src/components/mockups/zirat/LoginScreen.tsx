@@ -35,10 +35,19 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         {/* Logo */}
         <div className="flex items-center gap-1.5">
           {/* Wheat symbol */}
-          <svg width="26" height="30" viewBox="0 0 24 28" fill="white">
-            <path d="M12 2c.8 1.6.8 3.2 0 4.8-.8-1.6-.8-3.2 0-4.8z"/>
-            <path d="M12 27V7" stroke="white" strokeWidth="1.4"/>
-            <path d="M11.3 8.5c-2.2-.3-3.8-1.7-4.5-3.8 2.2.3 3.8 1.7 4.5 3.8zM12.7 8.5c2.2-.3 3.8-1.7 4.5-3.8-2.2.3-3.8 1.7-4.5 3.8zM11.3 13c-2.2-.3-3.8-1.7-4.5-3.8 2.2.3 3.8 1.7 4.5 3.8zM12.7 13c2.2-.3 3.8-1.7 4.5-3.8-2.2.3-3.8 1.7-4.5 3.8zM11.3 17.5c-2.2-.3-3.8-1.7-4.5-3.8 2.2.3 3.8 1.7 4.5 3.8zM12.7 17.5c2.2-.3 3.8-1.7 4.5-3.8-2.2.3-3.8 1.7-4.5 3.8z"/>
+          <svg width="24" height="30" viewBox="0 0 24 30" fill="white">
+            {/* Center stem */}
+            <rect x="11.2" y="6" width="1.6" height="23" rx="0.8"/>
+            {/* Top grain */}
+            <ellipse cx="12" cy="4" rx="1.8" ry="3.4"/>
+            {/* Left grains */}
+            <ellipse cx="8.2" cy="9"  rx="1.7" ry="3.2" transform="rotate(-35 8.2 9)"/>
+            <ellipse cx="7.4" cy="14" rx="1.7" ry="3.2" transform="rotate(-35 7.4 14)"/>
+            <ellipse cx="6.6" cy="19" rx="1.7" ry="3.2" transform="rotate(-35 6.6 19)"/>
+            {/* Right grains */}
+            <ellipse cx="15.8" cy="9"  rx="1.7" ry="3.2" transform="rotate(35 15.8 9)"/>
+            <ellipse cx="16.6" cy="14" rx="1.7" ry="3.2" transform="rotate(35 16.6 14)"/>
+            <ellipse cx="17.4" cy="19" rx="1.7" ry="3.2" transform="rotate(35 17.4 19)"/>
           </svg>
           <span className="text-[22px] font-bold tracking-tight">Ziraat</span>
           <span className="text-[22px] font-light tracking-tight">Bankası</span>
