@@ -49,21 +49,21 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         </div>
       </div>
 
-      {/* ── Promo carousel ── */}
+      {/* ── Promo carousel — white cards with double-border frame ── */}
       <div className="mt-5 flex gap-3 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {promos.map(p => (
-          <div key={p.title}
-            className="flex h-[92px] w-[210px] shrink-0 items-center gap-3 rounded-2xl border-[3px] border-white bg-[#e30620] px-3"
-            style={{ boxShadow: "inset 0 0 0 2px #e30620, inset 0 0 0 4px rgba(255,255,255,.4)" }}>
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e30620" strokeWidth="2" strokeLinecap="round">
-                <path d="M4 18l5-5 4 3 7-8" />
-                <path d="M15 8h5v5" />
-              </svg>
-            </div>
-            <div className="min-w-0 leading-tight">
-              <p className="text-[12px] font-bold">{p.title}</p>
-              {p.lines.map(l => <p key={l} className="text-[11px] font-semibold">{l}</p>)}
+          <div key={p.title} className="shrink-0 rounded-[22px] border-[3px] border-white p-[3px]">
+            <div className="flex h-[86px] w-[204px] items-center gap-3 rounded-[16px] bg-white px-3 text-left">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#e30620]">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+                  <path d="M4 18l5-5 4 3 7-8" />
+                  <path d="M15 8h5v5" />
+                </svg>
+              </div>
+              <div className="min-w-0 leading-[1.15]">
+                <p className="text-[12px] font-bold text-[#242326]">{p.title}</p>
+                {p.lines.map(l => <p key={l} className="text-[11.5px] font-bold text-[#e30620]">{l}</p>)}
+              </div>
             </div>
           </div>
         ))}
@@ -102,7 +102,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
             { label: "Uygulama\nMarketi",     icon: <><rect x="6" y="2" width="12" height="20" rx="2.5"/><circle cx="12" cy="18" r="0.8" fill="white"/></> },
           ].map(({ label, icon }) => (
             <div key={label} className="flex items-center gap-2">
-              <span className="grid h-11 w-11 place-items-center rounded-xl border border-white/70">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-white/15">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
               </span>
               <span className="whitespace-pre-line text-left text-[12px] font-semibold leading-tight">{label}</span>
@@ -149,6 +149,8 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <div className="absolute inset-0 z-40 flex flex-col">
           <button aria-label="Kapat" onClick={() => setSheetOpen(false)} className="h-[120px] bg-black/30" />
           <div className="relative flex flex-1 flex-col rounded-t-3xl bg-white px-6 text-[#242326]">
+            {/* Grabber */}
+            <div className="absolute left-1/2 top-3 h-1.5 w-12 -translate-x-1/2 rounded-full bg-[#d8d3d3]" />
             {/* Avatar overlapping */}
             <div className="absolute -top-[54px] left-1/2 -translate-x-1/2">
               <div className="grid h-[108px] w-[108px] place-items-center rounded-full bg-[#f0eded] ring-4 ring-white">
