@@ -107,8 +107,8 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <div className="mt-9 flex w-full items-start justify-center gap-4">
           {[
             { label: "Finansal\nVeriler",     icon: <path d="M4 17l5-5 3 3 7-8M16 7h4v4" /> },
-            { label: "Hesaplama\nAraçları",   icon: <><path d="M8 9h8M8 13h3M8 17h3M14 13l3 4M17 13l-3 4"/><rect x="4" y="3" width="16" height="18" rx="2"/></> },
-            { label: "Uygulama\nMarketi",     icon: <><rect x="6" y="2" width="12" height="20" rx="2.5"/><circle cx="12" cy="18" r="0.8" fill="white"/></> },
+            { label: "Hesaplama\nAraçları",   icon: <><path d="M7.5 7.5h5M10 5v5M7 16.5l5.5-9M14.5 15h5M14.5 18h5"/></> },
+            { label: "Uygulama\nMarketi",     icon: <><rect x="6" y="2" width="12" height="20" rx="2.5"/><circle cx="10" cy="8" r="0.9" fill="white" stroke="none"/><circle cx="14" cy="8" r="0.9" fill="white" stroke="none"/><circle cx="10" cy="12" r="0.9" fill="white" stroke="none"/><circle cx="14" cy="12" r="0.9" fill="white" stroke="none"/><circle cx="10" cy="16" r="0.9" fill="white" stroke="none"/><circle cx="14" cy="16" r="0.9" fill="white" stroke="none"/></> },
           ].map(({ label, icon }) => (
             <div key={label} className="flex items-center gap-2">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-white/15">
@@ -158,8 +158,6 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <div className="absolute inset-0 z-40 flex flex-col">
           <button aria-label="Kapat" onClick={() => setSheetOpen(false)} className="h-[120px] bg-black/30" />
           <div className="relative flex flex-1 flex-col rounded-t-3xl bg-white px-6 text-[#242326]">
-            {/* Grabber */}
-            <div className="absolute left-1/2 top-3 h-1.5 w-12 -translate-x-1/2 rounded-full bg-[#d8d3d3]" />
             {/* Avatar overlapping */}
             <div className="absolute -top-[54px] left-1/2 -translate-x-1/2">
               <div className="grid h-[108px] w-[108px] place-items-center rounded-full bg-[#f0eded] ring-4 ring-white">
