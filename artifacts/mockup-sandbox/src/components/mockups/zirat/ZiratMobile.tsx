@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { LoginScreen } from "./LoginScreen";
+import { LoginScreen, SplashScreen, LoadingScreen } from "./LoginScreen";
 import headerWaveUrl from "@/assets/header-wave.jpg";
+import bankkartUrl from "@/assets/bankkart-mobil.jpg";
 import tileAracim   from "@/assets/tile-aracim.jpg";
 import tileEvim     from "@/assets/tile-evim.jpg";
 import tileIsim     from "@/assets/tile-isim.jpg";
@@ -99,7 +100,7 @@ const navItems: { label: string; view: View; icon: React.ElementType }[] = [
    ROOT COMPONENT
 ═══════════════════════════════════════════════════════ */
 export function ZiratMobile() {
-  const [loggedIn, setLoggedIn]       = useState(false);
+  const [phase, setPhase]             = useState<"splash" | "login" | "loading" | "home">("splash");
   const [view, setView]               = useState<View>("home");
   const [panel, setPanel]             = useState<Panel>(null);
   const [tab, setTab]                 = useState<"accounts" | "cards">("accounts");
@@ -174,11 +175,13 @@ export function ZiratMobile() {
     setStep("receipt");
   };
 
-  if (!loggedIn) {
+  if (phase !== "home") {
     return (
       <main className="min-h-[100dvh] bg-[#f4f1f2] text-[#242326] antialiased">
         <div className="mx-auto min-h-[100dvh] w-full max-w-[430px] overflow-hidden shadow-[0_0_55px_rgba(93,23,30,.12)]">
-          <LoginScreen onLogin={() => setLoggedIn(true)} />
+          {phase === "splash"  && <SplashScreen onDone={() => setPhase("login")} />}
+          {phase === "login"   && <LoginScreen onLogin={() => setPhase("loading")} />}
+          {phase === "loading" && <LoadingScreen onDone={() => setPhase("home")} />}
         </div>
       </main>
     );
@@ -216,7 +219,7 @@ export function ZiratMobile() {
                     <MessageSquare size={20} />
                   </button>
                 </div>
-                <div className="mt-4 text-[15px]">İyi Akşamlar <strong>Muhammed Yılmaz</strong></div>
+                <div className="mt-4 text-[15px]">İyi Günler <strong>Muhammed Yılmaz</strong></div>
               </div>
             </header>
 
@@ -432,11 +435,11 @@ export function ZiratMobile() {
                   </div>
                   <div className="divide-y divide-[#f0ecec]">
                     {[
-                      ["USD", "46,3461",         "49,1676"       ],
-                      ["EUR", "53,4926",         "56,7493"       ],
-                      ["GBP", "62,6042",         "66,4154"       ],
-                      ["A02", "6.519,434925",    "7.462,719400"  ],
-                      ["G02", "97,157092",       "111,214565"    ],
+                      ["USD", "47,3690",         "48,3273"       ],
+                      ["EUR", "54,6297",         "55,7350"       ],
+                      ["GBP", "63,8937",         "65,1862"       ],
+                      ["A02", "6.679,089961",    "6.813,950268"  ],
+                      ["G02", "98,827993",       "101,421830"    ],
                     ].map(([cur, alis, satis]) => (
                       <div key={cur} className="flex items-center justify-between py-3 px-1 text-[14px]">
                         <span className="w-16 font-semibold">{cur}</span>
@@ -446,7 +449,7 @@ export function ZiratMobile() {
                     ))}
                   </div>
                   <div className="mt-4 flex items-center justify-between text-[12px] text-[#999598]">
-                    <span>12/08/2026 17:55</span>
+                    <span>13/08/2026 14:01</span>
                     <button className="flex items-center gap-1 text-[#242326] font-semibold">
                       Diğer Kurları Göster <ArrowRight size={14} className="text-[#e30620]" />
                     </button>
@@ -474,14 +477,16 @@ export function ZiratMobile() {
               {/* Campaign card */}
               <div className="overflow-hidden rounded-2xl bg-white">
                 <div className="flex h-[160px]">
-                  <div className="relative w-[140px] shrink-0 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#2a4a7a] to-[#1a2a5a]" />
+                  <div className="relative w-[150px] shrink-0 overflow-hidden">
+                    <img src={bankkartUrl} alt="Bankkart Mobil" className="h-full w-full object-cover" />
+                    {/* Watermark logo */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="h-16 w-16 rounded-full border-4 border-white/30 flex items-center justify-center">
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="white"><path d="M14 2L4 8v12l10 6 10-6V8L14 2z" strokeWidth="1.5" stroke="white" fill="none"/><path d="M10 14l3 3 5-5" strokeWidth="2" stroke="white" strokeLinecap="round"/></svg>
+                      <div className="grid h-16 w-16 place-items-center rounded-full border-2 border-white/50">
+                        <svg width="30" height="24" viewBox="0 0 30 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.85">
+                          <path d="M3 20L10 4l5 12L22 4l5 16" />
+                        </svg>
                       </div>
                     </div>
-                    <div className="absolute bottom-3 left-3 text-[10px] font-bold text-white/80">BANKKART</div>
                   </div>
                   <div className="flex flex-1 flex-col justify-center px-4">
                     <p className="text-[15px] font-bold text-[#242326]">Bankkart Mobil</p>
@@ -491,8 +496,7 @@ export function ZiratMobile() {
               </div>
               {/* Page dots */}
               <div className="mt-3 flex justify-center gap-1.5">
-                <span className="h-1.5 w-4 rounded-full bg-white" />
-                <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
+                <span className="h-1.5 w-1.5 rounded-full bg-white" />
                 <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
               </div>
             </section>
@@ -501,11 +505,11 @@ export function ZiratMobile() {
             <section className="flex items-center justify-between border-t border-[#ece8e8] bg-white px-5 py-5">
               <div>
                 <p className="text-[11px] text-[#999598]">Son Giriş</p>
-                <p className="mt-0.5 text-[13px] font-bold text-[#242326]">12 Ağustos 2026 / 20:56</p>
+                <p className="mt-0.5 text-[13px] font-bold text-[#242326]">13 Ağustos 2026 / 14:02</p>
               </div>
               <div className="text-right">
                 <p className="text-[11px] text-[#999598]">Son Hatalı Giriş</p>
-                <p className="mt-0.5 text-[13px] font-bold text-[#242326]">12 Ağustos 2026 / 20:11</p>
+                <p className="mt-0.5 text-[13px] font-bold text-[#242326]">12 Ağustos 2026 / 23:51</p>
               </div>
               <button className="ml-3 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f5f3f3]">
                 <ArrowRight size={17} className="text-[#e30620]" />

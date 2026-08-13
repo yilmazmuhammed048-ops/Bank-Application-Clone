@@ -1,6 +1,89 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import headerWaveUrl from "@/assets/header-wave.jpg";
-import { Bell, MessageSquare, User, X } from "lucide-react";
+import { Bell, ChevronDown, MessageSquare, Search, User, X } from "lucide-react";
+
+/* ── Splash: red silk + wheat logo + 162.yıl ── */
+export function SplashScreen({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2200);
+    return () => clearTimeout(t);
+  }, [onDone]);
+  return (
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-[#e30620] text-white"
+      style={{ backgroundImage: `url(${headerWaveUrl})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+      <div className="flex items-center gap-2">
+        <svg width="30" height="38" viewBox="0 0 24 30" fill="white">
+          <rect x="11.2" y="6" width="1.6" height="23" rx="0.8"/>
+          <ellipse cx="12" cy="4" rx="1.8" ry="3.4"/>
+          <ellipse cx="8.2" cy="9"  rx="1.7" ry="3.2" transform="rotate(-35 8.2 9)"/>
+          <ellipse cx="7.4" cy="14" rx="1.7" ry="3.2" transform="rotate(-35 7.4 14)"/>
+          <ellipse cx="6.6" cy="19" rx="1.7" ry="3.2" transform="rotate(-35 6.6 19)"/>
+          <ellipse cx="15.8" cy="9"  rx="1.7" ry="3.2" transform="rotate(35 15.8 9)"/>
+          <ellipse cx="16.6" cy="14" rx="1.7" ry="3.2" transform="rotate(35 16.6 14)"/>
+          <ellipse cx="17.4" cy="19" rx="1.7" ry="3.2" transform="rotate(35 17.4 19)"/>
+        </svg>
+        <span className="text-[30px] font-bold tracking-tight">Ziraat</span>
+        <span className="text-[30px] font-light tracking-tight">Bankası</span>
+      </div>
+      <div className="mt-6 flex items-end">
+        <span className="text-[86px] font-black leading-none tracking-tighter">162</span>
+        <span className="mb-2 text-[34px] font-light italic leading-none">.yıl</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Post-login loading skeleton (mirrors real app) ── */
+export function LoadingScreen({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 1600);
+    return () => clearTimeout(t);
+  }, [onDone]);
+  return (
+    <div className="flex min-h-[100dvh] flex-col bg-white text-[#242326]">
+      {/* Header */}
+      <header className="bg-[#e30620] px-5 pb-5 pt-4 text-white"
+        style={{ backgroundImage: `url(${headerWaveUrl})`, backgroundSize: "cover", backgroundPosition: "center top" }}>
+        <div className="flex items-center gap-3">
+          <span className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-full bg-white">
+            <User size={22} className="text-[#aaa]" />
+          </span>
+          <div className="flex h-[44px] flex-1 items-center gap-2 rounded-full border border-white/55 bg-white/10 px-4">
+            <Search size={17} className="shrink-0" />
+            <span className="text-[14px]">Ziraat Mobil&apos;de Ara</span>
+          </div>
+          <span className="grid h-[44px] w-[44px] shrink-0 place-items-center rounded-2xl bg-white/20">
+            <MessageSquare size={20} />
+          </span>
+        </div>
+        <div className="mt-4 text-[15px]">İyi Günler <strong>Muhammed Yılmaz</strong></div>
+      </header>
+      {/* İpuçları band */}
+      <div className="flex items-center justify-between border-b border-[#e8e3e3] bg-white px-5 py-4 text-[16px] font-semibold">
+        İpuçlarına hemen göz at! <ChevronDown size={20} className="text-[#db1028]" />
+      </div>
+      {/* Tabs */}
+      <div className="mt-5 flex items-end gap-7 border-b border-[#dedada] px-5">
+        <span className="relative pb-3 text-[18px] font-semibold after:absolute after:bottom-[-1px] after:left-0 after:h-[3px] after:w-full after:bg-[#e30620]">Hesaplarım</span>
+        <span className="pb-3 text-[18px] font-semibold text-[#87878c]">Kredi Kartlarım</span>
+      </div>
+      {/* Skeleton + spinner */}
+      <div className="relative flex-1 px-5 pt-6">
+        <div className="space-y-5">
+          {[["w-3/5","w-2/5"],["w-4/5","w-1/2"],["w-2/3","w-3/4"],["w-1/2","w-2/5"]].map(([a, b], i) => (
+            <div key={i} className="space-y-3">
+              <div className={`h-4 animate-pulse rounded-full bg-[#efeceb] ${a}`} />
+              <div className={`h-4 animate-pulse rounded-full bg-[#f4f1f0] ${b}`} />
+            </div>
+          ))}
+        </div>
+        <div className="absolute inset-0 grid place-items-center">
+          <span className="h-14 w-14 animate-spin rounded-full border-4 border-[#e8e3e3] border-t-[#e30620]" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const PASSWORD = "834283";
 
@@ -18,12 +101,17 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword]   = useState("");
   const [error, setError]         = useState(false);
 
+  useEffect(() => {
+    if (!error) return;
+    const t = setTimeout(() => setError(false), 1800);
+    return () => clearTimeout(t);
+  }, [error]);
+
   const tryLogin = () => {
     if (password === PASSWORD) {
       onLogin();
     } else {
       setError(true);
-      setTimeout(() => setError(false), 1800);
     }
   };
 
