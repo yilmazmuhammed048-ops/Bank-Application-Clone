@@ -2,6 +2,36 @@ import { useEffect, useState } from "react";
 import headerWaveUrl from "@/assets/header-wave.jpg";
 import { Bell, ChevronDown, MessageSquare, Search, User, X } from "lucide-react";
 
+/* ── Ziraat wheat emblem — traced from the original logo ── */
+export function WheatLogo({ height = 30, color = "white" }: { height?: number; color?: string }) {
+  return (
+    <svg height={height} viewBox="0 0 76 96" fill={color} style={{ display: "block" }}>
+      {/* Top: small stem + hooks */}
+      <rect x="35.2" y="0" width="5.6" height="21" />
+      <polygon points="32.8,3 32.8,10.5 25.5,14 25.5,6.5" />
+      <polygon points="43.2,3 43.2,10.5 50.5,14 50.5,6.5" />
+      <polygon points="25.5,16 32.8,13 32.8,17.5 25.5,20.5" />
+      <polygon points="50.5,16 43.2,13 43.2,17.5 50.5,20.5" />
+      {/* Rows of grains: inner + outer segments (left / right mirrored) */}
+      {[21, 41, 61].map(y => (
+        <g key={y}>
+          {/* left inner */}
+          <polygon points={`36.6,${y} 36.6,${y + 12} 29,${y + 17.5} 29,${y + 5.5}`} />
+          {/* left outer — vertical outer edge */}
+          <polygon points={`26.8,${y + 7} 26.8,${y + 19} 10,${y + 31} 10,${y + 19}`} />
+          {/* right inner */}
+          <polygon points={`39.4,${y} 39.4,${y + 12} 47,${y + 17.5} 47,${y + 5.5}`} />
+          {/* right outer */}
+          <polygon points={`49.2,${y + 7} 49.2,${y + 19} 66,${y + 31} 66,${y + 19}`} />
+        </g>
+      ))}
+      {/* Bottom V — arms meet in a downward point */}
+      <polygon points="36.6,80 36.6,96 10,76 10,64" />
+      <polygon points="39.4,80 39.4,96 66,76 66,64" />
+    </svg>
+  );
+}
+
 /* ── Splash: red silk + wheat logo + 162.yıl ── */
 export function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
@@ -12,16 +42,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
     <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-[#e30620] text-white"
       style={{ backgroundImage: `url(${headerWaveUrl})`, backgroundSize: "cover", backgroundPosition: "center" }}>
       <div className="flex items-center gap-2">
-        <svg width="30" height="38" viewBox="0 0 24 30" fill="white">
-          <rect x="11.2" y="6" width="1.6" height="23" rx="0.8"/>
-          <ellipse cx="12" cy="4" rx="1.8" ry="3.4"/>
-          <ellipse cx="8.2" cy="9"  rx="1.7" ry="3.2" transform="rotate(-35 8.2 9)"/>
-          <ellipse cx="7.4" cy="14" rx="1.7" ry="3.2" transform="rotate(-35 7.4 14)"/>
-          <ellipse cx="6.6" cy="19" rx="1.7" ry="3.2" transform="rotate(-35 6.6 19)"/>
-          <ellipse cx="15.8" cy="9"  rx="1.7" ry="3.2" transform="rotate(35 15.8 9)"/>
-          <ellipse cx="16.6" cy="14" rx="1.7" ry="3.2" transform="rotate(35 16.6 14)"/>
-          <ellipse cx="17.4" cy="19" rx="1.7" ry="3.2" transform="rotate(35 17.4 19)"/>
-        </svg>
+        <WheatLogo height={38} />
         <span className="text-[30px] font-bold tracking-tight">Ziraat</span>
         <span className="text-[30px] font-light tracking-tight">Bankası</span>
       </div>
@@ -123,20 +144,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         {/* Logo */}
         <div className="flex items-center gap-1.5">
           {/* Wheat symbol */}
-          <svg width="24" height="30" viewBox="0 0 24 30" fill="white">
-            {/* Center stem */}
-            <rect x="11.2" y="6" width="1.6" height="23" rx="0.8"/>
-            {/* Top grain */}
-            <ellipse cx="12" cy="4" rx="1.8" ry="3.4"/>
-            {/* Left grains */}
-            <ellipse cx="8.2" cy="9"  rx="1.7" ry="3.2" transform="rotate(-35 8.2 9)"/>
-            <ellipse cx="7.4" cy="14" rx="1.7" ry="3.2" transform="rotate(-35 7.4 14)"/>
-            <ellipse cx="6.6" cy="19" rx="1.7" ry="3.2" transform="rotate(-35 6.6 19)"/>
-            {/* Right grains */}
-            <ellipse cx="15.8" cy="9"  rx="1.7" ry="3.2" transform="rotate(35 15.8 9)"/>
-            <ellipse cx="16.6" cy="14" rx="1.7" ry="3.2" transform="rotate(35 16.6 14)"/>
-            <ellipse cx="17.4" cy="19" rx="1.7" ry="3.2" transform="rotate(35 17.4 19)"/>
-          </svg>
+          <WheatLogo height={30} />
           <span className="text-[22px] font-bold tracking-tight">Ziraat</span>
           <span className="text-[22px] font-light tracking-tight">Bankası</span>
         </div>
