@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LoginScreen } from "./LoginScreen";
 import headerWaveUrl from "@/assets/header-wave.jpg";
 import tileAracim   from "@/assets/tile-aracim.jpg";
 import tileEvim     from "@/assets/tile-evim.jpg";
@@ -98,6 +99,7 @@ const navItems: { label: string; view: View; icon: React.ElementType }[] = [
    ROOT COMPONENT
 ═══════════════════════════════════════════════════════ */
 export function ZiratMobile() {
+  const [loggedIn, setLoggedIn]       = useState(false);
   const [view, setView]               = useState<View>("home");
   const [panel, setPanel]             = useState<Panel>(null);
   const [tab, setTab]                 = useState<"accounts" | "cards">("accounts");
@@ -171,6 +173,16 @@ export function ZiratMobile() {
     }, ...t]);
     setStep("receipt");
   };
+
+  if (!loggedIn) {
+    return (
+      <main className="min-h-[100dvh] bg-[#f4f1f2] text-[#242326] antialiased">
+        <div className="mx-auto min-h-[100dvh] w-full max-w-[430px] overflow-hidden shadow-[0_0_55px_rgba(93,23,30,.12)]">
+          <LoginScreen onLogin={() => setLoggedIn(true)} />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-[100dvh] bg-[#f4f1f2] text-[#242326] antialiased">
