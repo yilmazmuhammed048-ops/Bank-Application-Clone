@@ -292,13 +292,12 @@ export function ZiratMobile() {
                       else if (action === "deposit")  openPanel("deposit");
                       else setView("products");
                     }}
-                    className="flex h-[108px] flex-col overflow-hidden rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
-                    {/* Icon zone — fixed flex-1 so icon center is always identical */}
-                    <span className="flex flex-1 items-center justify-center text-[#e30620]">
+                    className="flex h-[108px] flex-col items-center justify-center gap-[7px] rounded-xl bg-white px-1 text-center text-[12px] font-medium shadow-sm active:scale-95">
+                    <span className="text-[#e30620]">
                       {customIcon ?? (Icon && <Icon size={24} strokeWidth={1.4} />)}
                     </span>
-                    {/* Label zone — fixed height fits 2 lines */}
-                    <span className="flex h-[36px] items-center justify-center whitespace-pre-line leading-tight">{label}</span>
+                    {/* Fixed 2-line height so all cards have identical total content → icons always aligned */}
+                    <span className="flex h-[30px] items-start justify-center whitespace-pre-line leading-tight">{label}</span>
                   </button>
                 ))}
               </div>
