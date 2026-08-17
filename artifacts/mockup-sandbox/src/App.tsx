@@ -4,9 +4,9 @@ import AdminApp from "./admin/AdminApp";
 export default function App() {
   const path = window.location.pathname;
 
-  if (path.endsWith("/admin")) {
-    return <AdminApp />;
-  }
+  if (path === "/admin" || path === "/admin/") {
+  return <AdminApp />;
+}
 
   return <ZiratMobile />;
 }
