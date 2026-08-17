@@ -1,0 +1,16 @@
+{
+  "name": "Banka Uygulaması",
+  "short_name": "Banka",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00843D",
+  "icons": [
+    {
+      "src": "/icon-512.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
