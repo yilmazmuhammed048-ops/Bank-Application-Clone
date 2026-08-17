@@ -3,10 +3,16 @@ import AdminApp from "./admin/AdminApp";
 
 export default function App() {
   const path = window.location.pathname;
+  const hash = window.location.hash;
 
-  if (path === "/admin" || path === "/admin/") {
-  return <AdminApp />;
-}
+  const isAdmin =
+    path === "/admin" ||
+    path === "/admin/" ||
+    hash === "#admin";
+
+  if (isAdmin) {
+    return <AdminApp />;
+  }
 
   return <ZiratMobile />;
 }
