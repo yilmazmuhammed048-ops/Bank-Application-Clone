@@ -43,6 +43,9 @@ type AdminTransaction = {
   description: string;
   amount: string;
   date: string;
+  recipientName: string;
+  recipientIban: string;
+  transactionNumber: string;
   type?: "Gelen ödeme" | "Giden ödeme";
 };
 
@@ -53,6 +56,9 @@ type Transaction = {
   amount: string;
   kind: "credit" | "debit";
   date: string;
+  recipientName: string;
+  recipientIban: string;
+  transactionNumber: string;
 };
 
 const DEFAULT_BALANCE = 125000;
@@ -165,6 +171,9 @@ function convertTransactions(
       )}`,
       kind: isCredit ? "credit" : "debit",
       date: item.date,
+      recipientName: item.recipientName,
+      recipientIban: item.recipientIban,
+      transactionNumber: item.transactionNumber,
     };
   });
 }
@@ -966,107 +975,60 @@ function Receipt({
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
-
-  const iban = MY_IBAN;
+  const iban = transaction.recipientIban;
 
   const copy = () => {
-    navigator.clipboard
-      ?.writeText(iban)
-      .catch(() => {});
-
+    navigator.clipboard?.writeText(iban).catch(() => {});
     setCopied(true);
-
-    setTimeout(() => {
-      setCopied(false);
-    }, 1500);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col bg-[#fafafa]">
-
       <header className="bg-[#e30620] px-4 py-5 text-white">
         <div className="flex items-center justify-between">
-
           <button onClick={onClose}>
             <ArrowLeft />
           </button>
-
-          <h1 className="text-xl font-bold">
-            Dekont
-          </h1>
-
+          <h1 className="text-xl font-bold">Dekont</h1>
           <div className="w-6" />
-
         </div>
       </header>
 
       <div className="bg-white px-5 py-8 text-center">
-
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#e6f7ee] text-[#15803d]">
           <Check size={32} />
         </div>
-
         <p className="mt-4 text-2xl font-bold">
           {transaction.amount}
         </p>
-
         <p className="mt-1 text-sm text-[#777]">
           İşlem tamamlandı
         </p>
-
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
-
         <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-
-          <ReceiptRow
-            label="İşlem"
-            value={transaction.title}
-          />
-
-          <ReceiptRow
-            label="Açıklama"
-            value={transaction.subtitle}
-          />
-
-          <ReceiptRow
-            label="Tarih"
-            value={transaction.date}
-          />
+          <ReceiptRow label="İşlem" value={transaction.title} />
+          <ReceiptRow label="Açıklama" value={transaction.subtitle} />
+          <ReceiptRow label="Alıcı / Gönderen" value={transaction.recipientName} />
+          <ReceiptRow label="İşlem Numarası" value={transaction.transactionNumber} />
+          <ReceiptRow label="Tarih" value={transaction.date} />
 
           <div className="flex items-center justify-between gap-3 border-t border-[#eee] p-4">
-            <span className="text-sm text-[#888]">
-              IBAN
-            </span>
-
+            <span className="text-sm text-[#888]">IBAN</span>
             <div className="flex items-center gap-2 text-right">
-
-              <span className="text-sm font-semibold">
-                {iban}
-              </span>
-
-              <button
-                onClick={copy}
-                className="text-[#e30620]"
-              >
-                {copied ? (
-                  <Check size={16} />
-                ) : (
-                  <Copy size={16} />
-                )}
+              <span className="text-sm font-semibold">{iban}</span>
+              <button onClick={copy} className="text-[#e30620]">
+                {copied ? <Check size={16} /> : <Copy size={16} />}
               </button>
-
             </div>
           </div>
-
         </div>
 
         <p className="mt-4 rounded-xl bg-[#fff8e1] p-4 text-xs text-[#8a6a00]">
-          Bu ekran yalnızca demo amaçlıdır. Gerçek
-          finansal işlem gerçekleştirmez.
+          Bu ekran yalnızca demo amaçlıdır. Gerçek finansal işlem gerçekleştirmez.
         </p>
-
       </div>
 
       <div className="bg-white p-5">
@@ -1077,7 +1039,6 @@ function Receipt({
           Kapat
         </button>
       </div>
-
     </div>
   );
 }

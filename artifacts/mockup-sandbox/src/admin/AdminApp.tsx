@@ -9,6 +9,9 @@ type Transaction = {
   amount: string;
   date: string;
   type: TransactionType;
+  recipientName: string;
+  recipientIban: string;
+  transactionNumber: string;
 };
 
 type AccountData = {
@@ -41,6 +44,9 @@ const defaultTransactions: Transaction[] = [
     amount: "450,00",
     date: "17 Ağustos 2026",
     type: "expense",
+    recipientName: "Fenerbahçe",
+    recipientIban: "TR00 0000 0000 0000 0000 0000 00",
+    transactionNumber: "202608170001",
   },
   {
     id: 2,
@@ -49,6 +55,9 @@ const defaultTransactions: Transaction[] = [
     amount: "35.000,00",
     date: "15 Ağustos 2026",
     type: "income",
+    recipientName: "Muhammed Yılmaz",
+    recipientIban: "TR00 0000 0000 0000 0000 0000 00",
+    transactionNumber: "202608150001",
   },
 ];
 
@@ -170,6 +179,9 @@ const addTransaction = () => {
     amount: "100,00",
     date: "17 Ağustos 2026",
     type: "expense",
+    recipientName: "Fenerbahçe",
+    recipientIban: "TR00 0000 0000 0000 0000 0000 00",
+    transactionNumber: "202608170001",
   };
   setTransactions((current) => [
     newTransaction,
@@ -676,6 +688,39 @@ const addTransaction = () => {
                       Gelen ödeme
                     </option>
                   </select>
+                </div>
+
+                <div>
+                  <label style={styles.label}>Alıcı / Gönderen</label>
+                  <input
+                    value={item.recipientName}
+                    onChange={(event) =>
+                      updateTransaction(item.id, "recipientName", event.target.value)
+                    }
+                    style={styles.input}
+                  />
+                </div>
+
+                <div>
+                  <label style={styles.label}>Alıcı / Gönderen IBAN</label>
+                  <input
+                    value={item.recipientIban}
+                    onChange={(event) =>
+                      updateTransaction(item.id, "recipientIban", event.target.value)
+                    }
+                    style={styles.input}
+                  />
+                </div>
+
+                <div>
+                  <label style={styles.label}>İşlem Numarası</label>
+                  <input
+                    value={item.transactionNumber}
+                    onChange={(event) =>
+                      updateTransaction(item.id, "transactionNumber", event.target.value)
+                    }
+                    style={styles.input}
+                  />
                 </div>
 
                 <div style={styles.fullWidth}>
