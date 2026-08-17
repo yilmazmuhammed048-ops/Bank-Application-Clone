@@ -167,11 +167,10 @@ const addTransaction = () => {
     id: Date.now(),
     title: "Yeni İşlem",
     description: "İşlem açıklaması",
-    amount: "0,00",
+    amount: "100,00",
     date: "17 Ağustos 2026",
     type: "expense",
   };
-
   setTransactions((current) => [
     newTransaction,
     ...current,
