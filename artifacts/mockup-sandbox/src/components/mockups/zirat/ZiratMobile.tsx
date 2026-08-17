@@ -153,7 +153,7 @@ function convertTransactions(
     const amount = parseAmount(item.amount);
 
     const isCredit =
-      item.type === "Gelen ödeme" ||
+      item.type === "income" ||
       String(item.amount).includes("+");
 
     return {
