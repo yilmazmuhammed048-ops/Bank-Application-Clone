@@ -153,29 +153,27 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <img
             src="/ziraat-password-reference.jpg"
             alt="Ziraat Mobil şifre ekranı"
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="pointer-events-none absolute inset-0 h-full w-full select-none object-fill"
           />
 
-          {password.length > 0 && (
-            <div className="absolute left-[7.4%] top-[41.3%] flex h-[4.1%] w-[42%] items-center bg-white px-3 text-[20px] font-bold tracking-[0.22em] text-[#444]">
-              {"•".repeat(password.length)}
-            </div>
-          )}
-
-          <input
-            autoFocus
-            type="password"
-            inputMode="numeric"
-            maxLength={6}
-            value={password}
-            aria-label="Şifreniz"
-            onChange={(event) => {
-              setPassword(event.target.value.replace(/\D/g, ""));
-              setError(false);
-            }}
-            onKeyDown={(event) => event.key === "Enter" && tryLogin()}
-            className="absolute left-[7.4%] top-[40.5%] h-[5.9%] w-[48%] cursor-text bg-transparent text-transparent caret-[#333] outline-none"
-          />
+          <div className={`absolute left-[3.8%] top-[40.55%] z-20 flex h-[5.75%] w-[92.4%] items-center rounded-full border bg-white px-[4.2%] ${error ? "border-[#e30620]" : "border-[#9da1a3]"}`}>
+            <input
+              autoFocus
+              type="password"
+              inputMode="numeric"
+              maxLength={6}
+              value={password}
+              aria-label="Şifreniz"
+              placeholder="Şifreniz"
+              onChange={(event) => {
+                setPassword(event.target.value.replace(/\D/g, ""));
+                setError(false);
+              }}
+              onKeyDown={(event) => event.key === "Enter" && tryLogin()}
+              className="h-full min-w-0 flex-1 bg-transparent text-[18px] font-semibold tracking-[0.12em] text-[#3f474b] caret-[#333] outline-none placeholder:font-semibold placeholder:tracking-normal placeholder:text-[#9da1a3]"
+            />
+            <button type="button" className="shrink-0 text-[17px] font-semibold text-[#333b3f] underline underline-offset-2">Şifremi Unuttum</button>
+          </div>
 
           {error && (
             <p className="absolute left-[9%] top-[46.2%] z-10 rounded bg-white px-2 py-0.5 text-[10px] font-semibold text-[#e30620]">
