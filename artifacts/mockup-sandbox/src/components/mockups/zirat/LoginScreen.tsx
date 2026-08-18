@@ -142,7 +142,8 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
       <button
         onClick={() => setSheetOpen(true)}
         aria-label="Giriş Yap"
-        className="absolute left-[13%] top-[62.8%] h-[6.2%] w-[74%] rounded-full bg-transparent"
+        type="button"
+        className="absolute left-[8%] top-[59%] z-20 h-[12%] w-[84%] cursor-pointer rounded-full bg-transparent touch-manipulation"
       />
 
       {sheetOpen && (
