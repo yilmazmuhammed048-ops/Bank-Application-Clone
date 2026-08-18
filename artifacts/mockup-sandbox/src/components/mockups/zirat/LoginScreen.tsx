@@ -39,17 +39,12 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
     return () => clearTimeout(t);
   }, [onDone]);
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-[#e30620] text-white"
-      style={{ backgroundImage: `url(${headerWaveUrl})`, backgroundSize: "cover", backgroundPosition: "center" }}>
-      <div className="flex items-center gap-2">
-        <WheatLogo height={38} />
-        <span className="text-[30px] font-bold tracking-tight">Ziraat</span>
-        <span className="text-[30px] font-light tracking-tight">Bankası</span>
-      </div>
-      <div className="mt-6 flex items-end">
-        <span className="text-[86px] font-black leading-none tracking-tighter">162</span>
-        <span className="mb-2 text-[34px] font-light italic leading-none">.yıl</span>
-      </div>
+    <div className="h-[100dvh] w-full overflow-hidden bg-[#df0712]">
+      <img
+        src="/ziraat-splash-reference.jpg"
+        alt="Ziraat Bankası 162. yıl"
+        className="h-full w-full object-cover object-center"
+      />
     </div>
   );
 }
@@ -136,6 +131,74 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
     }
   };
 
+  const referenceLogin = (
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-[#df0712] text-white">
+      <img
+        src="/ziraat-login-reference.jpg"
+        alt="Ziraat Mobil giriş ekranı"
+        className="absolute inset-0 h-full w-full object-cover object-center"
+      />
+
+      <button
+        onClick={() => setSheetOpen(true)}
+        aria-label="Giriş Yap"
+        className="absolute left-[13%] top-[62.8%] h-[6.2%] w-[74%] rounded-full bg-transparent"
+      />
+
+      {sheetOpen && (
+        <div className="absolute inset-0 z-40 overflow-hidden bg-white">
+          <img
+            src="/ziraat-password-reference.jpg"
+            alt="Ziraat Mobil şifre ekranı"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+
+          {password.length > 0 && (
+            <div className="absolute left-[7.4%] top-[41.3%] flex h-[4.1%] w-[42%] items-center bg-white px-3 text-[20px] font-bold tracking-[0.22em] text-[#444]">
+              {"•".repeat(password.length)}
+            </div>
+          )}
+
+          <input
+            autoFocus
+            type="password"
+            inputMode="numeric"
+            maxLength={6}
+            value={password}
+            aria-label="Şifreniz"
+            onChange={(event) => {
+              setPassword(event.target.value.replace(/\D/g, ""));
+              setError(false);
+            }}
+            onKeyDown={(event) => event.key === "Enter" && tryLogin()}
+            className="absolute left-[7.4%] top-[40.5%] h-[5.9%] w-[48%] cursor-text bg-transparent text-transparent caret-[#333] outline-none"
+          />
+
+          {error && (
+            <p className="absolute left-[9%] top-[46.2%] z-10 rounded bg-white px-2 py-0.5 text-[10px] font-semibold text-[#e30620]">
+              Hatalı şifre
+            </p>
+          )}
+
+          <button
+            onClick={tryLogin}
+            aria-label="Giriş"
+            className="absolute left-[3.8%] top-[48%] h-[6.1%] w-[92.4%] rounded-full bg-transparent"
+          />
+
+          <button
+            onClick={() => setSheetOpen(false)}
+            aria-label="Kapat"
+            className="absolute left-[38%] top-[90%] h-[6%] w-[24%] bg-transparent"
+          />
+        </div>
+      )}
+    </div>
+  );
+
+  return referenceLogin;
+
+  /* Legacy code retained only as a component reference. */
   return (
     <div className="relative flex min-h-[100dvh] flex-col bg-[#e30620] text-white">
       {/* ── Top bar ── */}
