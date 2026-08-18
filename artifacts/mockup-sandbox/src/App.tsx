@@ -594,9 +594,9 @@ function Transactions({
   });
 
   return (
-    <div className="min-h-screen bg-[#eeeeee] pb-5 text-[#4b555a]">
-      <header className="bg-[#ed0a24] text-white">
-        <div className="flex h-[36px] items-center justify-between px-5 pt-1 text-[13px] font-bold">
+    <div className="min-h-screen bg-[#f2f3f4] pb-6 text-[#364047]">
+      <header className="bg-[#e30620] text-white shadow-[0_1px_0_rgba(0,0,0,0.06)]">
+        <div className="flex h-[31px] items-center justify-between px-[18px] pt-1 text-[12px] font-semibold">
           <span>{statusTime}</span>
 
           <div className="flex items-center gap-2">
@@ -622,51 +622,54 @@ function Transactions({
           </div>
         </div>
 
-        <div className="relative flex h-[61px] items-center px-3">
+        <div className="relative flex h-[57px] items-center px-2.5">
           <button
             onClick={onBack}
-            className="grid h-11 w-11 place-items-center"
+            className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-white/10"
             aria-label="Geri"
           >
-            <ArrowLeft size={29} strokeWidth={1.8} />
+            <ArrowLeft size={25} strokeWidth={1.9} />
           </button>
 
-          <h1 className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[21px] font-bold">
+          <h1 className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[18px] font-semibold tracking-[-0.01em]">
             Hesap Hareketleri
           </h1>
 
           <div className="ml-auto flex items-center gap-1">
             <button
-              className="grid h-11 w-11 place-items-center"
+              className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-white/10"
               aria-label="Mesajlar"
             >
-              <Mail size={27} strokeWidth={1.8} />
+              <Mail size={23} strokeWidth={1.8} />
             </button>
 
             <button
               onClick={onBack}
-              className="grid h-11 w-11 place-items-center"
+              className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-white/10"
               aria-label="Ana sayfa"
             >
-              <Home size={27} strokeWidth={1.8} />
+              <Home size={23} strokeWidth={1.8} />
             </button>
           </div>
         </div>
       </header>
 
-      <div className="flex gap-3 px-[10px] py-[10px]">
-        <button className="flex h-[52px] flex-1 items-center justify-between rounded-[8px] border border-[#8d9498] bg-white px-4 text-[15px] text-[#555d61]">
-          Son 1 ay
-          <ChevronDown size={19} />
+      <div className="flex gap-2.5 px-3 py-3">
+        <button className="flex h-[46px] flex-1 items-center justify-between rounded-[10px] border border-[#d5d9dc] bg-white px-4 text-[13px] font-medium text-[#3f484e] shadow-[0_1px_1px_rgba(17,24,39,0.025)]">
+          <span className="flex flex-col items-start leading-tight">
+            <span className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#92999d]">Tarih Aralığı</span>
+            <span className="mt-0.5">Son 1 ay</span>
+          </span>
+          <ChevronDown size={17} className="text-[#626b70]" />
         </button>
 
         <button
-          className="grid h-[52px] w-[52px] place-items-center rounded-[8px] border border-[#8d9498] bg-white"
+          className="grid h-[46px] w-[46px] place-items-center rounded-[10px] border border-[#d5d9dc] bg-white text-[#4b555a] shadow-[0_1px_1px_rgba(17,24,39,0.025)]"
           aria-label="Filtre"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
-              d="M4 6h16M7 12h10M10 18h4"
+              d="M4 7h16M7 12h10M10 17h4"
               stroke="currentColor"
               strokeWidth="1.8"
               strokeLinecap="round"
@@ -675,7 +678,7 @@ function Transactions({
         </button>
       </div>
 
-      <div className="space-y-[6px] px-[10px]">
+      <div className="space-y-[5px] px-3">
         {rows.map((tx) => {
           const parts = tx.date.trim().split(/\s+/);
           const day = parts[0] || "--";
@@ -687,42 +690,42 @@ function Transactions({
             <button
               key={tx.id}
               onClick={() => onSelect(tx)}
-              className="relative flex min-h-[112px] w-full overflow-hidden rounded-[7px] bg-white text-left shadow-[0_1px_2px_rgba(0,0,0,0.10)]"
+              className="relative flex min-h-[104px] w-full overflow-hidden rounded-[9px] border border-[#e4e6e7] bg-white text-left shadow-[0_1px_1px_rgba(20,28,34,0.025)] transition-colors active:bg-[#fafafa]"
             >
-              <div className="flex w-[74px] shrink-0 flex-col items-center justify-center border-r border-[#dedede]">
-                <span className="text-[30px] font-light leading-none text-[#434d52]">
+              <div className="flex w-[67px] shrink-0 flex-col items-center justify-center border-r border-[#eceeef] bg-[#fcfcfc]">
+                <span className="text-[27px] font-light leading-none tracking-[-0.04em] text-[#303a40]">
                   {day}
                 </span>
-                <span className="mt-[5px] text-[11px] font-semibold tracking-[0.06em] text-[#687176]">
+                <span className="mt-1 text-[10px] font-bold tracking-[0.1em] text-[#697277]">
                   {month}
                 </span>
-                <span className="mt-[3px] text-[11px] text-[#687176]">
+                <span className="mt-1 text-[10px] tabular-nums text-[#8a9195]">
                   {tx.time}
                 </span>
               </div>
 
-              <div className="min-w-0 flex-1 py-[11px] pl-[11px] pr-[102px]">
+              <div className="min-w-0 flex-1 py-[12px] pl-3 pr-[106px]">
                 {tx.kind === "credit" ? (
                   <>
-                    <p className="truncate text-[13px] leading-[1.2] text-[#475157]">
+                    <p className="truncate text-[12px] font-medium leading-[1.25] text-[#333d43]">
                       Gönd: {tx.recipientName.toLocaleUpperCase("tr-TR")}
                     </p>
-                    <p className="mt-[3px] line-clamp-2 text-[12px] leading-[1.22] text-[#475157]">
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
                       {tx.recipientBank} FAST işlemi
                     </p>
-                    <p className="mt-[3px] truncate text-[11px] text-[#687176]">
+                    <p className="mt-1 truncate text-[10px] tracking-[0.01em] text-[#8a9195]">
                       {compactIban}
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="line-clamp-1 text-[12px] leading-[1.2] text-[#475157]">
+                    <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
                       {tx.recipientBank}/
                     </p>
-                    <p className="mt-[2px] truncate text-[11px] text-[#475157]">
+                    <p className="mt-1 truncate text-[10px] text-[#7b8489]">
                       {compactIban}
                     </p>
-                    <p className="mt-[3px] line-clamp-2 text-[12px] leading-[1.22] text-[#475157]">
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
                       {tx.recipientName} — {tx.subtitle}
                     </p>
                   </>
@@ -730,8 +733,8 @@ function Transactions({
               </div>
 
               <div
-                className={`absolute right-[10px] top-[11px] text-[14px] font-bold ${
-                  tx.kind === "credit" ? "text-[#36a95b]" : "text-[#3f494e]"
+                className={`absolute right-3 top-3 whitespace-nowrap text-[12px] font-bold tabular-nums ${
+                  tx.kind === "credit" ? "text-[#24934c]" : "text-[#303a40]"
                 }`}
               >
                 {tx.kind === "credit" ? "+" : "-"}
@@ -739,14 +742,14 @@ function Transactions({
               </div>
 
               <ReceiptText
-                size={20}
-                strokeWidth={1.8}
-                className="absolute right-[26px] top-[47px] text-[#111]"
+                size={17}
+                strokeWidth={1.7}
+                className="absolute right-3 top-[42px] text-[#5f686d]"
               />
 
-              <div className="absolute bottom-[9px] right-[10px] text-right">
-                <span className="text-[10px] text-[#8c9295]">Kalan Bakiye: </span>
-                <span className="text-[11px] font-semibold text-[#4e585d]">
+              <div className="absolute bottom-[11px] right-3 text-right leading-none">
+                <span className="block text-[8px] font-medium uppercase tracking-[0.04em] text-[#a0a6a9]">Kalan Bakiye</span>
+                <span className="mt-1 block text-[10px] font-semibold tabular-nums text-[#505a5f]">
                   {formatMoney(tx.balanceAfter)}
                 </span>
               </div>
@@ -759,88 +762,120 @@ function Transactions({
 }
 
 function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: () => void; }) {
-  const [copied, setCopied] = useState(false);
   const [masked, setMasked] = useState(false);
-
-  const copy = () => {
-    navigator.clipboard?.writeText(transaction.recipientIban).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
 
   const displayedIban = masked
     ? `${transaction.recipientIban.slice(0, 7)} **** **** **** **** ${transaction.recipientIban.slice(-5)}`
     : transaction.recipientIban;
+  const displayedName = masked
+    ? `${transaction.recipientName.charAt(0)}${"*".repeat(Math.max(5, transaction.recipientName.length - 1))}`
+    : transaction.recipientName.toLocaleUpperCase("tr-TR");
+  const senderName = transaction.kind === "credit" ? displayedName : MY_NAME.toLocaleUpperCase("tr-TR");
+  const receiverName = transaction.kind === "credit" ? MY_NAME.toLocaleUpperCase("tr-TR") : displayedName;
+  const directionTitle = transaction.kind === "credit" ? "HESABA GELEN FAST" : "HESAPTAN FAST";
+  const signedAmount = `${transaction.kind === "credit" ? "+" : "-"}${formatMoney(transaction.amount)}`;
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#ececec]">
-      <header className="sticky top-0 z-10 bg-[#e30620] px-3 py-4 text-white">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#f1f2f3] text-[#30383d]">
+      <header className="sticky top-0 z-10 bg-[#e30620] px-2.5 text-white">
         <div className="mx-auto flex w-full max-w-[430px] items-center">
-          <button onClick={onClose} className="grid h-10 w-10 place-items-center"><ArrowLeft size={24} /></button>
-          <h1 className="flex-1 text-center text-[18px] font-semibold">Dekont</h1>
-          <button className="grid h-10 w-10 place-items-center"><Share2 size={20} /></button>
+          <button onClick={onClose} className="grid h-[56px] w-10 place-items-center"><ArrowLeft size={23} /></button>
+          <h1 className="flex-1 text-center text-[17px] font-semibold">Hesap Hareketleri</h1>
+          <button className="grid h-[56px] w-10 place-items-center"><Share2 size={19} /></button>
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-[430px] px-3 py-3">
-        <div className="relative overflow-hidden rounded-[4px] bg-white shadow-sm">
-          <div className="absolute right-3 top-3 rounded border border-[#d9d9d9] px-2 py-1 text-[9px] font-semibold tracking-[0.18em] text-[#777]">ÖRNEK</div>
+      <div className="mx-auto flex min-h-[calc(100vh-56px)] w-full max-w-[430px] flex-col px-3 py-3">
+        <div className="relative flex min-h-[570px] flex-1 flex-col rounded-[10px] bg-white px-5 pb-5 pt-16 shadow-[0_1px_3px_rgba(0,0,0,.06)]">
+          <button className="absolute right-5 top-5 text-[#111]" aria-label="Dekontu paylaş"><Share2 size={22} strokeWidth={1.8} /></button>
+          <span className="absolute left-1/2 top-5 -translate-x-1/2 text-[7px] font-bold tracking-[0.16em] text-[#aaa]">ÖRNEK</span>
 
-          <div className="border-b border-[#e6e6e6] px-5 pb-4 pt-6">
-            <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#e30620] text-white"><span className="text-xl font-black">Z</span></div>
-              <div>
-                <p className="text-[16px] font-bold text-[#333]">İşlem Dekontu</p>
-                <p className="text-[11px] text-[#888]">{transaction.date} · {transaction.time}</p>
+          <div className="mx-auto w-full max-w-[310px] text-[#111]">
+            <div className="mb-2 flex items-end justify-between">
+              <div className="flex items-center gap-1.5 font-bold">
+                <img src="/ziraat-amblem.jpg" alt="Ziraat Bankası" className="h-7 w-5 shrink-0 object-contain" />
+                <span className="text-[12px] tracking-[-0.03em]">Ziraat Bankası</span>
               </div>
+              <h2 className="text-[10px] font-bold">{directionTitle}</h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-1.5 text-[6.5px] leading-[1.45]">
+              <div className="rounded-[3px] border border-[#c9c9c9] p-2">
+                <DocumentRow label="ŞUBE KODU/ADI" value="4000 / ZİRAAT SÜPER ŞUBE" />
+                <DocumentRow label="IBAN" value={MY_IBAN} />
+                <DocumentRow label="HESAP NUMARASI" value={MY_ACCOUNT} />
+                <DocumentRow label="VERGİ DAİRESİ" value="-" />
+                <DocumentRow label="VERGİ KİMLİK NO" value="10067921118" />
+                <DocumentRow label="İŞLEM TARİHİ" value={`${transaction.date} ${transaction.time}`} />
+                <DocumentRow label="VALÖR" value={transaction.date} />
+                <DocumentRow label="İŞLEM YERİ" value="ZİRAAT MOBİL" />
+              </div>
+              <div className="rounded-[3px] border border-[#c9c9c9] p-2 font-bold uppercase">
+                <p>SAYIN</p>
+                <p className="mt-0.5">{masked ? "M******** Y*****" : MY_NAME}</p>
+                <p className="mt-3">DİJİTAL BANKACILIK MÜŞTERİSİ</p>
+                <p>TÜRKİYE</p>
+              </div>
+            </div>
+
+            <div className="px-2 pt-2 text-[9px] leading-[1.22]">
+              <p>Fast Mesaj Kodu : A01 Fast Sorgu No : {transaction.transactionNumber}</p>
+              <p>Gönderen : <strong>{senderName}</strong></p>
+              <p>Alan Banka : {transaction.recipientBank}</p>
+              <p className="break-words">Alıcı Hesap : {displayedIban} Alıcı : <strong>{receiverName}</strong></p>
+              <p>İşlem Tutarı : {formatMoney(transaction.amount).replace("TL", "TRY")}</p>
+              <p>Komisyon : 0,00 TRY BSMV : 0,00 TRY Mesaj Ücreti : 0,00 TRY</p>
+              <p>Toplam Masraf : 0,00 TRY</p>
+              <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>
+
+              <div className="mt-5 flex items-end justify-between border-b border-[#444] pb-1">
+                <div>
+                  <p>Hesabınızdan {signedAmount} tutarında işlem yapılmıştır.</p>
+                  <p className="mt-1">{transaction.date} {transaction.time} EFTTGIDD INTERNET</p>
+                  <p>INTERNET</p>
+                </div>
+                <div className="pb-1 text-right text-[6px] font-bold leading-tight">
+                  <p>Saygılarımızla</p>
+                  <p>T.C. ZİRAAT BANKASI A.Ş.</p>
+                  <p>İNTERNET ŞUBESİ</p>
+                </div>
+              </div>
+
+              <p className="mt-1 text-[6.5px] leading-relaxed">Taraflar arasında tüm uyuşmazlıklarda, Banka&apos;nın defter kayıtları ve belgeleri kesin delil niteliğindedir.</p>
+              <p className="mt-1 text-[6.5px]">Merkez: Finans Kent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul</p>
+              <p className="mt-1 text-[6.5px]">www.ziraatbank.com.tr</p>
             </div>
           </div>
 
-          <div className="px-5 py-4">
-            <ReceiptLine label="İşlem Türü" value={transaction.title} />
-            <ReceiptLine label="Gönderen / Alıcı" value={transaction.recipientName} />
-            <ReceiptLine label="Banka" value={transaction.recipientBank} />
+          <div className="mt-auto pt-8">
+            <button onClick={() => setMasked((value) => !value)} className="flex w-full items-center gap-3 px-2 py-3 text-left">
+              <span className={`grid h-6 w-6 place-items-center rounded-[5px] border ${masked ? "border-[#e30620] bg-[#e30620] text-white" : "border-[#9da3a6] bg-white"}`}>{masked && <Check size={15} />}</span>
+              <span className="text-[13px] font-semibold text-[#4a5459]">Adres ve Kimlik Bilgilerimi Maskele</span>
+            </button>
 
-            <div className="border-b border-[#ececec] py-3">
-              <p className="text-[10px] text-[#999]">IBAN</p>
-              <div className="mt-1 flex items-start gap-2">
-                <p className="flex-1 break-all text-[12px] font-semibold leading-relaxed text-[#333]">{displayedIban}</p>
-                <button onClick={copy} className="mt-0.5 shrink-0 text-[#e30620]">{copied ? <Check size={16} /> : <Copy size={16} />}</button>
-              </div>
-            </div>
-
-            <ReceiptLine label="İşlem Tutarı" value={`${transaction.kind === "credit" ? "+" : "-"}${formatMoney(transaction.amount)}`} strong green={transaction.kind === "credit"} />
-            <ReceiptLine label="İşlem Tarihi" value={`${transaction.date} ${transaction.time}`} />
-            <ReceiptLine label="İşlem Numarası" value={transaction.transactionNumber} />
-            <ReceiptLine label="Açıklama" value={transaction.subtitle} />
-            <ReceiptLine label="Masraf / BSMV" value="0,00 TL" />
+            <button className="mt-2 w-full rounded-full bg-[#e30620] py-4 text-[14px] font-bold text-white">E-POSTA GÖNDER</button>
+            <button onClick={onClose} className="mt-3 w-full rounded-full border border-[#222] bg-white py-4 text-[14px] font-bold text-[#465055]">GERİ</button>
           </div>
         </div>
-
-        <button onClick={() => setMasked((value) => !value)} className="mt-3 flex w-full items-center justify-between rounded-[4px] bg-white px-4 py-4 text-left shadow-sm">
-          <span className="text-[12px] font-medium text-[#333]">Adres ve Kimlik Bilgilerimi Maskele</span>
-          <span className={`relative h-6 w-11 rounded-full ${masked ? "bg-[#e30620]" : "bg-[#d1d1d1]"}`}>
-            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow ${masked ? "left-[22px]" : "left-0.5"}`} />
-          </span>
-        </button>
-
-        <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-[4px] bg-[#e30620] py-4 text-[13px] font-bold text-white">
-          <Mail size={18} /> E-POSTA GÖNDER
-        </button>
-
-        <button onClick={onClose} className="mt-3 w-full rounded-[4px] border border-[#cfcfcf] bg-white py-4 text-[13px] font-bold text-[#333]">GERİ</button>
-
-        <p className="pb-6 pt-3 text-center text-[9px] text-[#999]">ÖRNEK belge — gerçek banka dekontu değildir.</p>
       </div>
+    </div>
+  );
+}
+
+function DocumentRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[74px_1fr] gap-1">
+      <strong>{label}</strong>
+      <span className="truncate">: &nbsp;{value}</span>
     </div>
   );
 }
 
 function ReceiptLine({ label, value, strong = false, green = false }: { label: string; value: string; strong?: boolean; green?: boolean; }) {
   return (
-    <div className="border-b border-[#ececec] py-3">
-      <p className="text-[10px] text-[#999]">{label}</p>
-      <p className={`mt-1 text-[12px] ${strong ? "font-bold" : "font-semibold"} ${green ? "text-[#16803c]" : "text-[#333]"}`}>{value}</p>
+    <div className="border-b border-[#eef0f1] py-2.5">
+      <p className="text-[9px] font-medium uppercase tracking-[0.06em] text-[#9aa0a4]">{label}</p>
+      <p className={`mt-1 text-[11px] leading-[1.4] ${strong ? "font-bold" : "font-medium"} ${green ? "text-[#16803c]" : "text-[#343d42]"}`}>{value}</p>
     </div>
   );
 }
