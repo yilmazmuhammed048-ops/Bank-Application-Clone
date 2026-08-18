@@ -143,13 +143,13 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         onClick={() => setSheetOpen(true)}
         aria-label="Giriş Yap"
         type="button"
-        className="absolute left-[12.9%] top-[62.95%] z-50 flex h-[6.05%] w-[74.2%] touch-manipulation items-center justify-center rounded-full bg-white text-[22px] font-semibold text-[#161616] shadow-none active:bg-[#f4f4f4]"
+        className="absolute left-[12.9%] top-[62.95%] z-20 flex h-[6.05%] w-[74.2%] touch-manipulation items-center justify-center rounded-full bg-white text-[22px] font-semibold text-[#161616] shadow-none active:bg-[#f4f4f4]"
       >
         Giriş Yap
       </button>
 
       {sheetOpen && (
-        <div className="absolute inset-0 z-40 overflow-hidden bg-white">
+        <div className="absolute inset-0 z-[70] overflow-hidden bg-white">
           <img
             src="/ziraat-password-reference.jpg"
             alt="Ziraat Mobil şifre ekranı"
@@ -184,7 +184,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <button
             onClick={tryLogin}
             aria-label="Giriş"
-            className="absolute left-[3.8%] top-[46.85%] h-[6.5%] w-[92.4%] rounded-full bg-transparent"
+            className="absolute left-[3.8%] top-[46.85%] z-40 h-[6.5%] w-[92.4%] rounded-full bg-transparent"
           />
 
           <button

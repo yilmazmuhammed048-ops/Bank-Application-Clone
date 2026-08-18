@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import headerWaveUrl from "./assets/header-wave.jpg";
 import {
   LoadingScreen,
   LoginScreen,
@@ -153,8 +154,8 @@ const DEFAULT_TRANSACTIONS: AdminTransaction[] = [
 
 const MY_NAME = "Muhammed Yılmaz";
 const MY_PHONE = "05XX XXX XX XX";
-const MY_IBAN = "TR63 4827 1954 7362 8519 6243 17";
-const MY_ACCOUNT = "68421735";
+const MY_IBAN = "TR31 0001 1041 2062 7050 01";
+const MY_ACCOUNT = "4000-104120627-5001";
 
 function parseAmount(value: string | number) {
   if (typeof value === "number") return value;
@@ -335,16 +336,19 @@ export default function ZiratMobile() {
     <main className="min-h-screen bg-[#f2f0f1] text-[#242326]">
       <div className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fafafa] shadow-xl">
         {view !== "transactions" && (
-          <header className="bg-[#e30620] px-5 pb-6 pt-5 text-white">
+          <header
+            className="bg-[#d90b17] bg-cover bg-center px-5 pb-4 pt-4 text-white"
+            style={{ backgroundImage: `url(${headerWaveUrl})` }}
+          >
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen(true)}
-              className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#777]"
+              className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#969b9d]"
             >
-              <User size={21} />
+              <User size={22} strokeWidth={1.7} fill="currentColor" />
             </button>
 
-            <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/40 bg-white/10 px-4">
+            <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/45 bg-black/10 px-4">
               <Search size={17} />
               <span className="text-sm">Ziraat Mobil&apos;de Ara</span>
             </div>
@@ -354,7 +358,7 @@ export default function ZiratMobile() {
             </button>
           </div>
 
-          <p className="mt-4 text-sm">
+          <p className="mt-3 text-sm">
             İyi Günler <strong>{MY_NAME}</strong>
           </p>
         </header>
@@ -415,16 +419,16 @@ export default function ZiratMobile() {
                   </h2>
 
                   <div className="mt-3 flex items-center gap-3">
-                    <span className="rounded-lg bg-[#b7a66d] px-3 py-1.5 text-xs font-bold text-white">
+                    <span className="rounded-[8px] bg-[#a99a60] px-2.5 py-1 text-[11px] font-bold text-white">
                       Vadesiz TL
                     </span>
-                    <span className="text-sm text-[#555]">{MY_ACCOUNT}</span>
+                    <span className="text-[13px] font-medium tracking-[-0.015em] text-[#444]">{MY_ACCOUNT}</span>
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
                     <span className="truncate text-xs text-[#777]">{MY_IBAN}</span>
-                    <button className="text-[#d3132b]">
-                      <Share2 size={18} />
+                    <button className="grid h-8 w-8 place-items-center text-[#d3132b]" aria-label="IBAN paylaş">
+                      <Share2 size={20} strokeWidth={2.2} />
                     </button>
                   </div>
 
@@ -606,41 +610,10 @@ function Transactions({
     });
   }, [transactions, balance]);
 
-  const statusTime = new Date().toLocaleTimeString("tr-TR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
   return (
     <div className="min-h-screen bg-[#f2f3f4] pb-6 text-[#364047]">
-      <header className="bg-[#e30620] text-white shadow-[0_1px_0_rgba(0,0,0,0.06)]">
-        <div className="flex h-[31px] items-center justify-between px-[18px] pt-1 text-[12px] font-semibold">
-          <span>{statusTime}</span>
-
-          <div className="flex items-center gap-2">
-            <div className="flex h-4 items-end gap-[2px]">
-              <span className="h-[5px] w-[3px] rounded-sm bg-white" />
-              <span className="h-[8px] w-[3px] rounded-sm bg-white" />
-              <span className="h-[11px] w-[3px] rounded-sm bg-white" />
-              <span className="h-[14px] w-[3px] rounded-sm bg-white/55" />
-            </div>
-
-            <svg width="18" height="14" viewBox="0 0 24 18" fill="none" aria-hidden="true">
-              <path d="M2 6.8C7.6 1.9 16.4 1.9 22 6.8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-              <path d="M6 11c3.4-2.9 8.6-2.9 12 0" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-              <path d="M10 14.8c1.2-1 2.8-1 4 0" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-            </svg>
-
-            <div className="flex items-center">
-              <div className="rounded-[4px] bg-white px-1.5 py-[1px] text-[11px] font-black text-[#36a85d]">
-                48
-              </div>
-              <span className="ml-[2px] h-[7px] w-[2px] rounded-r bg-white/80" />
-            </div>
-          </div>
-        </div>
-
-        <div className="relative flex h-[57px] items-center px-2.5">
+      <header className="bg-[#d90b17] text-white shadow-[0_1px_0_rgba(0,0,0,0.06)]">
+        <div className="relative flex h-[58px] items-center px-2.5">
           <button
             onClick={onBack}
             className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-white/10"
@@ -673,16 +646,13 @@ function Transactions({
       </header>
 
       <div className="flex gap-2.5 px-3 py-3">
-        <button className="flex h-[46px] flex-1 items-center justify-between rounded-[10px] border border-[#d5d9dc] bg-white px-4 text-[13px] font-medium text-[#3f484e] shadow-[0_1px_1px_rgba(17,24,39,0.025)]">
-          <span className="flex flex-col items-start leading-tight">
-            <span className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#92999d]">Tarih Aralığı</span>
-            <span className="mt-0.5">Son 1 ay</span>
-          </span>
+        <button className="flex h-[50px] flex-1 items-center justify-between rounded-[8px] border border-[#92999d] bg-white px-4 text-[15px] font-medium text-[#3f484e]">
+          <span>Son 1 ay</span>
           <ChevronDown size={17} className="text-[#626b70]" />
         </button>
 
         <button
-          className="grid h-[46px] w-[46px] place-items-center rounded-[10px] border border-[#d5d9dc] bg-white text-[#4b555a] shadow-[0_1px_1px_rgba(17,24,39,0.025)]"
+          className="grid h-[50px] w-[50px] place-items-center rounded-[8px] border border-[#92999d] bg-white text-[#343d42]"
           aria-label="Filtre"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
