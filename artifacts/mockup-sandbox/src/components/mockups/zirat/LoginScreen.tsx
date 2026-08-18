@@ -37,7 +37,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2200);
     return () => clearTimeout(t);
-  }, [onDone]);
+  }, []);
   return (
     <div className="h-[100dvh] w-full overflow-hidden bg-[#df0712]">
       <img
@@ -54,7 +54,7 @@ export function LoadingScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const t = setTimeout(onDone, 1600);
     return () => clearTimeout(t);
-  }, [onDone]);
+  }, []);
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white text-[#242326]">
       {/* Header */}
