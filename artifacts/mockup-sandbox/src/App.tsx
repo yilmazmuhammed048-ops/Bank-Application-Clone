@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowDownToLine,
   ArrowLeft,
-  ArrowRight,
   Banknote,
   Check,
   ChevronDown,
@@ -13,6 +11,7 @@ import {
   FileText,
   Home,
   LayoutGrid,
+  Mail,
   Menu,
   MessageSquare,
   MoreVertical,
@@ -23,7 +22,6 @@ import {
   Send,
   Share2,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
   User,
   X,
@@ -43,8 +41,10 @@ type AdminTransaction = {
   description: string;
   amount: string;
   date: string;
+  time?: string;
   recipientName?: string;
   recipientIban?: string;
+  recipientBank?: string;
   transactionNumber?: string;
   type?: "income" | "expense";
 };
@@ -53,11 +53,13 @@ type Transaction = {
   id: string;
   title: string;
   subtitle: string;
-  amount: string;
+  amount: number;
   kind: "credit" | "debit";
   date: string;
+  time: string;
   recipientName: string;
   recipientIban: string;
+  recipientBank: string;
   transactionNumber: string;
 };
 
@@ -65,43 +67,88 @@ const DEFAULT_BALANCE = 125000;
 
 const DEFAULT_TRANSACTIONS: AdminTransaction[] = [
   {
-    id: 3,
-    title: "Market",
-    description: "Kart ile ödeme",
-    amount: "450,00",
-    date: "17 Ağustos 2026",
-    recipientName: "Migros",
-    recipientIban: "TR61 0012 3000 4578 9214 6385 17",
-    transactionNumber: "202608170318",
-    type: "expense",
-  },
-  {
-    id: 2,
-    title: "Maaş",
-    description: "Hesaba gelen ödeme",
-    amount: "35.000,00",
-    date: "15 Ağustos 2026",
-    recipientName: "ABC Teknoloji A.Ş.",
-    recipientIban: "TR74 0062 1000 8347 5162 9043 28",
-    transactionNumber: "202608150742",
+    id: 6,
+    title: "FAST Gelen",
+    description: "FAST PARA TRANSFERİ",
+    amount: "8.750,00",
+    date: "18 Ağustos 2026",
+    time: "09:41",
+    recipientName: "Burak Aydın",
+    recipientIban: "TR71 5468 2319 7842 6531 2948 37",
+    recipientBank: "Türkiye İş Bankası A.Ş.",
+    transactionNumber: "20260818498317",
     type: "income",
   },
   {
-    id: 1,
-    title: "Akaryakıt",
-    description: "Kart ile ödeme",
-    amount: "1.250,00",
-    date: "12 Ağustos 2026",
-    recipientName: "Shell",
-    recipientIban: "TR38 0094 7000 2165 7834 5912 64",
-    transactionNumber: "202608120526",
+    id: 5,
+    title: "Kart Ödemesi",
+    description: "POS HARCAMASI - MARKET",
+    amount: "1.286,45",
+    date: "18 Ağustos 2026",
+    time: "08:12",
+    recipientName: "Güneş Market",
+    recipientIban: "TR36 8241 5973 2618 4735 9126 58",
+    recipientBank: "Akbank T.A.Ş.",
+    transactionNumber: "20260818276194",
     type: "expense",
+  },
+  {
+    id: 4,
+    title: "FAST Giden",
+    description: "FAST PARA TRANSFERİ",
+    amount: "2.350,00",
+    date: "17 Ağustos 2026",
+    time: "21:06",
+    recipientName: "Ece Yalçın",
+    recipientIban: "TR58 3174 9628 4513 7862 5941 26",
+    recipientBank: "Garanti BBVA",
+    transactionNumber: "20260817421683",
+    type: "expense",
+  },
+  {
+    id: 3,
+    title: "Havale Gelen",
+    description: "HAVALE",
+    amount: "12.500,00",
+    date: "17 Ağustos 2026",
+    time: "14:32",
+    recipientName: "Mert Karaca",
+    recipientIban: "TR24 6931 4857 3126 8495 7312 64",
+    recipientBank: "Yapı ve Kredi Bankası A.Ş.",
+    transactionNumber: "20260817384621",
+    type: "income",
+  },
+  {
+    id: 2,
+    title: "Akaryakıt",
+    description: "KARTLI ÖDEME",
+    amount: "1.950,00",
+    date: "16 Ağustos 2026",
+    time: "18:46",
+    recipientName: "Petrol İstasyonu",
+    recipientIban: "TR83 1547 9263 4812 7359 2648 17",
+    recipientBank: "QNB",
+    transactionNumber: "20260816291847",
+    type: "expense",
+  },
+  {
+    id: 1,
+    title: "Maaş",
+    description: "MAAŞ ÖDEMESİ",
+    amount: "35.000,00",
+    date: "15 Ağustos 2026",
+    time: "09:17",
+    recipientName: "Atlas Teknoloji A.Ş.",
+    recipientIban: "TR47 9286 3157 8421 6935 2748 61",
+    recipientBank: "Türkiye Finans Katılım Bankası A.Ş.",
+    transactionNumber: "20260815173594",
+    type: "income",
   },
 ];
 
 const MY_NAME = "Muhammed Yılmaz";
 const MY_PHONE = "05XX XXX XX XX";
-const MY_IBAN = "TR58 0018 6400 3721 5946 8273 41";
+const MY_IBAN = "TR63 4827 1954 7362 8519 6243 17";
 const MY_ACCOUNT = "68421735";
 
 function parseAmount(value: string | number) {
@@ -115,7 +162,6 @@ function parseAmount(value: string | number) {
     .replace(/[^\d.-]/g, "");
 
   const number = Number(cleaned);
-
   return Number.isFinite(number) ? number : 0;
 }
 
@@ -126,6 +172,18 @@ function formatMoney(value: number) {
   })} TL`;
 }
 
+function demoTime(id: string | number) {
+  const digits = String(id).replace(/\D/g, "");
+  const seed = digits
+    .split("")
+    .reduce((sum, value) => sum + Number(value || 0), 0);
+
+  const hours = 8 + (seed % 13);
+  const minutes = (seed * 17) % 60;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
 function getAdminBalance() {
   const savedAccount = localStorage.getItem("demo_account");
 
@@ -133,30 +191,24 @@ function getAdminBalance() {
     try {
       const account = JSON.parse(savedAccount);
       const parsed = parseAmount(account.balance);
-
       if (Number.isFinite(parsed)) return parsed;
     } catch {}
   }
 
   const saved = localStorage.getItem("demo_balance");
-
   if (saved === null) return DEFAULT_BALANCE;
 
   const parsed = Number(saved);
-
   return Number.isFinite(parsed) ? parsed : DEFAULT_BALANCE;
 }
 
 function getAdminTransactions(): AdminTransaction[] {
   const saved = localStorage.getItem("demo_transactions");
-
   if (!saved) return DEFAULT_TRANSACTIONS;
 
   try {
     const parsed = JSON.parse(saved);
-
     if (!Array.isArray(parsed)) return DEFAULT_TRANSACTIONS;
-
     return parsed;
   } catch {
     return DEFAULT_TRANSACTIONS;
@@ -166,8 +218,7 @@ function getAdminTransactions(): AdminTransaction[] {
 function convertTransactions(items: AdminTransaction[]): Transaction[] {
   return items
     .map((item) => {
-      const amount = parseAmount(item.amount);
-
+      const amount = Math.abs(parseAmount(item.amount));
       const isCredit =
         item.type === "income" ||
         String(item.amount).trim().startsWith("+");
@@ -176,16 +227,15 @@ function convertTransactions(items: AdminTransaction[]): Transaction[] {
         id: String(item.id),
         title: item.title || "İşlem",
         subtitle: item.description || "İşlem açıklaması",
-        amount: `${isCredit ? "+" : "-"}${formatMoney(Math.abs(amount))}`,
+        amount,
         kind: isCredit ? "credit" : "debit",
         date: item.date || "18 Ağustos 2026",
-        recipientName:
-          item.recipientName || item.title || "Belirtilmemiş",
+        time: item.time || demoTime(item.id),
+        recipientName: item.recipientName || item.title || "Belirtilmemiş",
         recipientIban:
-          item.recipientIban ||
-          "TR47 0031 7824 6159 3847 2065 93",
-        transactionNumber:
-          item.transactionNumber || String(item.id),
+          item.recipientIban || "TR57 2948 6317 4852 7193 8641 25",
+        recipientBank: item.recipientBank || "Banka Bilgisi",
+        transactionNumber: item.transactionNumber || String(item.id),
       };
     })
     .sort((a, b) => Number(b.id) - Number(a.id));
@@ -200,50 +250,31 @@ function readAccountData() {
 
 export default function ZiratMobile() {
   const [view, setView] = useState<View>("home");
-
-  const [balance, setBalance] = useState(
-    () => readAccountData().balance,
-  );
-
+  const [balance, setBalance] = useState(() => readAccountData().balance);
   const [transactions, setTransactions] = useState<Transaction[]>(
     () => readAccountData().transactions,
   );
-
   const [tab, setTab] = useState<"accounts" | "cards">("accounts");
-
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
-
   const [showTransfer, setShowTransfer] = useState(false);
-
   const [recipient, setRecipient] = useState("Ayşe Demir");
-
   const [recipientIban, setRecipientIban] = useState(
-    "TR83 0056 2147 3985 7621 4309 58",
+    "TR84 6193 2748 5316 9427 3581 62",
   );
-
   const [transferAmount, setTransferAmount] = useState("850,00");
-
   const [showTips, setShowTips] = useState(false);
-
-  const [showAgenda, setShowAgenda] = useState(false);
-
-  const [showInstructions, setShowInstructions] = useState(false);
 
   const refreshFromAdmin = () => {
     const data = readAccountData();
-
     setBalance(data.balance);
     setTransactions(data.transactions);
   };
 
   useEffect(() => {
     const handleStorage = () => refreshFromAdmin();
-
     window.addEventListener("storage", handleStorage);
-
     const timer = window.setInterval(refreshFromAdmin, 1000);
 
     return () => {
@@ -254,41 +285,40 @@ export default function ZiratMobile() {
 
   const sendTransfer = () => {
     const amount = parseAmount(transferAmount);
-
     if (!amount || amount <= 0) {
       alert("Geçerli bir tutar girin.");
       return;
     }
 
+    const now = Date.now();
     const newTransaction: Transaction = {
-      id: String(Date.now()),
-      title: `${recipient}'e Transfer`,
-      subtitle: "Para transferi",
-      amount: `-${formatMoney(amount)}`,
+      id: String(now),
+      title: "FAST Giden",
+      subtitle: "FAST PARA TRANSFERİ",
+      amount,
       kind: "debit",
       date: "18 Ağustos 2026",
+      time: new Date().toLocaleTimeString("tr-TR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       recipientName: recipient,
       recipientIban,
-      transactionNumber: String(Date.now()),
+      recipientBank: "Alıcı Banka",
+      transactionNumber: String(now),
     };
 
     setBalance((current) => Math.max(0, current - amount));
-
-    setTransactions((current) => [
-      newTransaction,
-      ...current,
-    ]);
-
+    setTransactions((current) => [newTransaction, ...current]);
     setShowTransfer(false);
   };
 
   return (
     <main className="min-h-screen bg-[#f2f0f1] text-[#242326]">
       <div className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fafafa] shadow-xl">
-
-        <header className="bg-[#e30620] px-5 pb-6 pt-5 text-white">
+        {view !== "transactions" && (
+          <header className="bg-[#e30620] px-5 pb-6 pt-5 text-white">
           <div className="flex items-center gap-3">
-
             <button
               onClick={() => setMenuOpen(true)}
               className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#777]"
@@ -298,54 +328,41 @@ export default function ZiratMobile() {
 
             <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/40 bg-white/10 px-4">
               <Search size={17} />
-              <span className="text-sm">
-                Ziraat Mobil&apos;de Ara
-              </span>
+              <span className="text-sm">Ziraat Mobil&apos;de Ara</span>
             </div>
 
             <button className="grid h-11 w-11 place-items-center rounded-2xl bg-white/15">
               <MessageSquare size={20} />
             </button>
-
           </div>
 
           <p className="mt-4 text-sm">
             İyi Günler <strong>{MY_NAME}</strong>
           </p>
         </header>
-
-        <div className="border-b border-[#eee] bg-[#fff8e1] px-5 py-2.5 text-center text-xs text-[#8a6a00]">
-          Bu ekran yalnızca demo amaçlıdır.
-        </div>
+        )}
 
         {view === "home" && (
           <div className="pb-24">
-
             <button
               onClick={() => setShowTips(!showTips)}
               className="flex w-full items-center justify-between bg-white px-5 py-4 text-left font-semibold"
             >
               İpuçlarına hemen göz at!
-
               <ChevronDown
                 size={19}
-                className={`text-[#e30620] ${
-                  showTips ? "rotate-180" : ""
-                }`}
+                className={`text-[#e30620] ${showTips ? "rotate-180" : ""}`}
               />
             </button>
 
             {showTips && (
               <div className="bg-white px-5 pb-4 text-sm text-[#777]">
-                Hesap hareketlerinizi ve bakiyenizi bu demo
-                ekranından görüntüleyebilirsiniz.
+                Hesap hareketlerinizi ve bakiyenizi görüntüleyebilirsiniz.
               </div>
             )}
 
             <div className="px-5">
-
               <div className="mt-5 flex items-end gap-7 border-b border-[#ddd]">
-
                 <button
                   onClick={() => setTab("accounts")}
                   className={`relative pb-3 text-lg font-semibold ${
@@ -371,61 +388,32 @@ export default function ZiratMobile() {
                 <button className="ml-auto mb-2 grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
                   <MoreVertical size={18} />
                 </button>
-
               </div>
 
               {tab === "accounts" && (
                 <section className="pt-5">
-
-                  <div className="flex items-center justify-between">
-
-                    <h2 className="text-lg font-bold text-[#c9162d]">
-                      ZİRAAT SÜPER ŞUBE
-                    </h2>
-
-                    <button
-                      onClick={refreshFromAdmin}
-                      className="grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]"
-                    >
-                      <RefreshIcon />
-                    </button>
-
-                  </div>
+                  <h2 className="text-lg font-bold text-[#c9162d]">
+                    ZİRAAT SÜPER ŞUBE
+                  </h2>
 
                   <div className="mt-3 flex items-center gap-3">
-
                     <span className="rounded-lg bg-[#b7a66d] px-3 py-1.5 text-xs font-bold text-white">
                       Vadesiz TL
                     </span>
-
-                    <span className="text-sm text-[#555]">
-                      {MY_ACCOUNT}
-                    </span>
-
+                    <span className="text-sm text-[#555]">{MY_ACCOUNT}</span>
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
-
-                    <span className="truncate text-xs text-[#777]">
-                      {MY_IBAN}
-                    </span>
-
+                    <span className="truncate text-xs text-[#777]">{MY_IBAN}</span>
                     <button className="text-[#d3132b]">
                       <Share2 size={18} />
                     </button>
-
                   </div>
 
-                  <p className="mt-5 text-xs text-[#777]">
-                    Bakiye
-                  </p>
-
-                  <p className="mt-1 text-3xl font-bold">
-                    {formatMoney(balance)}
-                  </p>
+                  <p className="mt-5 text-xs text-[#777]">Bakiye</p>
+                  <p className="mt-1 text-3xl font-bold">{formatMoney(balance)}</p>
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
-
                     <button
                       onClick={() => setView("products")}
                       className="rounded-full bg-[#e30620] py-3.5 text-sm font-bold text-white"
@@ -439,208 +427,45 @@ export default function ZiratMobile() {
                     >
                       Hesap Hareketleri
                     </button>
-
                   </div>
-
                 </section>
               )}
 
               {tab === "cards" && (
                 <section className="mt-5 rounded-2xl bg-[#f1eded] p-5">
-
                   <div className="flex items-center gap-3">
-
                     <CreditCard className="text-[#d3132b]" />
-
                     <div>
-                      <p className="font-bold">
-                        Demo Bankkart
-                      </p>
-
-                      <p className="text-sm text-[#777]">
-                        •••• 2468
-                      </p>
+                      <p className="font-bold">Bankkart</p>
+                      <p className="text-sm text-[#777]">•••• 2468</p>
                     </div>
-
                   </div>
 
-                  <p className="mt-5 text-sm text-[#777]">
-                    Kullanılabilir limit
-                  </p>
-
-                  <p className="text-2xl font-bold">
-                    50.000,00 TL
-                  </p>
-
+                  <p className="mt-5 text-sm text-[#777]">Kullanılabilir limit</p>
+                  <p className="text-2xl font-bold">50.000,00 TL</p>
                 </section>
               )}
-
             </div>
 
             <section className="mt-6 bg-[#f5f3f3] px-5 py-5">
-
               <div className="mb-4 flex items-center justify-between">
-
-                <h2 className="text-lg font-bold">
-                  Kısayollarım
-                </h2>
-
-                <button
-                  onClick={() => setView("actions")}
-                  className="flex items-center gap-1 text-sm"
-                >
-                  Tümünü Gör
-                  <ArrowRight
-                    size={16}
-                    className="text-[#e30620]"
-                  />
-                </button>
-
+                <h2 className="text-lg font-bold">Kısayollarım</h2>
               </div>
 
               <div className="grid grid-cols-4 gap-2">
-
-                <Shortcut
-                  icon={<PieChart size={23} />}
-                  label={"Varlıklarım"}
-                  onClick={() => setView("products")}
-                />
-
-                <Shortcut
-                  icon={<ClipboardList size={23} />}
-                  label={"Son\nİşlemler"}
-                  onClick={() => setView("transactions")}
-                />
-
-                <Shortcut
-                  icon={<QrCode size={23} />}
-                  label={"QR ile\nPara Çekme"}
-                  onClick={() => {}}
-                />
-
-                <Shortcut
-                  icon={<Banknote size={23} />}
-                  label={"Para\nTransferi"}
-                  onClick={() => setShowTransfer(true)}
-                />
-
+                <Shortcut icon={<PieChart size={23} />} label={"Varlıklarım"} onClick={() => setView("products")} />
+                <Shortcut icon={<ClipboardList size={23} />} label={"Son\nİşlemler"} onClick={() => setView("transactions")} />
+                <Shortcut icon={<QrCode size={23} />} label={"QR ile\nPara Çekme"} onClick={() => {}} />
+                <Shortcut icon={<Banknote size={23} />} label={"Para\nTransferi"} onClick={() => setShowTransfer(true)} />
               </div>
-
             </section>
-
-            <button
-              onClick={() =>
-                setShowInstructions(!showInstructions)
-              }
-              className="flex w-full items-center justify-between border-b border-[#eee] bg-white px-5 py-4 text-left font-bold"
-            >
-              Yaklaşan Talimatlarım
-
-              <ChevronDown
-                size={19}
-                className={`text-[#e30620] ${
-                  showInstructions ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {showInstructions && (
-              <div className="bg-white px-5 pb-4">
-
-                <div className="rounded-xl border border-[#eee] p-4">
-
-                  <p className="font-semibold">
-                    Kira ödemesi
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#888]">
-                    Yaklaşan ödeme bulunuyor.
-                  </p>
-
-                </div>
-
-              </div>
-            )}
-
-            <button
-              onClick={() => setShowAgenda(!showAgenda)}
-              className="flex w-full items-center justify-between border-b border-[#eee] bg-white px-5 py-4 text-left font-bold"
-            >
-              Finansal Ajanda
-
-              <ChevronDown
-                size={19}
-                className={`text-[#e30620] ${
-                  showAgenda ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {showAgenda && (
-              <div className="bg-white px-5 pb-4 text-sm text-[#777]">
-                Yaklaşan finansal etkinlik bulunmamaktadır.
-              </div>
-            )}
-
-            <section className="bg-[#f4f2f2] px-5 py-5">
-
-              <div className="flex items-center gap-2">
-
-                <Sparkles
-                  size={21}
-                  className="text-[#e30620]"
-                />
-
-                <h2 className="font-bold">
-                  Demo Bankacılık
-                </h2>
-
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3">
-
-                <InfoCard
-                  icon={<TrendingUp size={20} />}
-                  title="Varlıklarım"
-                />
-
-                <InfoCard
-                  icon={<CreditCard size={20} />}
-                  title="Kartlarım"
-                />
-
-                <InfoCard
-                  icon={<ShieldCheck size={20} />}
-                  title="Güvenlik"
-                />
-
-                <InfoCard
-                  icon={<FileText size={20} />}
-                  title="Belgeler"
-                />
-
-              </div>
-
-            </section>
-
-            <section className="border-t border-[#eee] bg-white px-5 py-5">
-
-              <p className="text-xs text-[#999]">
-                Son Giriş
-              </p>
-
-              <p className="mt-1 text-sm font-bold">
-                17 Ağustos 2026 / 01:30
-              </p>
-
-            </section>
-
           </div>
         )}
 
         {view === "transactions" && (
           <Transactions
             transactions={transactions}
+            balance={balance}
             onBack={() => setView("home")}
             onSelect={setSelectedTransaction}
           />
@@ -654,734 +479,427 @@ export default function ZiratMobile() {
           />
         )}
 
-        <BottomNav
-          view={view}
-          onChange={setView}
-        />
+        {view !== "transactions" && (
+          <BottomNav view={view} onChange={setView} />
+        )}
 
         {showTransfer && (
-          <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
-            onClick={() => setShowTransfer(false)}
-          >
-            <div
-              className="w-full max-w-[430px] rounded-t-3xl bg-white p-5 pb-8"
-              onClick={(e) => e.stopPropagation()}
-            >
-
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={() => setShowTransfer(false)}>
+            <div className="w-full max-w-[430px] rounded-t-3xl bg-white p-5 pb-8" onClick={(e) => e.stopPropagation()}>
               <div className="mb-5 flex items-center justify-between">
-
-                <h2 className="text-xl font-bold">
-                  Para Transferi
-                </h2>
-
-                <button
-                  onClick={() => setShowTransfer(false)}
-                  className="grid h-9 w-9 place-items-center rounded-full bg-[#f2eeee]"
-                >
+                <h2 className="text-xl font-bold">Para Transferi</h2>
+                <button onClick={() => setShowTransfer(false)} className="grid h-9 w-9 place-items-center rounded-full bg-[#f2eeee]">
                   <X size={18} />
                 </button>
-
               </div>
 
               <label className="text-sm font-semibold">
                 Alıcı Adı
-
-                <input
-                  value={recipient}
-                  onChange={(e) =>
-                    setRecipient(e.target.value)
-                  }
-                  className="mt-2 w-full rounded-xl border border-[#ddd] p-3 outline-none"
-                />
+                <input value={recipient} onChange={(e) => setRecipient(e.target.value)} className="mt-2 w-full rounded-xl border border-[#ddd] p-3 outline-none" />
               </label>
 
               <label className="mt-4 block text-sm font-semibold">
                 Alıcı IBAN
-
-                <input
-                  value={recipientIban}
-                  onChange={(e) =>
-                    setRecipientIban(e.target.value)
-                  }
-                  className="mt-2 w-full rounded-xl border border-[#ddd] p-3 font-mono text-sm outline-none"
-                />
+                <input value={recipientIban} onChange={(e) => setRecipientIban(e.target.value)} className="mt-2 w-full rounded-xl border border-[#ddd] p-3 font-mono text-sm outline-none" />
               </label>
 
               <label className="mt-4 block text-sm font-semibold">
                 Tutar
-
                 <div className="mt-2 flex rounded-xl border border-[#ddd] p-3">
-
-                  <input
-                    value={transferAmount}
-                    onChange={(e) =>
-                      setTransferAmount(e.target.value)
-                    }
-                    className="flex-1 outline-none"
-                  />
-
+                  <input value={transferAmount} onChange={(e) => setTransferAmount(e.target.value)} className="flex-1 outline-none" />
                   <span>TL</span>
-
                 </div>
               </label>
 
-              <button
-                onClick={sendTransfer}
-                className="mt-5 w-full rounded-full bg-[#e30620] py-4 font-bold text-white"
-              >
+              <button onClick={sendTransfer} className="mt-5 w-full rounded-full bg-[#e30620] py-4 font-bold text-white">
                 Transferi Onayla
               </button>
-
             </div>
           </div>
         )}
 
         {selectedTransaction && (
-          <Receipt
-            transaction={selectedTransaction}
-            onClose={() => setSelectedTransaction(null)}
-          />
+          <Receipt transaction={selectedTransaction} onClose={() => setSelectedTransaction(null)} />
         )}
 
         {menuOpen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/40"
-            onClick={() => setMenuOpen(false)}
-          >
-
-            <div
-              className="absolute left-0 top-0 h-full w-[320px] bg-white p-5"
-              onClick={(e) => e.stopPropagation()}
-            >
-
+          <div className="fixed inset-0 z-50 bg-black/40" onClick={() => setMenuOpen(false)}>
+            <div className="absolute left-0 top-0 h-full w-[320px] bg-white p-5" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between">
-
-                <h2 className="text-xl font-bold">
-                  Profil
-                </h2>
-
-                <button
-                  onClick={() => setMenuOpen(false)}
-                  className="grid h-9 w-9 place-items-center rounded-full bg-[#f2eeee]"
-                >
+                <h2 className="text-xl font-bold">Profil</h2>
+                <button onClick={() => setMenuOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-[#f2eeee]">
                   <X size={18} />
                 </button>
-
               </div>
 
               <div className="mt-8 rounded-2xl bg-[#f5f3f3] p-4">
-
                 <div className="grid h-14 w-14 place-items-center rounded-full bg-[#e30620] text-white">
                   <User />
                 </div>
-
-                <p className="mt-4 font-bold">
-                  {MY_NAME}
-                </p>
-
-                <p className="mt-1 text-sm text-[#777]">
-                  {MY_PHONE}
-                </p>
-
+                <p className="mt-4 font-bold">{MY_NAME}</p>
+                <p className="mt-1 text-sm text-[#777]">{MY_PHONE}</p>
               </div>
-
-              <div className="mt-5 space-y-2">
-
-                <MenuRow
-                  icon={<User size={19} />}
-                  text="Profil Bilgileri"
-                />
-
-                <MenuRow
-                  icon={<ShieldCheck size={19} />}
-                  text="Güvenlik"
-                />
-
-                <MenuRow
-                  icon={<FileText size={19} />}
-                  text="Belgelerim"
-                />
-
-              </div>
-
             </div>
-
           </div>
         )}
-
       </div>
     </main>
   );
 }
 
-function Shortcut({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex h-[105px] flex-col items-center justify-center gap-2 rounded-xl bg-white text-center text-xs font-semibold shadow-sm"
-    >
-      <span className="text-[#e30620]">
-        {icon}
-      </span>
-
-      <span className="whitespace-pre-line">
-        {label}
-      </span>
-    </button>
-  );
-}
-
-function InfoCard({
-  icon,
-  title,
-}: {
-  icon: React.ReactNode;
-  title: string;
-}) {
-  return (
-    <button className="flex items-center gap-3 rounded-xl bg-white p-4 text-left shadow-sm">
-
-      <span className="text-[#e30620]">
-        {icon}
-      </span>
-
-      <span className="text-sm font-semibold">
-        {title}
-      </span>
-
-    </button>
-  );
-}
-
-function RefreshIcon() {
-  return (
-    <svg
-      width="19"
-      height="19"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="3" />
-      <path d="M6 20v-1a6 6 0 0 1 12 0v1" />
-      <path d="M3.5 10.5A9 9 0 0 1 20 7.5" />
-      <path d="M20.5 13.5A9 9 0 0 1 4 16.5" />
-    </svg>
-  );
-}
-
 function Transactions({
   transactions,
+  balance,
   onBack,
   onSelect,
 }: {
   transactions: Transaction[];
+  balance: number;
   onBack: () => void;
   onSelect: (transaction: Transaction) => void;
 }) {
+  const monthMap: Record<string, string> = {
+    OCAK: "OCA",
+    ŞUBAT: "ŞUB",
+    MART: "MAR",
+    NİSAN: "NİS",
+    MAYIS: "MAY",
+    HAZİRAN: "HAZ",
+    TEMMUZ: "TEM",
+    AĞUSTOS: "AĞU",
+    EYLÜL: "EYL",
+    EKİM: "EKİ",
+    KASIM: "KAS",
+    ARALIK: "ARA",
+  };
+
+  const rows = useMemo(() => {
+    let runningBalance = balance;
+
+    return transactions.map((tx) => {
+      const balanceAfter = runningBalance;
+
+      runningBalance =
+        tx.kind === "credit"
+          ? runningBalance - tx.amount
+          : runningBalance + tx.amount;
+
+      return { ...tx, balanceAfter };
+    });
+  }, [transactions, balance]);
+
+  const statusTime = new Date().toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return (
-    <div className="min-h-screen bg-[#f7f7f7] pb-24">
+    <div className="min-h-screen bg-[#eeeeee] pb-5 text-[#4b555a]">
+      <header className="bg-[#ed0a24] text-white">
+        <div className="flex h-[36px] items-center justify-between px-5 pt-1 text-[13px] font-bold">
+          <span>{statusTime}</span>
 
-      <header className="bg-[#e30620] px-4 pb-5 pt-5 text-white">
+          <div className="flex items-center gap-2">
+            <div className="flex h-4 items-end gap-[2px]">
+              <span className="h-[5px] w-[3px] rounded-sm bg-white" />
+              <span className="h-[8px] w-[3px] rounded-sm bg-white" />
+              <span className="h-[11px] w-[3px] rounded-sm bg-white" />
+              <span className="h-[14px] w-[3px] rounded-sm bg-white/55" />
+            </div>
 
-        <div className="flex items-center justify-between">
+            <svg width="18" height="14" viewBox="0 0 24 18" fill="none" aria-hidden="true">
+              <path d="M2 6.8C7.6 1.9 16.4 1.9 22 6.8" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+              <path d="M6 11c3.4-2.9 8.6-2.9 12 0" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+              <path d="M10 14.8c1.2-1 2.8-1 4 0" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+            </svg>
 
+            <div className="flex items-center">
+              <div className="rounded-[4px] bg-white px-1.5 py-[1px] text-[11px] font-black text-[#36a85d]">
+                48
+              </div>
+              <span className="ml-[2px] h-[7px] w-[2px] rounded-r bg-white/80" />
+            </div>
+          </div>
+        </div>
+
+        <div className="relative flex h-[61px] items-center px-3">
           <button
             onClick={onBack}
-            className="grid h-10 w-10 place-items-center"
+            className="grid h-11 w-11 place-items-center"
+            aria-label="Geri"
           >
-            <ArrowLeft size={23} />
+            <ArrowLeft size={29} strokeWidth={1.8} />
           </button>
 
-          <h1 className="text-[18px] font-bold">
+          <h1 className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[21px] font-bold">
             Hesap Hareketleri
           </h1>
 
-          <button
-            onClick={onBack}
-            className="grid h-10 w-10 place-items-center"
-          >
-            <Home size={22} />
-          </button>
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              className="grid h-11 w-11 place-items-center"
+              aria-label="Mesajlar"
+            >
+              <Mail size={27} strokeWidth={1.8} />
+            </button>
 
+            <button
+              onClick={onBack}
+              className="grid h-11 w-11 place-items-center"
+              aria-label="Ana sayfa"
+            >
+              <Home size={27} strokeWidth={1.8} />
+            </button>
+          </div>
         </div>
-
       </header>
 
-      {transactions.length === 0 ? (
-        <div className="flex min-h-[500px] flex-col items-center justify-center px-8 text-center">
+      <div className="flex gap-3 px-[10px] py-[10px]">
+        <button className="flex h-[52px] flex-1 items-center justify-between rounded-[8px] border border-[#8d9498] bg-white px-4 text-[15px] text-[#555d61]">
+          Son 1 ay
+          <ChevronDown size={19} />
+        </button>
 
-          <FileText
-            size={52}
-            strokeWidth={1.5}
-            className="text-[#999]"
-          />
+        <button
+          className="grid h-[52px] w-[52px] place-items-center rounded-[8px] border border-[#8d9498] bg-white"
+          aria-label="Filtre"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 6h16M7 12h10M10 18h4"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      </div>
 
-          <h2 className="mt-5 text-base font-bold text-[#333]">
-            Hesap hareketi bulunmamaktadır.
-          </h2>
+      <div className="space-y-[6px] px-[10px]">
+        {rows.map((tx) => {
+          const parts = tx.date.trim().split(/\s+/);
+          const day = parts[0] || "--";
+          const monthKey = (parts[1] || "").toLocaleUpperCase("tr-TR");
+          const month = monthMap[monthKey] || monthKey.slice(0, 3);
+          const compactIban = tx.recipientIban.replace(/\s/g, "");
 
-        </div>
-      ) : (
-        <div className="space-y-3 px-3 py-3">
+          return (
+            <button
+              key={tx.id}
+              onClick={() => onSelect(tx)}
+              className="relative flex min-h-[112px] w-full overflow-hidden rounded-[7px] bg-white text-left shadow-[0_1px_2px_rgba(0,0,0,0.10)]"
+            >
+              <div className="flex w-[74px] shrink-0 flex-col items-center justify-center border-r border-[#dedede]">
+                <span className="text-[30px] font-light leading-none text-[#434d52]">
+                  {day}
+                </span>
+                <span className="mt-[5px] text-[11px] font-semibold tracking-[0.06em] text-[#687176]">
+                  {month}
+                </span>
+                <span className="mt-[3px] text-[11px] text-[#687176]">
+                  {tx.time}
+                </span>
+              </div>
 
-          {transactions.map((tx) => {
+              <div className="min-w-0 flex-1 py-[11px] pl-[11px] pr-[102px]">
+                {tx.kind === "credit" ? (
+                  <>
+                    <p className="truncate text-[13px] leading-[1.2] text-[#475157]">
+                      Gönd: {tx.recipientName.toLocaleUpperCase("tr-TR")}
+                    </p>
+                    <p className="mt-[3px] line-clamp-2 text-[12px] leading-[1.22] text-[#475157]">
+                      {tx.recipientBank} FAST işlemi
+                    </p>
+                    <p className="mt-[3px] truncate text-[11px] text-[#687176]">
+                      {compactIban}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="line-clamp-1 text-[12px] leading-[1.2] text-[#475157]">
+                      {tx.recipientBank}/
+                    </p>
+                    <p className="mt-[2px] truncate text-[11px] text-[#475157]">
+                      {compactIban}
+                    </p>
+                    <p className="mt-[3px] line-clamp-2 text-[12px] leading-[1.22] text-[#475157]">
+                      {tx.recipientName} — {tx.subtitle}
+                    </p>
+                  </>
+                )}
+              </div>
 
-            const dateParts = tx.date.split(" ");
-
-            return (
-              <button
-                key={tx.id}
-                onClick={() => onSelect(tx)}
-                className="flex min-h-[150px] w-full overflow-hidden rounded-xl bg-white text-left shadow-[0_1px_5px_rgba(0,0,0,0.08)]"
+              <div
+                className={`absolute right-[10px] top-[11px] text-[14px] font-bold ${
+                  tx.kind === "credit" ? "text-[#36a95b]" : "text-[#3f494e]"
+                }`}
               >
+                {tx.kind === "credit" ? "+" : "-"}
+                {formatMoney(tx.amount)}
+              </div>
 
-                <div className="flex w-[72px] shrink-0 flex-col items-center justify-center border-r border-[#eeeeee]">
+              <ReceiptText
+                size={20}
+                strokeWidth={1.8}
+                className="absolute right-[26px] top-[47px] text-[#111]"
+              />
 
-                  <span className="text-[25px] font-bold leading-none text-[#222]">
-                    {dateParts[0]}
-                  </span>
-
-                  <span className="mt-1 text-[11px] text-[#777]">
-                    {dateParts.slice(1).join(" ")}
-                  </span>
-
-                </div>
-
-                <div className="min-w-0 flex-1 px-4 py-4">
-
-                  <p className="truncate text-[15px] font-bold text-[#222]">
-                    {tx.title}
-                  </p>
-
-                  <p className="mt-1 truncate text-[14px] font-semibold text-[#333]">
-                    {tx.recipientName}
-                  </p>
-
-                  <p className="mt-1 truncate text-[12px] text-[#555]">
-                    {tx.subtitle}
-                  </p>
-
-                  <p className="mt-1 text-[11px] font-medium text-[#888]">
-                    {tx.date}
-                  </p>
-
-                  <p className="mt-1 truncate text-[10px] text-[#999]">
-                    {tx.recipientIban}
-                  </p>
-
-                  <p className="mt-1 text-[10px] text-[#aaa]">
-                    İşlem No: {tx.transactionNumber}
-                  </p>
-
-                </div>
-
-                <div className="flex w-[88px] shrink-0 flex-col items-end justify-between px-3 py-4">
-
-                  <span
-                    className={`text-[14px] font-bold ${
-                      tx.kind === "credit"
-                        ? "text-[#16803c]"
-                        : "text-[#222]"
-                    }`}
-                  >
-                    {tx.amount}
-                  </span>
-
-                  <div className="flex flex-col items-center">
-
-                    <FileText
-                      size={19}
-                      strokeWidth={1.7}
-                      className="text-[#e30620]"
-                    />
-
-                    <span className="mt-1 text-[10px] text-[#333]">
-                      Dekont
-                    </span>
-
-                  </div>
-
-                </div>
-
-              </button>
-            );
-          })}
-
-        </div>
-      )}
-
+              <div className="absolute bottom-[9px] right-[10px] text-right">
+                <span className="text-[10px] text-[#8c9295]">Kalan Bakiye: </span>
+                <span className="text-[11px] font-semibold text-[#4e585d]">
+                  {formatMoney(tx.balanceAfter)}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function Receipt({
-  transaction,
-  onClose,
-}: {
-  transaction: Transaction;
-  onClose: () => void;
-}) {
+function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: () => void; }) {
   const [copied, setCopied] = useState(false);
-
-  const iban = transaction.recipientIban;
+  const [masked, setMasked] = useState(false);
 
   const copy = () => {
-    navigator.clipboard
-      ?.writeText(iban)
-      .catch(() => {});
-
+    navigator.clipboard?.writeText(transaction.recipientIban).catch(() => {});
     setCopied(true);
-
     setTimeout(() => setCopied(false), 1500);
   };
 
+  const displayedIban = masked
+    ? `${transaction.recipientIban.slice(0, 7)} **** **** **** **** ${transaction.recipientIban.slice(-5)}`
+    : transaction.recipientIban;
+
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col bg-[#fafafa]">
-
-      <header className="bg-[#e30620] px-4 py-5 text-white">
-
-        <div className="flex items-center justify-between">
-
-          <button onClick={onClose}>
-            <ArrowLeft />
-          </button>
-
-          <h1 className="text-xl font-bold">
-            Dekont
-          </h1>
-
-          <div className="w-6" />
-
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#ececec]">
+      <header className="sticky top-0 z-10 bg-[#e30620] px-3 py-4 text-white">
+        <div className="mx-auto flex w-full max-w-[430px] items-center">
+          <button onClick={onClose} className="grid h-10 w-10 place-items-center"><ArrowLeft size={24} /></button>
+          <h1 className="flex-1 text-center text-[18px] font-semibold">Dekont</h1>
+          <button className="grid h-10 w-10 place-items-center"><Share2 size={20} /></button>
         </div>
-
       </header>
 
-      <div className="bg-white px-5 py-8 text-center">
+      <div className="mx-auto w-full max-w-[430px] px-3 py-3">
+        <div className="relative overflow-hidden rounded-[4px] bg-white shadow-sm">
+          <div className="absolute right-3 top-3 rounded border border-[#d9d9d9] px-2 py-1 text-[9px] font-semibold tracking-[0.18em] text-[#777]">ÖRNEK</div>
 
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#e6f7ee] text-[#15803d]">
-          <Check size={32} />
-        </div>
-
-        <p className="mt-4 text-2xl font-bold">
-          {transaction.amount}
-        </p>
-
-        <p className="mt-1 text-sm text-[#777]">
-          İşlem tamamlandı
-        </p>
-
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4">
-
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-
-          <ReceiptRow
-            label="İşlem"
-            value={transaction.title}
-          />
-
-          <ReceiptRow
-            label="Açıklama"
-            value={transaction.subtitle}
-          />
-
-          <ReceiptRow
-            label="Alıcı / Gönderen"
-            value={transaction.recipientName}
-          />
-
-          <ReceiptRow
-            label="İşlem Numarası"
-            value={transaction.transactionNumber}
-          />
-
-          <ReceiptRow
-            label="Tarih"
-            value={transaction.date}
-          />
-
-          <div className="flex items-center justify-between gap-3 border-t border-[#eee] p-4">
-
-            <span className="text-sm text-[#888]">
-              IBAN
-            </span>
-
-            <div className="flex min-w-0 items-center gap-2 text-right">
-
-              <span className="break-all text-sm font-semibold">
-                {iban}
-              </span>
-
-              <button
-                onClick={copy}
-                className="shrink-0 text-[#e30620]"
-              >
-                {copied ? (
-                  <Check size={16} />
-                ) : (
-                  <Copy size={16} />
-                )}
-              </button>
-
+          <div className="border-b border-[#e6e6e6] px-5 pb-4 pt-6">
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#e30620] text-white"><span className="text-xl font-black">Z</span></div>
+              <div>
+                <p className="text-[16px] font-bold text-[#333]">İşlem Dekontu</p>
+                <p className="text-[11px] text-[#888]">{transaction.date} · {transaction.time}</p>
+              </div>
             </div>
-
           </div>
 
+          <div className="px-5 py-4">
+            <ReceiptLine label="İşlem Türü" value={transaction.title} />
+            <ReceiptLine label="Gönderen / Alıcı" value={transaction.recipientName} />
+            <ReceiptLine label="Banka" value={transaction.recipientBank} />
+
+            <div className="border-b border-[#ececec] py-3">
+              <p className="text-[10px] text-[#999]">IBAN</p>
+              <div className="mt-1 flex items-start gap-2">
+                <p className="flex-1 break-all text-[12px] font-semibold leading-relaxed text-[#333]">{displayedIban}</p>
+                <button onClick={copy} className="mt-0.5 shrink-0 text-[#e30620]">{copied ? <Check size={16} /> : <Copy size={16} />}</button>
+              </div>
+            </div>
+
+            <ReceiptLine label="İşlem Tutarı" value={`${transaction.kind === "credit" ? "+" : "-"}${formatMoney(transaction.amount)}`} strong green={transaction.kind === "credit"} />
+            <ReceiptLine label="İşlem Tarihi" value={`${transaction.date} ${transaction.time}`} />
+            <ReceiptLine label="İşlem Numarası" value={transaction.transactionNumber} />
+            <ReceiptLine label="Açıklama" value={transaction.subtitle} />
+            <ReceiptLine label="Masraf / BSMV" value="0,00 TL" />
+          </div>
         </div>
 
-        <p className="mt-4 rounded-xl bg-[#fff8e1] p-4 text-xs text-[#8a6a00]">
-          Bu ekran yalnızca demo amaçlıdır. Gerçek finansal
-          işlem gerçekleştirmez.
-        </p>
-
-      </div>
-
-      <div className="bg-white p-5">
-
-        <button
-          onClick={onClose}
-          className="w-full rounded-full bg-[#e30620] py-4 font-bold text-white"
-        >
-          Kapat
+        <button onClick={() => setMasked((value) => !value)} className="mt-3 flex w-full items-center justify-between rounded-[4px] bg-white px-4 py-4 text-left shadow-sm">
+          <span className="text-[12px] font-medium text-[#333]">Adres ve Kimlik Bilgilerimi Maskele</span>
+          <span className={`relative h-6 w-11 rounded-full ${masked ? "bg-[#e30620]" : "bg-[#d1d1d1]"}`}>
+            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow ${masked ? "left-[22px]" : "left-0.5"}`} />
+          </span>
         </button>
 
+        <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-[4px] bg-[#e30620] py-4 text-[13px] font-bold text-white">
+          <Mail size={18} /> E-POSTA GÖNDER
+        </button>
+
+        <button onClick={onClose} className="mt-3 w-full rounded-[4px] border border-[#cfcfcf] bg-white py-4 text-[13px] font-bold text-[#333]">GERİ</button>
+
+        <p className="pb-6 pt-3 text-center text-[9px] text-[#999]">ÖRNEK belge — gerçek banka dekontu değildir.</p>
       </div>
-
     </div>
   );
 }
 
-function ReceiptRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function ReceiptLine({ label, value, strong = false, green = false }: { label: string; value: string; strong?: boolean; green?: boolean; }) {
   return (
-    <div className="flex items-start justify-between gap-3 border-b border-[#eee] p-4">
-
-      <span className="text-sm text-[#888]">
-        {label}
-      </span>
-
-      <span className="max-w-[62%] break-words text-right text-sm font-semibold">
-        {value}
-      </span>
-
+    <div className="border-b border-[#ececec] py-3">
+      <p className="text-[10px] text-[#999]">{label}</p>
+      <p className={`mt-1 text-[12px] ${strong ? "font-bold" : "font-semibold"} ${green ? "text-[#16803c]" : "text-[#333]"}`}>{value}</p>
     </div>
   );
 }
 
-function OtherView({
-  view,
-  onBack,
-  onTransfer,
-}: {
-  view: View;
-  onBack: () => void;
-  onTransfer: () => void;
-}) {
-  const titles: Record<string, string> = {
-    products: "Ürünler",
-    actions: "İşlemler",
-    applications: "Başvurular",
-    menu: "Tüm Menü",
-  };
+function Shortcut({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void; }) {
+  return (
+    <button onClick={onClick} className="flex h-[105px] flex-col items-center justify-center gap-2 rounded-xl bg-white text-center text-xs font-semibold shadow-sm">
+      <span className="text-[#e30620]">{icon}</span>
+      <span className="whitespace-pre-line">{label}</span>
+    </button>
+  );
+}
 
-  const items =
-    view === "actions"
-      ? [
-          ["Para Transferi", Send],
-          ["QR ile Para Çekme", QrCode],
-          ["Fatura Ödeme", ReceiptText],
-        ]
-      : view === "products"
-        ? [
-            ["Yeni Hesap Aç", Banknote],
-            ["Kartlarım", CreditCard],
-            ["Birikim Hedefi", TrendingUp],
-          ]
-        : [
-            ["Kredi Başvurusu", FileText],
-            ["Limit Artırımı", ArrowRight],
-            ["Güvenlik Merkezi", ShieldCheck],
-          ];
+function OtherView({ view, onBack, onTransfer }: { view: View; onBack: () => void; onTransfer: () => void; }) {
+  const titles: Record<string, string> = { products: "Ürünler", actions: "İşlemler", applications: "Başvurular", menu: "Tüm Menü" };
+  const items = view === "actions"
+    ? [["Para Transferi", Send], ["QR ile Para Çekme", QrCode], ["Fatura Ödeme", ReceiptText]]
+    : view === "products"
+      ? [["Yeni Hesap Aç", Banknote], ["Kartlarım", CreditCard], ["Birikim Hedefi", TrendingUp]]
+      : [["Kredi Başvurusu", FileText], ["Limit Artırımı", ChevronRight], ["Güvenlik Merkezi", ShieldCheck]];
 
   return (
     <div className="min-h-screen bg-[#f8f7f7] px-5 pb-28 pt-6">
-
       <div className="flex items-center gap-3">
-
-        <button
-          onClick={onBack}
-          className="grid h-10 w-10 place-items-center rounded-xl bg-white"
-        >
-          <ArrowLeft size={19} />
-        </button>
-
-        <h1 className="text-2xl font-bold">
-          {titles[view]}
-        </h1>
-
-      </div>
-
-      <div className="mt-7 rounded-2xl bg-[#e30620] p-5 text-white">
-
-        <Sparkles size={23} />
-
-        <p className="mt-4 text-xl font-bold">
-          Günlük bankacılık, tek dokunuşla.
-        </p>
-
-        <p className="mt-2 text-sm text-white/80">
-          Demo alanı · Gerçek işlem gerçekleştirmez.
-        </p>
-
+        <button onClick={onBack} className="grid h-10 w-10 place-items-center rounded-xl bg-white"><ArrowLeft size={19} /></button>
+        <h1 className="text-2xl font-bold">{titles[view]}</h1>
       </div>
 
       <div className="mt-5 space-y-3">
-
         {items.map(([label, Icon]) => (
-          <button
-            key={String(label)}
-            onClick={
-              label === "Para Transferi"
-                ? onTransfer
-                : undefined
-            }
-            className="flex w-full items-center gap-4 rounded-2xl bg-white p-4 text-left shadow-sm"
-          >
-
-            <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff0f1] text-[#d3132b]">
-              <Icon size={21} />
-            </span>
-
-            <span className="flex-1 font-semibold">
-              {String(label)}
-            </span>
-
-            <ChevronRight
-              size={18}
-              className="text-[#aaa]"
-            />
-
+          <button key={String(label)} onClick={label === "Para Transferi" ? onTransfer : undefined} className="flex w-full items-center gap-4 rounded-2xl bg-white p-4 text-left shadow-sm">
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#fff0f1] text-[#d3132b]"><Icon size={21} /></span>
+            <span className="flex-1 font-semibold">{String(label)}</span>
+            <ChevronRight size={18} className="text-[#aaa]" />
           </button>
         ))}
-
       </div>
-
     </div>
   );
 }
 
-function BottomNav({
-  view,
-  onChange,
-}: {
-  view: View;
-  onChange: (view: View) => void;
-}) {
-  const items: {
-    label: string;
-    view: View;
-    icon: React.ElementType;
-  }[] = [
-    {
-      label: "Ana Sayfa",
-      view: "home",
-      icon: Home,
-    },
-    {
-      label: "Ürünler",
-      view: "products",
-      icon: LayoutGrid,
-    },
-    {
-      label: "İşlemler",
-      view: "actions",
-      icon: Send,
-    },
-    {
-      label: "Başvurular",
-      view: "applications",
-      icon: FileText,
-    },
-    {
-      label: "Tüm Menü",
-      view: "menu",
-      icon: Menu,
-    },
+function BottomNav({ view, onChange }: { view: View; onChange: (view: View) => void; }) {
+  const items: { label: string; view: View; icon: React.ElementType; }[] = [
+    { label: "Ana Sayfa", view: "home", icon: Home },
+    { label: "Ürünler", view: "products", icon: LayoutGrid },
+    { label: "İşlemler", view: "actions", icon: Send },
+    { label: "Başvurular", view: "applications", icon: FileText },
+    { label: "Tüm Menü", view: "menu", icon: Menu },
   ];
 
   return (
     <nav className="fixed bottom-0 left-1/2 z-30 flex h-[76px] w-full max-w-[430px] -translate-x-1/2 items-start justify-around border-t border-[#eee] bg-white px-1 pt-3 shadow-[0_-3px_14px_rgba(60,35,37,.05)]">
-
-      {items.map(
-        ({ label, view: target, icon: Icon }) => (
-          <button
-            key={label}
-            onClick={() => onChange(target)}
-            className={`flex w-1/5 flex-col items-center gap-1 text-[11px] font-semibold ${
-              view === target
-                ? "text-[#df0b25]"
-                : "text-[#777]"
-            }`}
-          >
-
-            <Icon size={20} />
-
-            <span>{label}</span>
-
-            {view === target && (
-              <span className="h-1.5 w-1.5 rounded-full bg-[#df0b25]" />
-            )}
-
-          </button>
-        ),
-      )}
-
+      {items.map(({ label, view: target, icon: Icon }) => (
+        <button key={label} onClick={() => onChange(target)} className={`flex w-1/5 flex-col items-center gap-1 text-[11px] font-semibold ${view === target ? "text-[#df0b25]" : "text-[#777]"}`}>
+          <Icon size={20} />
+          <span>{label}</span>
+          {view === target && <span className="h-1.5 w-1.5 rounded-full bg-[#df0b25]" />}
+        </button>
+      ))}
     </nav>
-  );
-}
-
-function MenuRow({
-  icon,
-  text,
-}: {
-  icon: React.ReactNode;
-  text: string;
-}) {
-  return (
-    <button className="flex w-full items-center gap-3 rounded-xl bg-[#f7f5f5] p-4 text-left">
-
-      <span className="text-[#e30620]">
-        {icon}
-      </span>
-
-      <span className="font-semibold">
-        {text}
-      </span>
-
-      <ChevronRight
-        size={17}
-        className="ml-auto text-[#aaa]"
-      />
-
-    </button>
   );
 }
