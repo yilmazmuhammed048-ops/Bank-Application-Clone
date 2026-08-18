@@ -136,14 +136,14 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
       <img
         src="/ziraat-login-reference.jpg"
         alt="Ziraat Mobil giriş ekranı"
-        className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
+        className="pointer-events-none absolute inset-0 h-full w-full select-none object-fill"
       />
 
       <button
         onClick={() => setSheetOpen(true)}
         aria-label="Giriş Yap"
         type="button"
-        className="absolute left-[13%] top-[62.8%] z-50 flex h-[6.2%] w-[74%] touch-manipulation items-center justify-center rounded-full bg-white text-[clamp(18px,4.2vw,24px)] font-semibold text-[#161616] shadow-none active:bg-[#f4f4f4]"
+        className="absolute left-[12.9%] top-[62.95%] z-50 flex h-[6.05%] w-[74.2%] touch-manipulation items-center justify-center rounded-full bg-white text-[22px] font-semibold text-[#161616] shadow-none active:bg-[#f4f4f4]"
       >
         Giriş Yap
       </button>
