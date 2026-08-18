@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  LoadingScreen,
+  LoginScreen,
+  SplashScreen,
+} from "./components/mockups/zirat/LoginScreen";
+import {
   ArrowLeft,
   Banknote,
   Check,
@@ -249,6 +254,7 @@ function readAccountData() {
 }
 
 export default function ZiratMobile() {
+  const [authStage, setAuthStage] = useState<"splash" | "login" | "loading" | "app">("splash");
   const [view, setView] = useState<View>("home");
   const [balance, setBalance] = useState(() => readAccountData().balance);
   const [transactions, setTransactions] = useState<Transaction[]>(
@@ -312,6 +318,18 @@ export default function ZiratMobile() {
     setTransactions((current) => [newTransaction, ...current]);
     setShowTransfer(false);
   };
+
+  if (authStage === "splash") {
+    return <SplashScreen onDone={() => setAuthStage("login")} />;
+  }
+
+  if (authStage === "login") {
+    return <LoginScreen onLogin={() => setAuthStage("loading")} />;
+  }
+
+  if (authStage === "loading") {
+    return <LoadingScreen onDone={() => setAuthStage("app")} />;
+  }
 
   return (
     <main className="min-h-screen bg-[#f2f0f1] text-[#242326]">
