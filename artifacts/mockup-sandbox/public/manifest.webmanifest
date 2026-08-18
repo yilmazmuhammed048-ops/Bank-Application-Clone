@@ -3,8 +3,8 @@
   "short_name": "Banka",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#00843D",
+  "background_color": "#E30620",
+  "theme_color": "#E30620",
   "icons": [
     {
       "src": "/icon-512.jpeg",
