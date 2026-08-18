@@ -43,7 +43,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       <img
         src="/ziraat-splash-reference.jpg"
         alt="Ziraat Bankası 162. yıl"
-        className="h-full w-full object-cover object-center"
+        className="pointer-events-none absolute left-0 top-[-4.4%] h-[106.8%] w-full select-none object-fill"
       />
     </div>
   );
@@ -136,7 +136,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
       <img
         src="/ziraat-login-reference.jpg"
         alt="Ziraat Mobil giriş ekranı"
-        className="pointer-events-none absolute inset-0 h-full w-full select-none object-fill"
+        className="pointer-events-none absolute left-0 top-[-4.4%] h-[106.8%] w-full select-none object-fill"
       />
 
       <button
@@ -153,10 +153,10 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <img
             src="/ziraat-password-reference.jpg"
             alt="Ziraat Mobil şifre ekranı"
-            className="pointer-events-none absolute inset-0 h-full w-full select-none object-fill"
+            className="pointer-events-none absolute left-0 top-[-4.4%] h-[106.8%] w-full select-none object-fill"
           />
 
-          <div className={`absolute left-[3.8%] top-[40.55%] z-20 flex h-[5.75%] w-[92.4%] items-center rounded-full border bg-white px-[4.2%] ${error ? "border-[#e30620]" : "border-[#9da1a3]"}`}>
+          <div className={`absolute left-[3.8%] top-[38.9%] z-20 flex h-[6.15%] w-[92.4%] items-center rounded-full border bg-white px-[4.2%] ${error ? "border-[#e30620]" : "border-[#9da1a3]"}`}>
             <input
               autoFocus
               type="password"
@@ -176,7 +176,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
           </div>
 
           {error && (
-            <p className="absolute left-[9%] top-[46.2%] z-10 rounded bg-white px-2 py-0.5 text-[10px] font-semibold text-[#e30620]">
+            <p className="absolute left-[9%] top-[45.1%] z-30 rounded bg-white px-2 py-0.5 text-[10px] font-semibold text-[#e30620]">
               Hatalı şifre
             </p>
           )}
@@ -184,13 +184,13 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <button
             onClick={tryLogin}
             aria-label="Giriş"
-            className="absolute left-[3.8%] top-[48%] h-[6.1%] w-[92.4%] rounded-full bg-transparent"
+            className="absolute left-[3.8%] top-[46.85%] h-[6.5%] w-[92.4%] rounded-full bg-transparent"
           />
 
           <button
             onClick={() => setSheetOpen(false)}
             aria-label="Kapat"
-            className="absolute left-[38%] top-[90%] h-[6%] w-[24%] bg-transparent"
+            className="absolute left-[38%] top-[91.2%] h-[6%] w-[24%] bg-transparent"
           />
         </div>
       )}
