@@ -7,6 +7,7 @@ import {
 } from "./components/mockups/zirat/LoginScreen";
 import {
   ArrowLeft,
+  ArrowRight,
   Banknote,
   Check,
   ChevronDown,
@@ -272,6 +273,7 @@ export default function ZiratMobile() {
   );
   const [transferAmount, setTransferAmount] = useState("850,00");
   const [showTips, setShowTips] = useState(false);
+  const [showCampaign, setShowCampaign] = useState(true);
 
   const refreshFromAdmin = () => {
     const data = readAccountData();
@@ -337,29 +339,30 @@ export default function ZiratMobile() {
       <div className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fafafa] shadow-xl">
         {view !== "transactions" && (
           <header
-            className="bg-[#d90b17] bg-cover bg-center px-5 pb-4 pt-4 text-white"
+            className="bg-[#d90b17] bg-cover bg-center px-4 pb-5 pt-5 text-white"
             style={{ backgroundImage: `url(${headerWaveUrl})` }}
           >
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen(true)}
-              className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#969b9d]"
+              className="relative grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full bg-white text-[#969b9d] shadow-sm"
             >
               <User size={22} strokeWidth={1.7} fill="currentColor" />
+              <span className="absolute -right-0.5 -top-1 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-[#555] px-1 text-[10px] font-bold text-white">9</span>
             </button>
 
-            <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/45 bg-black/10 px-4">
-              <Search size={17} />
-              <span className="text-sm">Ziraat Mobil&apos;de Ara</span>
+            <div className="flex h-[46px] flex-1 items-center gap-3 rounded-full border border-white/60 bg-black/10 px-4">
+              <Search size={22} strokeWidth={1.8} />
+              <span className="text-[15px]">Ziraat Mobil&apos;de Ara</span>
             </div>
 
-            <button className="grid h-11 w-11 place-items-center rounded-2xl bg-white/15">
-              <MessageSquare size={20} />
+            <button className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] border border-white/30 bg-white/15 shadow-sm">
+              <MessageSquare size={23} strokeWidth={1.8} />
             </button>
           </div>
 
-          <p className="mt-3 text-sm">
-            İyi Günler <strong>{MY_NAME}</strong>
+          <p className="mt-4 text-[16px] font-light">
+            İyi Akşamlar <strong className="font-bold">{MY_NAME}</strong>
           </p>
         </header>
         )}
@@ -368,7 +371,7 @@ export default function ZiratMobile() {
           <div className="pb-24">
             <button
               onClick={() => setShowTips(!showTips)}
-              className="flex w-full items-center justify-between bg-white px-5 py-4 text-left font-semibold"
+              className="flex w-full items-center justify-between border-b border-[#e6e6e6] bg-[#f5f5f5] px-4 py-[18px] text-left text-[18px] font-bold"
             >
               İpuçlarına hemen göz at!
               <ChevronDown
@@ -383,11 +386,11 @@ export default function ZiratMobile() {
               </div>
             )}
 
-            <div className="px-5">
-              <div className="mt-5 flex items-end gap-7 border-b border-[#ddd]">
+            <div className="px-4">
+              <div className="mt-4 flex items-end gap-5">
                 <button
                   onClick={() => setTab("accounts")}
-                  className={`relative pb-3 text-lg font-semibold ${
+                  className={`relative pb-3 text-[18px] font-semibold ${
                     tab === "accounts"
                       ? "text-[#242326] after:absolute after:bottom-[-1px] after:left-0 after:h-[3px] after:w-full after:bg-[#e30620]"
                       : "text-[#888]"
@@ -398,7 +401,7 @@ export default function ZiratMobile() {
 
                 <button
                   onClick={() => setTab("cards")}
-                  className={`relative pb-3 text-lg font-semibold ${
+                  className={`relative pb-3 text-[18px] font-normal ${
                     tab === "cards"
                       ? "text-[#242326] after:absolute after:bottom-[-1px] after:left-0 after:h-[3px] after:w-full after:bg-[#e30620]"
                       : "text-[#888]"
@@ -407,13 +410,13 @@ export default function ZiratMobile() {
                   Kredi Kartlarım
                 </button>
 
-                <button className="ml-auto mb-2 grid h-9 w-9 place-items-center rounded-xl bg-[#efeeee]">
+                <button className="ml-auto mb-1 grid h-11 w-11 place-items-center rounded-[14px] bg-[#f0f0f0]">
                   <MoreVertical size={18} />
                 </button>
               </div>
 
               {tab === "accounts" && (
-                <section className="pt-5">
+                <section className="relative border-t border-[#ddd] pt-5">
                   <h2 className="text-lg font-bold text-[#c9162d]">
                     ZİRAAT SÜPER ŞUBE
                   </h2>
@@ -425,27 +428,31 @@ export default function ZiratMobile() {
                     <span className="text-[13px] font-medium tracking-[-0.015em] text-[#444]">{MY_ACCOUNT}</span>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="truncate text-xs text-[#777]">{MY_IBAN}</span>
+                  <div className="mt-5 flex items-center pr-14">
+                    <span className="truncate text-[14px] font-medium text-[#333]">{MY_IBAN}</span>
                     <button className="grid h-8 w-8 place-items-center text-[#d3132b]" aria-label="IBAN paylaş">
                       <Share2 size={20} strokeWidth={2.2} />
                     </button>
                   </div>
 
-                  <p className="mt-5 text-xs text-[#777]">Bakiye</p>
-                  <p className="mt-1 text-3xl font-bold">{formatMoney(balance)}</p>
+                  <button className="absolute right-0 top-[76px] grid h-11 w-11 place-items-center rounded-[14px] bg-[#f0f0f0] text-[#222]" aria-label="QR işlemleri">
+                    <QrCode size={23} strokeWidth={1.7} />
+                  </button>
+
+                  <p className="mt-5 text-[13px] text-[#555]">Bakiye</p>
+                  <p className="mt-0.5 text-[24px] font-bold tracking-[-0.02em]">{formatMoney(balance)}</p>
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setView("products")}
-                      className="rounded-full bg-[#e30620] py-3.5 text-sm font-bold text-white"
+                      className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-medium text-white"
                     >
                       Tüm Hesaplarım
                     </button>
 
                     <button
                       onClick={() => setView("transactions")}
-                      className="rounded-full bg-[#e30620] py-3.5 text-sm font-bold text-white"
+                      className="rounded-full bg-[#e30620] py-3.5 text-[14px] font-medium text-white"
                     >
                       Hesap Hareketleri
                     </button>
@@ -469,9 +476,10 @@ export default function ZiratMobile() {
               )}
             </div>
 
-            <section className="mt-6 bg-[#f5f3f3] px-5 py-5">
+            <section className="mt-6 bg-[#f1f1f1] px-4 py-5">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-bold">Kısayollarım</h2>
+                <h2 className="text-[19px] font-bold">Kısayollarım</h2>
+                <button className="flex items-center gap-1 text-[13px] font-medium text-[#444]">Tüm Kısayollarım <ArrowRight size={18} className="text-[#e30620]" /></button>
               </div>
 
               <div className="grid grid-cols-4 gap-2">
@@ -481,6 +489,14 @@ export default function ZiratMobile() {
                 <Shortcut icon={<Banknote size={23} />} label={"Para\nTransferi"} onClick={() => setShowTransfer(true)} />
               </div>
             </section>
+
+            {showCampaign && (
+              <section className="relative flex min-h-[76px] items-center overflow-hidden bg-[#343d40] px-4 pr-16 text-white">
+                <div className="absolute inset-y-0 right-12 w-28 -skew-x-12 bg-white/5" />
+                <p className="relative max-w-[250px] text-[17px] font-bold leading-tight">Mevduat Teklifi almak için tıklayınız. <ArrowRight className="ml-1 inline" size={20} /></p>
+                <button onClick={() => setShowCampaign(false)} className="absolute right-4 grid h-10 w-10 place-items-center rounded-[12px] border border-white/60" aria-label="Kampanyayı kapat"><X size={22} /></button>
+              </section>
+            )}
           </div>
         )}
 
@@ -926,3 +942,4 @@ function BottomNav({ view, onChange }: { view: View; onChange: (view: View) => v
     </nav>
   );
 }
+
