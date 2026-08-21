@@ -1,15 +1,32 @@
 /* Use the cleaned crop taken directly from the supplied reference image. */
+html,
+body,
+#root {
+  min-height: 100%;
+  background: #df0e24;
+}
+
+/*
+ * iPhone 13 / notched iPhones:
+ * the red artwork starts at the physical top edge of the screen and continues
+ * underneath the status-bar/notch. Content is pushed below the safe area.
+ */
 main > div:has(> div.pb-24) > header {
   position: relative !important;
   isolation: isolate !important;
   overflow: hidden !important;
+  box-sizing: border-box !important;
+  height: calc(118px + env(safe-area-inset-top, 0px)) !important;
+  min-height: calc(118px + env(safe-area-inset-top, 0px)) !important;
+  padding: calc(17px + env(safe-area-inset-top, 0px)) 16px 19px !important;
   background-color: #df0e24 !important;
   background-image: url('/header-background-reference.jpg') !important;
   background-repeat: no-repeat !important;
-  background-position: center center !important;
-  background-size: 100% 100% !important;
+  background-position: center top !important;
+  background-size: cover !important;
 }
 
+/* No synthetic gradients: the supplied artwork itself is the background. */
 main > div:has(> div.pb-24) > header::before,
 main > div:has(> div.pb-24) > header::after {
   content: none !important;
@@ -20,4 +37,9 @@ main > div:has(> div.pb-24) > header::after {
 main > div:has(> div.pb-24) > header > * {
   position: relative !important;
   z-index: 1 !important;
+}
+
+/* Keep the app surface white only after the complete red top region. */
+main > div:has(> div.pb-24) > div.pb-24 {
+  background: #fff !important;
 }
