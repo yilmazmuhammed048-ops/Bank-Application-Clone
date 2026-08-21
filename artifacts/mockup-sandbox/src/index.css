@@ -88,7 +88,7 @@
   --muted: 240 4.8% 95.9%;
   --muted-foreground: 240 3.8% 46.1%;
   --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
   --border: 240 5.9% 90%;
@@ -104,7 +104,7 @@
   --sidebar-primary: 240 5.9% 10%;
   --sidebar-primary-foreground: 0 0% 98%;
   --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
   --sidebar-border: 220 13% 91%;
   --sidebar-ring: 240 5.9% 10%;
   --font-sans: 'Inter', sans-serif;
@@ -123,9 +123,9 @@
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
   --card: 240 10% 3.9%;
-  --card-foreground: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
   --popover: 240 10% 3.9%;
-  --popover-foreground: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
   --primary: 0 0% 98%;
   --primary-foreground: 240 5.9% 10%;
   --secondary: 240 3.7% 15.9%;
@@ -197,10 +197,10 @@ div[class*="z-[60]"] > header h1 {
 
 div[class*="z-[60]"] > header button:last-child {
   display: flex !important;
-  width: 88px !important;
+  width: 94px !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  gap: 13px !important;
+  gap: 10px !important;
 }
 
 div[class*="z-[60]"] > header button:last-child svg {
@@ -218,15 +218,15 @@ div[class*="z-[60]"] > header button:last-child::after {
 }
 
 div[class*="z-[60]"] > header button:last-child::before {
-  width: 30px;
-  height: 25px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2.5' y='4' width='19' height='16' rx='1.7'/%3E%3Cpath d='m3.5 6 8.5 7 8.5-7'/%3E%3C/svg%3E");
+  width: 32px;
+  height: 26px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 24' fill='none' stroke='white' stroke-width='1.45' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='1.5' y='2' width='27' height='20' rx='1.5'/%3E%3Cpath d='M2.6 4.2 15 14.3 27.4 4.2'/%3E%3Cpath d='m2.6 20 8.3-7.1M27.4 20l-8.3-7.1'/%3E%3C/svg%3E");
 }
 
 div[class*="z-[60]"] > header button:last-child::after {
-  width: 29px;
-  height: 29px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 10 9-7 9 7'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-7h6v7'/%3E%3C/svg%3E");
+  width: 32px;
+  height: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30' fill='none' stroke='white' stroke-width='1.45' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 13 15 2l13 11'/%3E%3Cpath d='M5 11.5V28h20V11.5'/%3E%3Cpath d='M11 28V18h8v10'/%3E%3C/svg%3E");
 }
 
 div[class*="z-[60]"] > header + div {
@@ -237,7 +237,7 @@ div[class*="z-[60]"] > header + div {
 div[class*="z-[60]"] > header + div > div {
   min-height: calc(100vh - 80px) !important;
   border-radius: 8px !important;
-  padding: 88px 24px 18px !important;
+  padding: 86px 24px 18px !important;
   box-shadow: none !important;
 }
 
@@ -258,8 +258,8 @@ div[class*="z-[60]"] > header + div > div > div:first-of-type {
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child {
   position: relative !important;
   display: block !important;
-  height: 23px !important;
-  margin-bottom: 4px !important;
+  height: 22px !important;
+  margin-bottom: 3px !important;
 }
 
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child > div {
@@ -269,7 +269,7 @@ div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child 
 }
 
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child img {
-  height: 21px !important;
+  height: 20px !important;
   width: 15px !important;
 }
 
@@ -288,23 +288,23 @@ div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child 
   line-height: 1 !important;
 }
 
-/* Symmetric top information boxes */
+/* Symmetric, compact top information boxes */
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) {
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 5px !important;
   align-items: stretch !important;
-  padding: 5px !important;
+  padding: 3px !important;
   border: 1px solid #c7c7c7 !important;
   border-bottom: 0 !important;
   border-radius: 3px 3px 0 0 !important;
-  font-size: 5px !important;
-  line-height: 1.2 !important;
+  font-size: 4.7px !important;
+  line-height: 1.12 !important;
 }
 
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div {
-  height: 62px !important;
-  min-height: 62px !important;
-  padding: 5px 6px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  padding: 3px 5px !important;
   border: 1px solid #c7c7c7 !important;
   border-radius: 3px !important;
   box-sizing: border-box !important;
@@ -314,17 +314,17 @@ div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2)
 /* Make left-side labels and values fit like the reference */
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div:first-child > div {
   display: grid !important;
-  grid-template-columns: 47px minmax(0, 1fr) !important;
+  grid-template-columns: 45px minmax(0, 1fr) !important;
   gap: 2px !important;
   align-items: start !important;
   min-width: 0 !important;
-  line-height: 1.18 !important;
+  line-height: 1.13 !important;
 }
 
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div:first-child strong,
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div:first-child span {
-  font-size: 4.65px !important;
-  line-height: 1.18 !important;
+  font-size: 4.45px !important;
+  line-height: 1.13 !important;
   white-space: nowrap !important;
 }
 
@@ -336,8 +336,8 @@ div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2)
 /* Right-side addressee/address block */
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div:last-child {
   position: relative !important;
-  font-size: 4.8px !important;
-  line-height: 1.18 !important;
+  font-size: 4.55px !important;
+  line-height: 1.12 !important;
 }
 
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div:last-child > p:nth-child(3),
@@ -346,13 +346,13 @@ div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2)
 }
 
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div:last-child::after {
-  content: "FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 / 3\A ÜRGÜP\A NEVŞEHİR";
+  content: "FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5/3\A ÜRGÜP\A NEVŞEHİR";
   display: block;
-  margin-top: 8px;
+  margin-top: 5px;
   white-space: pre-line;
-  font-size: 4.8px;
+  font-size: 4.55px;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.24;
 }
 
 /* Main transaction body and its subtle outer receipt frame */
@@ -416,19 +416,31 @@ div[class*="z-[60]"] > header + div > div > div:last-of-type {
 }
 
 div[class*="z-[60]"] > header + div > div > div:last-of-type > button:first-child {
-  gap: 14px !important;
-  padding: 12px 8px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  padding: 10px 8px !important;
+  white-space: nowrap !important;
 }
 
 div[class*="z-[60]"] > header + div > div > div:last-of-type > button:first-child > span:first-child {
   width: 24px !important;
   height: 24px !important;
+  flex: 0 0 24px !important;
   border-radius: 5px !important;
 }
 
 div[class*="z-[60]"] > header + div > div > div:last-of-type > button:first-child > span:last-child {
-  font-size: 16px !important;
+  display: inline-block !important;
+  width: auto !important;
+  flex: 0 1 auto !important;
+  font-size: 14px !important;
+  line-height: 1.1 !important;
   font-weight: 650 !important;
+  white-space: nowrap !important;
 }
 
 div[class*="z-[60]"] > header + div > div > div:last-of-type > button:nth-child(2),
@@ -450,7 +462,7 @@ div[class*="z-[60]"] > header + div > div > div:last-of-type > button:nth-child(
 
 @media (min-height: 780px) {
   div[class*="z-[60]"] > header + div > div {
-    padding-top: 96px !important;
+    padding-top: 86px !important;
   }
 
   div[class*="z-[60]"] > header + div > div > div:last-of-type {
