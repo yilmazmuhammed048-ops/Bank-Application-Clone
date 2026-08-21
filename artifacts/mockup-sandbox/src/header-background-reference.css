@@ -1,32 +1,32 @@
-/* Use the cleaned crop taken directly from the supplied reference image. */
+/* Exact red artwork rebuilt from the supplied iPhone reference. */
 html,
 body,
 #root {
   min-height: 100%;
-  background: #df0e24;
+  background: #e40620;
 }
 
 /*
- * iPhone 13 / notched iPhones:
- * the red artwork starts at the physical top edge of the screen and continues
- * underneath the status-bar/notch. Content is pushed below the safe area.
+ * The supplied red reference is 1170x430, which maps to about 143px at an
+ * iPhone 13 logical width of 390px. Keep that complete red field intact,
+ * including the notch/status-bar safe area.
  */
 main > div:has(> div.pb-24) > header {
   position: relative !important;
   isolation: isolate !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
-  height: calc(118px + env(safe-area-inset-top, 0px)) !important;
-  min-height: calc(118px + env(safe-area-inset-top, 0px)) !important;
-  padding: calc(17px + env(safe-area-inset-top, 0px)) 16px 19px !important;
-  background-color: #df0e24 !important;
+  height: max(143px, calc(96px + env(safe-area-inset-top, 0px))) !important;
+  min-height: max(143px, calc(96px + env(safe-area-inset-top, 0px))) !important;
+  padding: max(12px, calc(env(safe-area-inset-top, 0px) + 2px)) 16px 14px !important;
+  background-color: #e40620 !important;
   background-image: url('/header-background-reference.jpg') !important;
   background-repeat: no-repeat !important;
   background-position: center top !important;
-  background-size: cover !important;
+  background-size: 100% 100% !important;
 }
 
-/* No synthetic gradients: the supplied artwork itself is the background. */
+/* The artwork already contains every shadow/fold; never layer fake gradients. */
 main > div:has(> div.pb-24) > header::before,
 main > div:has(> div.pb-24) > header::after {
   content: none !important;
@@ -39,7 +39,7 @@ main > div:has(> div.pb-24) > header > * {
   z-index: 1 !important;
 }
 
-/* Keep the app surface white only after the complete red top region. */
+/* App content returns to white only after the entire red header has ended. */
 main > div:has(> div.pb-24) > div.pb-24 {
   background: #fff !important;
 }
