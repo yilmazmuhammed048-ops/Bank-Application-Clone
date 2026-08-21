@@ -91,7 +91,7 @@
   --muted: 240 4.8% 95.9%;
   --muted-foreground: 240 3.8% 46.1%;
   --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
+  --accent-foreground: 240 4.8% 95.9%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
   --border: 240 5.9% 90%;
@@ -107,7 +107,7 @@
   --sidebar-primary: 240 5.9% 10%;
   --sidebar-primary-foreground: 0 0% 98%;
   --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
   --sidebar-border: 220 13% 91%;
   --sidebar-ring: 240 5.9% 10%;
 
@@ -140,7 +140,7 @@
   --muted: 240 3.7% 15.9%;
   --muted-foreground: 240 5% 64.9%;
   --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --accent-foreground: 240 4.8% 95.9%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
   --border: 240 3.7% 15.9%;
@@ -181,5 +181,155 @@
     content: attr(data-placeholder);
     color: hsl(var(--muted-foreground));
     pointer-events: none;
+  }
+}
+
+/* Previous receipt reference layout */
+div[class*="z-[60]"] {
+  background: #bdbdbd !important;
+}
+
+div[class*="z-[60]"] > header {
+  background: #ed0018 !important;
+  box-shadow: none !important;
+}
+
+div[class*="z-[60]"] > header > div {
+  height: 64px;
+}
+
+div[class*="z-[60]"] > header h1 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+div[class*="z-[60]"] > header button:last-child svg {
+  display: none;
+}
+
+div[class*="z-[60]"] > header button:last-child {
+  width: 78px !important;
+  position: relative;
+}
+
+div[class*="z-[60]"] > header button:last-child::after {
+  content: "✉   ⌂";
+  white-space: pre;
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: 5px;
+  font-weight: 400;
+  color: white;
+}
+
+div[class*="z-[60]"] > header + div {
+  min-height: calc(100vh - 64px) !important;
+  padding: 6px 10px 10px !important;
+}
+
+div[class*="z-[60]"] > header + div > div {
+  min-height: calc(100vh - 80px) !important;
+  border-radius: 8px !important;
+  padding: 88px 24px 18px !important;
+  box-shadow: none !important;
+}
+
+div[class*="z-[60]"] > header + div > div > button[aria-label="Dekontu paylaş"] {
+  top: 20px !important;
+  right: 20px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > span {
+  display: none !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type {
+  width: 100% !important;
+  max-width: 300px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child {
+  margin-bottom: 5px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child img {
+  height: 20px !important;
+  width: 15px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child span {
+  font-size: 10px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:first-child h2 {
+  font-size: 7px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) {
+  gap: 5px !important;
+  font-size: 5px !important;
+  line-height: 1.35 !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(2) > div {
+  padding: 6px !important;
+  border-color: #c7c7c7 !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(3) {
+  padding: 5px 8px 0 !important;
+  font-size: 8px !important;
+  line-height: 1.16 !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(3) > div {
+  margin-top: 18px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:last-of-type {
+  padding-top: 24px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:last-of-type > button:first-child {
+  gap: 14px !important;
+  padding: 12px 8px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:last-of-type > button:first-child > span:first-child {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 5px !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:last-of-type > button:first-child > span:last-child {
+  font-size: 16px !important;
+  font-weight: 650 !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:last-of-type > button:nth-child(2),
+div[class*="z-[60]"] > header + div > div > div:last-of-type > button:nth-child(3) {
+  min-height: 54px !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:last-of-type > button:nth-child(2) {
+  margin-top: 8px !important;
+  background: #ed0018 !important;
+}
+
+div[class*="z-[60]"] > header + div > div > div:last-of-type > button:nth-child(3) {
+  margin-top: 10px !important;
+  border-width: 1.5px !important;
+}
+
+@media (min-height: 780px) {
+  div[class*="z-[60]"] > header + div > div {
+    padding-top: 96px !important;
+  }
+
+  div[class*="z-[60]"] > header + div > div > div:last-of-type {
+    padding-top: 30px !important;
   }
 }
