@@ -3,8 +3,8 @@ import App from "./App";
 import AdminApp from "./admin/AdminApp";
 import "./index.css";
 
-const ADMIN_HOST = "banka-yonetim-paneli.vercel.app";
-const isAdminHost = window.location.hostname === ADMIN_HOST;
+const hostname = window.location.hostname.toLowerCase();
+const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
 const isAdminPath = window.location.pathname === "/admin" || window.location.pathname === "/admin/";
 const isAdminRoute = isAdminHost || isAdminPath;
 const SHARED_API = "https://banka-yonetim-paneli.vercel.app/api/state";
