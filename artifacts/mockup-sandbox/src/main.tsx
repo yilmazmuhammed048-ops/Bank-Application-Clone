@@ -13,9 +13,19 @@ async function loadSharedState() {
   try {
     const response = await fetch(`${SHARED_API}?t=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) return;
+
     const data = await response.json();
-    if (data.account) localStorage.setItem("demo_account", JSON.stringify(data.account));
-    if (Array.isArray(data.transactions)) localStorage.setItem("demo_transactions", JSON.stringify(data.transactions));
+
+    if (data.account) {
+      localStorage.setItem("demo_account", JSON.stringify(data.account));
+      if (data.account.balance !== undefined && data.account.balance !== null) {
+        localStorage.setItem("demo_balance", String(data.account.balance));
+      }
+    }
+
+    if (Array.isArray(data.transactions)) {
+      localStorage.setItem("demo_transactions", JSON.stringify(data.transactions));
+    }
   } catch {
     // Fall back to the app's existing local data when the shared API is unavailable.
   }
@@ -51,6 +61,7 @@ async function start() {
     };
   } else {
     await loadSharedState();
+    window.setInterval(loadSharedState, 1500);
   }
 
   createRoot(document.getElementById("root")!).render(
