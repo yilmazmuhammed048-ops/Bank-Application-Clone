@@ -1,4 +1,5 @@
 declare const fetch: any;
+declare const process: any;
 
 type State = {
   account: Record<string, unknown>;
