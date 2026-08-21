@@ -1,13 +1,14 @@
-import { get, list, put } from "@vercel/blob";
+declare const fetch: any;
 
 type State = {
   account: Record<string, unknown>;
   transactions: unknown[];
 };
 
-const STATE_PREFIX = "bank-demo/state-";
+const STATE_PATH = "bank-demo/state.json";
 const ADMIN_ORIGIN = "https://banka-yonetim-paneli.vercel.app";
 const APP_ORIGIN = "https://bank-application-clone-mockup-sandb.vercel.app";
+const BLOB_API_VERSION = "12";
 
 const initial: State = {
   account: {
@@ -45,46 +46,56 @@ function normalizeState(value: any): State {
   };
 }
 
-async function streamToText(stream: any): Promise<string> {
-  let text = "";
-  for await (const chunk of stream) {
-    text += typeof chunk === "string" ? chunk : chunk.toString("utf8");
-  }
-  return text;
+function blobAuth() {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) throw new Error("BLOB_READ_WRITE_TOKEN is missing");
+
+  const parts = String(token).split("_");
+  const storeId = parts[3] || "";
+  if (!storeId) throw new Error("Blob store id could not be read from token");
+
+  return { token, storeId };
 }
 
 async function readState(): Promise<State> {
-  const result = await list({ prefix: STATE_PREFIX, limit: 1000 });
-  const blobs = Array.isArray(result.blobs) ? result.blobs : [];
-  if (blobs.length === 0) return initial;
+  const { token, storeId } = blobAuth();
+  const url = `https://${storeId}.private.blob.vercel-storage.com/${STATE_PATH}?cache=0`;
 
-  const latest = blobs
-    .slice()
-    .sort((a: any, b: any) => {
-      const aTime = new Date(a.uploadedAt ?? 0).getTime();
-      const bTime = new Date(b.uploadedAt ?? 0).getTime();
-      if (aTime !== bTime) return bTime - aTime;
-      return String(b.pathname).localeCompare(String(a.pathname));
-    })[0];
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
 
-  if (!latest) return initial;
+  if (response.status === 404) return initial;
+  if (!response.ok) throw new Error(`Blob read failed: ${response.status}`);
 
-  const blob = await get(latest.pathname, { access: "private" });
-  if (!blob || blob.statusCode !== 200 || !blob.stream) return initial;
-
-  try {
-    return normalizeState(JSON.parse(await streamToText(blob.stream)));
-  } catch {
-    return initial;
-  }
+  return normalizeState(JSON.parse(await response.text()));
 }
 
 async function writeState(state: State) {
-  const pathname = `${STATE_PREFIX}${Date.now()}-${Math.random().toString(36).slice(2)}.json`;
-  await put(pathname, JSON.stringify(state), {
-    access: "private",
-    contentType: "application/json",
+  const { token, storeId } = blobAuth();
+  const url = `https://vercel.com/api/blob/?pathname=${encodeURIComponent(STATE_PATH)}`;
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "x-api-version": BLOB_API_VERSION,
+      "x-vercel-blob-store-id": storeId,
+      "x-vercel-blob-access": "private",
+      "x-allow-overwrite": "1",
+      "x-add-random-suffix": "0",
+      "x-content-type": "application/json",
+    },
+    body: JSON.stringify(state),
   });
+
+  if (!response.ok) {
+    throw new Error(`Blob write failed: ${response.status}`);
+  }
 }
 
 export default async function handler(req: any, res: any) {
@@ -106,10 +117,16 @@ export default async function handler(req: any, res: any) {
     }
 
     try {
+      const current = await readState();
       const body = req.body ?? {};
       const next = normalizeState({
-        account: body.account,
-        transactions: body.transactions,
+        account:
+          body.account && typeof body.account === "object"
+            ? body.account
+            : current.account,
+        transactions: Array.isArray(body.transactions)
+          ? body.transactions
+          : current.transactions,
       });
 
       await writeState(next);
