@@ -179,8 +179,6 @@ function formatMoney(value: number) {
 }
 
 function calculateCommission(transaction: Transaction) {
-  if (transaction.kind === "credit") return 0;
-
   const proportional = transaction.amount * 0.001;
   return Math.min(25, Math.max(2, proportional));
 }
