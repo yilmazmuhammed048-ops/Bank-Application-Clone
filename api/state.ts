@@ -37,7 +37,6 @@ function setCors(req: any, res: any) {
 async function readState(): Promise<State> {
   const result = await get(STATE_PATH, {
     access: "private",
-    useCache: false,
   });
 
   if (!result || result.statusCode !== 200 || !result.stream) {
