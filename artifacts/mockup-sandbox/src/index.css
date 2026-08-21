@@ -283,6 +283,11 @@ div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(3)
   line-height: 1.16 !important;
 }
 
+div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(3) p > strong {
+  font-weight: 400 !important;
+  color: inherit !important;
+}
+
 div[class*="z-[60]"] > header + div > div > div:first-of-type > div:nth-child(3) > div {
   margin-top: 18px !important;
 }
