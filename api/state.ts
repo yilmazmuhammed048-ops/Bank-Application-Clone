@@ -1,11 +1,11 @@
-import { get, put } from "@vercel/blob";
+import { get, list, put } from "@vercel/blob";
 
 type State = {
   account: Record<string, unknown>;
   transactions: unknown[];
 };
 
-const STATE_PATH = "bank-demo/state.json";
+const STATE_PREFIX = "bank-demo/state-";
 const ADMIN_ORIGIN = "https://banka-yonetim-paneli.vercel.app";
 const APP_ORIGIN = "https://bank-application-clone-mockup-sandb.vercel.app";
 
@@ -54,21 +54,35 @@ async function streamToText(stream: any): Promise<string> {
 }
 
 async function readState(): Promise<State> {
-  const result = await get(STATE_PATH, { access: "private" });
-  if (!result || result.statusCode !== 200 || !result.stream) return initial;
+  const result = await list({ prefix: STATE_PREFIX, limit: 1000 });
+  const blobs = Array.isArray(result.blobs) ? result.blobs : [];
+  if (blobs.length === 0) return initial;
+
+  const latest = blobs
+    .slice()
+    .sort((a: any, b: any) => {
+      const aTime = new Date(a.uploadedAt ?? 0).getTime();
+      const bTime = new Date(b.uploadedAt ?? 0).getTime();
+      if (aTime !== bTime) return bTime - aTime;
+      return String(b.pathname).localeCompare(String(a.pathname));
+    })[0];
+
+  if (!latest) return initial;
+
+  const blob = await get(latest.pathname, { access: "private" });
+  if (!blob || blob.statusCode !== 200 || !blob.stream) return initial;
 
   try {
-    const text = await streamToText(result.stream);
-    return normalizeState(JSON.parse(text));
+    return normalizeState(JSON.parse(await streamToText(blob.stream)));
   } catch {
     return initial;
   }
 }
 
 async function writeState(state: State) {
-  await put(STATE_PATH, JSON.stringify(state), {
+  const pathname = `${STATE_PREFIX}${Date.now()}-${Math.random().toString(36).slice(2)}.json`;
+  await put(pathname, JSON.stringify(state), {
     access: "private",
-    allowOverwrite: true,
     contentType: "application/json",
   });
 }
@@ -92,17 +106,12 @@ export default async function handler(req: any, res: any) {
     }
 
     try {
-      const current = await readState();
       const body = req.body ?? {};
       const next = normalizeState({
-        account:
-          body.account && typeof body.account === "object"
-            ? body.account
-            : current.account,
-        transactions: Array.isArray(body.transactions)
-          ? body.transactions
-          : current.transactions,
+        account: body.account,
+        transactions: body.transactions,
       });
+
       await writeState(next);
       return res.status(200).json({ ok: true, ...next });
     } catch {
