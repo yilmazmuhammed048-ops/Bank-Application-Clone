@@ -6,6 +6,8 @@ type State = {
 };
 
 const STATE_PATH = "bank-demo/state.json";
+const ADMIN_ORIGIN = "https://banka-yonetim-paneli.vercel.app";
+const APP_ORIGIN = "https://bank-application-clone-mockup-sandb.vercel.app";
 
 const initial: State = {
   account: {
@@ -20,24 +22,33 @@ const initial: State = {
   transactions: [],
 };
 
-const ADMIN_ORIGIN = "https://banka-yonetim-paneli.vercel.app";
-const APP_ORIGIN = "https://bank-application-clone-mockup-sandb.vercel.app";
-
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin;
+
   if (origin === ADMIN_ORIGIN || origin === APP_ORIGIN) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
+
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Cache-Control", "no-store, max-age=0");
+  res.setHeader("Cache-Control", "no-store");
+}
+
+function normalizeState(value: any): State {
+  return {
+    account:
+      value?.account && typeof value.account === "object"
+        ? value.account
+        : initial.account,
+    transactions: Array.isArray(value?.transactions)
+      ? value.transactions
+      : initial.transactions,
+  };
 }
 
 async function readState(): Promise<State> {
-  const result = await get(STATE_PATH, {
-    access: "private",
-  });
+  const result = await get(STATE_PATH, { access: "private" });
 
   if (!result || result.statusCode !== 200 || !result.stream) {
     return initial;
@@ -45,16 +56,7 @@ async function readState(): Promise<State> {
 
   try {
     const text = await new Response(result.stream).text();
-    const parsed = JSON.parse(text);
-    return {
-      account:
-        parsed?.account && typeof parsed.account === "object"
-          ? parsed.account
-          : initial.account,
-      transactions: Array.isArray(parsed?.transactions)
-        ? parsed.transactions
-        : initial.transactions,
-    };
+    return normalizeState(JSON.parse(text));
   } catch {
     return initial;
   }
@@ -64,7 +66,7 @@ async function writeState(state: State) {
   await put(STATE_PATH, JSON.stringify(state), {
     access: "private",
     allowOverwrite: true,
-    contentType: "application/json; charset=utf-8",
+    contentType: "application/json",
   });
 }
 
@@ -77,8 +79,7 @@ export default async function handler(req: any, res: any) {
 
   if (req.method === "GET") {
     try {
-      const state = await readState();
-      return res.status(200).json(state);
+      return res.status(200).json(await readState());
     } catch (error) {
       console.error("Blob read failed", error);
       return res.status(500).json({ error: "State read failed" });
@@ -93,7 +94,7 @@ export default async function handler(req: any, res: any) {
     try {
       const current = await readState();
       const body = req.body ?? {};
-      const next: State = {
+      const next = normalizeState({
         account:
           body.account && typeof body.account === "object"
             ? body.account
@@ -101,7 +102,7 @@ export default async function handler(req: any, res: any) {
         transactions: Array.isArray(body.transactions)
           ? body.transactions
           : current.transactions,
-      };
+      });
 
       await writeState(next);
       return res.status(200).json({ ok: true, ...next });
