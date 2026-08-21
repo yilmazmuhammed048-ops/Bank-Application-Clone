@@ -109,7 +109,7 @@
   --sidebar-accent: 240 4.8% 95.9%;
   --sidebar-accent-foreground: 240 5.9% 10%;
   --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 240 5.9% 10%;
+  --sidebar-ring: 240 4.9% 83.9%;
 
   --font-sans: 'Inter', sans-serif;
   --font-serif: Georgia, serif;
@@ -130,17 +130,17 @@
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
   --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
+  --card-foreground: 240 10% 3.9%;
   --popover: 240 10% 3.9%;
   --popover-foreground: 0 0% 98%;
   --primary: 0 0% 98%;
   --primary-foreground: 240 5.9% 10%;
   --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
+  --secondary-foreground: 240 4.8% 95.9%;
   --muted: 240 3.7% 15.9%;
   --muted-foreground: 240 5% 64.9%;
   --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --accent-foreground: 240 4.8% 95.9%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
   --border: 240 3.7% 15.9%;
@@ -181,5 +181,98 @@
     content: attr(data-placeholder);
     color: hsl(var(--muted-foreground));
     pointer-events: none;
+  }
+}
+
+/* Receipt readability improvements */
+div:has(> button[aria-label="Dekontu paylaş"]) {
+  min-height: auto !important;
+  padding: 26px 18px 20px !important;
+  border: 1px solid #e1e3e5;
+  border-radius: 14px !important;
+  box-shadow: 0 5px 18px rgba(25, 31, 36, 0.08) !important;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > span {
+  display: none;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > button[aria-label="Dekontu paylaş"] {
+  top: 17px !important;
+  right: 18px !important;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 999px;
+  background: #f4f5f6;
+  color: #374047;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type {
+  width: 100% !important;
+  max-width: 360px !important;
+  margin-top: 18px;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:first-child {
+  margin-bottom: 14px !important;
+  padding-right: 44px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e30620;
+  align-items: center !important;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:first-child span {
+  font-size: 15px !important;
+  letter-spacing: -0.02em !important;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:first-child h2 {
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  text-align: right;
+  color: #3d454a;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:nth-child(2) {
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  font-size: 9.5px !important;
+  line-height: 1.55 !important;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:nth-child(2) > div {
+  border-color: #d9dcde !important;
+  border-radius: 8px !important;
+  padding: 10px 11px !important;
+  background: #fafafa;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:nth-child(3) {
+  padding: 14px 2px 0 !important;
+  font-size: 11px !important;
+  line-height: 1.55 !important;
+  color: #30383d;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:nth-child(3) > p {
+  margin-top: 4px;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:nth-child(3) > div {
+  margin-top: 18px !important;
+  padding: 12px 0 !important;
+  border-top: 1px solid #dfe2e4;
+  border-bottom: 1px solid #dfe2e4 !important;
+}
+
+div:has(> button[aria-label="Dekontu paylaş"]) > div:last-of-type {
+  padding-top: 18px !important;
+}
+
+@media (min-width: 390px) {
+  div:has(> button[aria-label="Dekontu paylaş"]) > div:first-of-type > div:nth-child(2) {
+    grid-template-columns: 1.35fr 0.9fr !important;
   }
 }
