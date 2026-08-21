@@ -27,28 +27,7 @@ async function loadSharedState() {
       localStorage.setItem("demo_transactions", JSON.stringify(data.transactions));
     }
   } catch {
-    // Fall back to the app's existing local data when the shared API is unavailable.
-  }
-}
-
-async function syncAdminState() {
-  try {
-    const accountRaw = localStorage.getItem("demo_account");
-    const transactionsRaw = localStorage.getItem("demo_transactions");
-    const response = await fetch(SHARED_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        account: accountRaw ? JSON.parse(accountRaw) : undefined,
-        transactions: transactionsRaw ? JSON.parse(transactionsRaw) : undefined,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Shared state sync failed: ${response.status}`);
-    }
-  } catch {
-    // Keep the existing localStorage behavior if the API is unavailable.
+    // Keep the last known local data if the shared API is temporarily unavailable.
   }
 }
 
@@ -68,17 +47,10 @@ function forceAdminApiToCanonicalHost() {
 
 async function start() {
   if (isAdminRoute) {
+    // Always open the panel from the canonical shared state first.
+    // This prevents stale preview tabs/localStorage from overwriting account movements.
+    await loadSharedState();
     forceAdminApiToCanonicalHost();
-
-    const originalSetItem = Storage.prototype.setItem;
-    let syncTimer: number | undefined;
-
-    Storage.prototype.setItem = function (key: string, value: string) {
-      originalSetItem.call(this, key, value);
-      if (key !== "demo_account" && key !== "demo_transactions") return;
-      window.clearTimeout(syncTimer);
-      syncTimer = window.setTimeout(syncAdminState, 100);
-    };
   } else {
     await loadSharedState();
     window.setInterval(loadSharedState, 1500);
