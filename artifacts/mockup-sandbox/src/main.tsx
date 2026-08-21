@@ -3,6 +3,7 @@ import App from "./App";
 import AdminApp from "./admin/AdminApp";
 import "./index.css";
 import "./home-reference.css";
+import "./shortcut-reference.css";
 
 const hostname = window.location.hostname.toLowerCase();
 const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
