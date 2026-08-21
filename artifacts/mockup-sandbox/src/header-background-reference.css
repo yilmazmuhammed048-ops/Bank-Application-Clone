@@ -1,48 +1,20 @@
-/* Home header red background matched to the supplied reference crop. */
+/* Use the cleaned crop taken directly from the supplied reference image. */
 main > div:has(> div.pb-24) > header {
   position: relative !important;
   isolation: isolate !important;
   overflow: hidden !important;
   background-color: #df0e24 !important;
-  background-image:
-    radial-gradient(95% 120% at 22% -26%, rgba(113, 0, 17, .34) 0%, rgba(126, 0, 18, .22) 32%, rgba(180, 3, 25, .08) 53%, transparent 70%),
-    linear-gradient(153deg, rgba(121, 0, 18, .22) 0%, rgba(143, 0, 20, .15) 19%, transparent 38%),
-    linear-gradient(180deg, #df1027 0%, #df0e24 47%, #dc0d22 100%) !important;
+  background-image: url('/header-background-reference.jpg') !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
   background-size: 100% 100% !important;
-  background-position: center !important;
 }
 
-/* Wide soft ribbon crossing the upper red field. */
-main > div:has(> div.pb-24) > header::before {
-  content: "" !important;
-  display: block !important;
-  position: absolute !important;
-  z-index: -2 !important;
-  width: 128% !important;
-  height: 55% !important;
-  left: -23% !important;
-  top: -27% !important;
-  border-radius: 0 0 58% 48% / 0 0 82% 70% !important;
-  background: linear-gradient(105deg, rgba(132, 0, 18, .38) 0%, rgba(146, 0, 20, .31) 34%, rgba(178, 1, 24, .16) 68%, rgba(223, 14, 36, 0) 100%) !important;
-  transform: rotate(8deg) !important;
-  transform-origin: center !important;
-  filter: blur(.35px) !important;
-  pointer-events: none !important;
-}
-
-/* Dark diagonal fold visible through the search/greeting area. */
+main > div:has(> div.pb-24) > header::before,
 main > div:has(> div.pb-24) > header::after {
-  content: "" !important;
-  display: block !important;
-  position: absolute !important;
-  z-index: -1 !important;
-  width: 84% !important;
-  height: 125% !important;
-  right: -24% !important;
-  top: 19% !important;
-  background: linear-gradient(138deg, rgba(132, 0, 18, 0) 0 31%, rgba(118, 0, 17, .13) 43%, rgba(102, 0, 15, .22) 57%, rgba(132, 0, 18, .08) 72%, rgba(150, 0, 20, 0) 83%) !important;
-  transform: rotate(-2deg) !important;
-  pointer-events: none !important;
+  content: none !important;
+  display: none !important;
+  background: none !important;
 }
 
 main > div:has(> div.pb-24) > header > * {
