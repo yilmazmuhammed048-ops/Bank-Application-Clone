@@ -7,8 +7,6 @@ type State = {
 };
 
 const STATE_PATH = "bank-demo/state.json";
-const ADMIN_ORIGIN = "https://banka-yonetim-paneli.vercel.app";
-const APP_ORIGIN = "https://bank-application-clone-mockup-sandb.vercel.app";
 const BLOB_API_VERSION = "12";
 
 const initial: State = {
@@ -24,9 +22,31 @@ const initial: State = {
   transactions: [],
 };
 
+function originHost(origin: any) {
+  const match = String(origin || "").match(/^https?:\/\/([^/]+)/i);
+  return (match?.[1] || "").toLowerCase();
+}
+
+function isAdminOrigin(origin: any) {
+  const host = originHost(origin);
+  return (
+    host === "banka-yonetim-paneli.vercel.app" ||
+    (host.startsWith("banka-yonetim-paneli-") && host.endsWith(".vercel.app"))
+  );
+}
+
+function isBankOrigin(origin: any) {
+  const host = originHost(origin);
+  return (
+    host === "bank-application-clone-mockup-sandb.vercel.app" ||
+    host === "bank-application-clone-mockup-sandbox-uygulama.vercel.app" ||
+    (host.startsWith("bank-application-clone-mockup-sandbox-") && host.endsWith(".vercel.app"))
+  );
+}
+
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin;
-  if (origin === ADMIN_ORIGIN || origin === APP_ORIGIN) {
+  if (isAdminOrigin(origin) || isBankOrigin(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
   res.setHeader("Vary", "Origin");
@@ -113,7 +133,7 @@ export default async function handler(req: any, res: any) {
   }
 
   if (req.method === "POST") {
-    if (req.headers?.origin && req.headers.origin !== ADMIN_ORIGIN) {
+    if (req.headers?.origin && !isAdminOrigin(req.headers.origin)) {
       return res.status(403).json({ error: "Forbidden origin" });
     }
 
