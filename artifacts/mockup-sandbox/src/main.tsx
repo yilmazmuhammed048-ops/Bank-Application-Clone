@@ -35,7 +35,7 @@ async function syncAdminState() {
   try {
     const accountRaw = localStorage.getItem("demo_account");
     const transactionsRaw = localStorage.getItem("demo_transactions");
-    await fetch("/api/state", {
+    const response = await fetch(SHARED_API, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -43,13 +43,33 @@ async function syncAdminState() {
         transactions: transactionsRaw ? JSON.parse(transactionsRaw) : undefined,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Shared state sync failed: ${response.status}`);
+    }
   } catch {
     // Keep the existing localStorage behavior if the API is unavailable.
   }
 }
 
+function forceAdminApiToCanonicalHost() {
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = ((input: any, init?: any) => {
+    let target = input;
+
+    if (typeof input === "string" && input.startsWith("/api/state")) {
+      target = `${SHARED_API}${input.slice("/api/state".length)}`;
+    }
+
+    return nativeFetch(target, init);
+  }) as typeof window.fetch;
+}
+
 async function start() {
   if (isAdminRoute) {
+    forceAdminApiToCanonicalHost();
+
     const originalSetItem = Storage.prototype.setItem;
     let syncTimer: number | undefined;
 
