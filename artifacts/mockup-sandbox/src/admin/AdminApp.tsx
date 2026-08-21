@@ -248,7 +248,7 @@ const addTransaction = () => {
     });
   };
 
-  const saveAll = () => {
+  const saveAll = async () => {
     localStorage.setItem(
       "demo_account",
       JSON.stringify(account),
@@ -264,7 +264,28 @@ const addTransaction = () => {
       JSON.stringify(transactions),
     );
 
-    setMessage("Değişiklikler başarıyla kaydedildi.");
+    setMessage("Kaydediliyor...");
+
+    try {
+      const response = await fetch("/api/state", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          account,
+          transactions,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Kaydetme isteği başarısız oldu.");
+      }
+
+      setMessage("Değişiklikler uygulamaya gönderildi.");
+    } catch {
+      setMessage("Kaydetme başarısız oldu. Tekrar deneyin.");
+    }
   };
 
   const resetData = () => {
