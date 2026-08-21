@@ -178,6 +178,13 @@ function formatMoney(value: number) {
   })} TL`;
 }
 
+function calculateCommission(transaction: Transaction) {
+  if (transaction.kind === "credit") return 0;
+
+  const proportional = transaction.amount * 0.001;
+  return Math.min(25, Math.max(2, proportional));
+}
+
 function demoTime(id: string | number) {
   const digits = String(id).replace(/\D/g, "");
   const seed = digits
@@ -762,6 +769,8 @@ function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: 
   const receiverName = transaction.kind === "credit" ? MY_NAME.toLocaleUpperCase("tr-TR") : displayedName;
   const directionTitle = transaction.kind === "credit" ? "HESABA GELEN FAST" : "HESAPTAN FAST";
   const signedAmount = `${transaction.kind === "credit" ? "+" : "-"}${formatMoney(transaction.amount)}`;
+  const commission = calculateCommission(transaction);
+  const formattedCommission = formatMoney(commission).replace("TL", "TRY");
 
   return (
     <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#f1f2f3] text-[#30383d]">
@@ -812,8 +821,8 @@ function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: 
               <p>Alan Banka : {transaction.recipientBank}</p>
               <p className="break-words">Alıcı Hesap : {displayedIban} Alıcı : <strong>{receiverName}</strong></p>
               <p>İşlem Tutarı : {formatMoney(transaction.amount).replace("TL", "TRY")}</p>
-              <p>Komisyon : 0,00 TRY BSMV : 0,00 TRY Mesaj Ücreti : 0,00 TRY</p>
-              <p>Toplam Masraf : 0,00 TRY</p>
+              <p>Komisyon : {formattedCommission} BSMV : 0,00 TRY Mesaj Ücreti : 0,00 TRY</p>
+              <p>Toplam Masraf : {formattedCommission}</p>
               <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>
 
               <div className="mt-5 flex items-end justify-between border-b border-[#444] pb-1">
