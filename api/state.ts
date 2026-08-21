@@ -24,11 +24,9 @@ const initial: State = {
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin;
-
   if (origin === ADMIN_ORIGIN || origin === APP_ORIGIN) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
-
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -47,15 +45,20 @@ function normalizeState(value: any): State {
   };
 }
 
+async function streamToText(stream: any): Promise<string> {
+  let text = "";
+  for await (const chunk of stream) {
+    text += typeof chunk === "string" ? chunk : chunk.toString("utf8");
+  }
+  return text;
+}
+
 async function readState(): Promise<State> {
   const result = await get(STATE_PATH, { access: "private" });
-
-  if (!result || result.statusCode !== 200 || !result.stream) {
-    return initial;
-  }
+  if (!result || result.statusCode !== 200 || !result.stream) return initial;
 
   try {
-    const text = await new Response(result.stream).text();
+    const text = await streamToText(result.stream);
     return normalizeState(JSON.parse(text));
   } catch {
     return initial;
@@ -73,15 +76,12 @@ async function writeState(state: State) {
 export default async function handler(req: any, res: any) {
   setCors(req, res);
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
+  if (req.method === "OPTIONS") return res.status(204).end();
 
   if (req.method === "GET") {
     try {
       return res.status(200).json(await readState());
-    } catch (error) {
-      console.error("Blob read failed", error);
+    } catch {
       return res.status(500).json({ error: "State read failed" });
     }
   }
@@ -103,11 +103,9 @@ export default async function handler(req: any, res: any) {
           ? body.transactions
           : current.transactions,
       });
-
       await writeState(next);
       return res.status(200).json({ ok: true, ...next });
-    } catch (error) {
-      console.error("Blob write failed", error);
+    } catch {
       return res.status(500).json({ error: "State write failed" });
     }
   }
