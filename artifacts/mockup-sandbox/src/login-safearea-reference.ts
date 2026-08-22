@@ -7,7 +7,6 @@ function installIphone13LoginSafeArea() {
   style.id = LOGIN_SAFE_STYLE_ID;
   style.textContent = `
     @media (display-mode: standalone) and (min-width: 380px) and (max-width: 400px) {
-      /* Only the login root owns the iPhone 13 safe-area geometry. */
       div:has(> img[alt="Ziraat Mobil giriş ekranı"]) {
         --iphone13-login-safe-top: max(env(safe-area-inset-top, 0px), 47px);
         --iphone13-login-safe-bottom: max(env(safe-area-inset-bottom, 0px), 34px);
@@ -22,8 +21,6 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
-      /* Keep both supplied iPhone 13 references at native viewport geometry,
-         while masking only the fake status/home-indicator areas baked into them. */
       img[alt="Ziraat Mobil giriş ekranı"],
       img[alt="Ziraat Mobil şifre ekranı"] {
         top: 0 !important;
@@ -40,7 +37,6 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
-      /* Password panel stays as a full-screen sheet above the login reference. */
       div:has(> img[alt="Ziraat Mobil şifre ekranı"]) {
         position: absolute !important;
         inset: 0 !important;
@@ -64,8 +60,6 @@ function installIphone13LoginSafeArea() {
         display: none !important;
       }
 
-      /* The screenshot already contains the visible white Login pill. The React
-         button stays invisible but receives the tap over that exact area. */
       button[aria-label="Giriş Yap"] {
         position: absolute !important;
         left: 12.9% !important;
@@ -84,39 +78,63 @@ function installIphone13LoginSafeArea() {
         opacity: 1 !important;
       }
 
-      /* Replace the baked-in password field with one clean interactive capsule.
-         The white halo masks the reference outline underneath, then the single
-         gray border redraws the complete original rounded rectangle. */
+      /* Keep only the capsule already present in the supplied password reference.
+         The real controls are transparent interaction layers, so no second oval or
+         duplicate static labels are drawn on top of the image. */
       div:has(> input[aria-label="Şifreniz"]) {
         left: 3.8% !important;
         top: 38.9% !important;
         width: 92.4% !important;
         height: 6.15% !important;
         box-sizing: border-box !important;
-        border: 1px solid #9da1a3 !important;
-        border-radius: 999px !important;
-        background: #ffffff !important;
-        box-shadow: 0 0 0 4px #ffffff !important;
-        padding-left: 4.2% !important;
-        padding-right: 4.2% !important;
-        overflow: hidden !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        overflow: visible !important;
       }
 
       input[aria-label="Şifreniz"] {
+        position: absolute !important;
+        left: 4.2% !important;
+        top: 0 !important;
+        width: 46% !important;
+        height: 100% !important;
         border: 0 !important;
         background: transparent !important;
         box-shadow: none !important;
         -webkit-appearance: none !important;
         appearance: none !important;
         min-width: 0 !important;
+        padding: 0 !important;
+        color: #3f474b !important;
+        caret-color: #333 !important;
+      }
+
+      input[aria-label="Şifreniz"]::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
       }
 
       div:has(> input[aria-label="Şifreniz"]) > button {
+        position: absolute !important;
+        right: 4.2% !important;
+        top: 0 !important;
+        height: 100% !important;
+        width: 42% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: transparent !important;
+        text-decoration: none !important;
         white-space: nowrap !important;
       }
 
-      /* Keep the actual password controls interactive above the supplied image. */
       input[aria-label="Şifreniz"],
+      div:has(> input[aria-label="Şifreniz"]) > button,
       button[aria-label="Giriş"],
       button[aria-label="Kapat"] {
         pointer-events: auto !important;
