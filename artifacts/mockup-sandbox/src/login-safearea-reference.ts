@@ -65,6 +65,15 @@ function installIphone13LoginSafeArea() {
         display: none !important;
       }
 
+      /* Post-login loading skeleton: keep controls below the real iPhone 13 status area.
+         The red header itself still fills behind the system status bar. */
+      #root > div > header:first-child {
+        box-sizing: border-box !important;
+        padding-top: calc(max(env(safe-area-inset-top, 0px), 47px) + 10px) !important;
+        background-color: #e30620 !important;
+        background-position: center top !important;
+      }
+
       /* Invisible tap target over the single Login pill in the supplied reference. */
       button[aria-label="Giriş Yap"] {
         position: absolute !important;
