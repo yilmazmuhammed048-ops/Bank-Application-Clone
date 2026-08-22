@@ -50,11 +50,17 @@ main > div:has(> div.pb-24) > header::after {
   pointer-events: none !important;
 }
 
+/* Exact override for the old static-header rules that hid these two nodes. */
+main > div:has(> div.pb-24) > header > div:first-child,
+main > div:has(> div.pb-24) > header > p {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
 main > div:has(> div.pb-24) > header > * {
   position: relative !important;
   z-index: 1 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
 }
 
 /* 1170px reference / 3 => exact 390px CSS geometry. */
@@ -64,7 +70,6 @@ main > div:has(> div.pb-24) > header > div:first-child {
   gap: 12.33px !important;
 }
 
-/* Avatar: x=49..168 in the 1170px reference => 39.67 CSS px. */
 main > div:has(> div.pb-24) > header > div:first-child > button:first-child {
   position: relative !important;
   display: grid !important;
@@ -104,7 +109,6 @@ main > div:has(> div.pb-24) > header > div:first-child > button:first-child::aft
   font-weight: 600 !important;
 }
 
-/* Search: 760 source px wide and 112 source px tall. */
 main > div:has(> div.pb-24) > header > div:first-child > div {
   display: flex !important;
   height: 37.33px !important;
@@ -139,7 +143,6 @@ main > div:has(> div.pb-24) > header > div:first-child > div span {
   letter-spacing: -.014em !important;
 }
 
-/* Message button: same 119px source dimension as the avatar. */
 main > div:has(> div.pb-24) > header > div:first-child > button:last-child {
   display: grid !important;
   width: 39.67px !important;
@@ -160,8 +163,8 @@ main > div:has(> div.pb-24) > header > div:first-child > button:last-child svg {
   stroke-width: 1.8 !important;
 }
 
-/* Locked greeting line from the supplied reference. */
 main > div:has(> div.pb-24) > header > p {
+  display: block !important;
   margin: 15px 0 0 !important;
   color: #fff !important;
   font-size: 0 !important;
@@ -185,6 +188,15 @@ main > div:has(> div.pb-24) > header > p strong {
   line-height: 1.05 !important;
   font-weight: 700 !important;
   letter-spacing: -.018em !important;
+}
+
+/* Relock the account title in the LAST imported stylesheet so older home rules cannot enlarge it. */
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section h2 {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: #df0e21 !important;
 }
 
 @media (max-width: 370px) {
