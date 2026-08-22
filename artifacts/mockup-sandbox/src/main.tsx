@@ -11,6 +11,7 @@ import "./transactions-typography-reference.css";
 import "./pdf-approved-logo-patch";
 import "./transactions-pdf-reference-final";
 import "./receipt-pdf-reference";
+import "./receipt-mail-pdf-fix";
 import "./login-safearea-reference";
 
 const hostname = window.location.hostname.toLowerCase();
@@ -181,8 +182,6 @@ function forceAdminApiToCanonicalHost() {
 
 async function start() {
   if (isAdminRoute) {
-    // Always open the panel from the canonical shared state first.
-    // This prevents stale preview tabs/localStorage from overwriting account movements.
     await loadSharedState();
     forceAdminApiToCanonicalHost();
   } else {
