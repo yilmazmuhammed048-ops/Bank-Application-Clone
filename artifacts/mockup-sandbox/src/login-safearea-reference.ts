@@ -85,6 +85,20 @@ function installIphone13LoginSafeArea() {
         overflow: visible !important;
       }
 
+      /* Hide the original promo row before painting the shifted row. This prevents
+         the old card text/top border from peeking out behind the replacement. */
+      button[aria-label="Giriş Yap"]::after {
+        content: "" !important;
+        position: fixed !important;
+        z-index: -2 !important;
+        left: 0 !important;
+        top: calc(var(--iphone13-login-safe-top) + 52px) !important;
+        width: 100vw !important;
+        height: 28px !important;
+        pointer-events: none !important;
+        background: #d91417 !important;
+      }
+
       /* Move ONLY the promo/card strip 16px down in iPhone 13 Home Screen mode.
          This layer replaces the original strip with the same reference artwork,
          shifted down, while every other element stays at its approved coordinate. */
