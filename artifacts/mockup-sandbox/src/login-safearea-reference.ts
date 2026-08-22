@@ -7,8 +7,8 @@ function installIphone13LoginSafeArea() {
   style.id = LOGIN_SAFE_STYLE_ID;
   style.textContent = `
     @media (display-mode: standalone) and (min-width: 380px) and (max-width: 400px) {
-      div:has(> img[alt="Ziraat Mobil giriş ekranı"]),
-      div:has(> img[alt="Ziraat Mobil şifre ekranı"]) {
+      /* Only the login root owns the iPhone 13 safe-area geometry. */
+      div:has(> img[alt="Ziraat Mobil giriş ekranı"]) {
         --iphone13-login-safe-top: max(env(safe-area-inset-top, 0px), 47px);
         --iphone13-login-safe-bottom: max(env(safe-area-inset-bottom, 0px), 34px);
         position: relative !important;
@@ -22,6 +22,8 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
+      /* Keep both supplied iPhone 13 references at native viewport geometry,
+         while masking only the fake status/home-indicator areas baked into them. */
       img[alt="Ziraat Mobil giriş ekranı"],
       img[alt="Ziraat Mobil şifre ekranı"] {
         top: 0 !important;
@@ -38,6 +40,19 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
+      /* Critical: the password panel must remain an absolute full-screen sheet.
+         A previous rule changed it to relative, so tapping Login opened it outside
+         the visible viewport even though the click handler fired. */
+      div:has(> img[alt="Ziraat Mobil şifre ekranı"]) {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 160 !important;
+        overflow: hidden !important;
+        background: #ffffff !important;
+      }
+
       div:has(> img[alt="Ziraat Mobil giriş ekranı"])::before,
       div:has(> img[alt="Ziraat Mobil giriş ekranı"])::after,
       div:has(> img[alt="Ziraat Mobil şifre ekranı"])::before,
@@ -51,14 +66,15 @@ function installIphone13LoginSafeArea() {
         display: none !important;
       }
 
-      /* The reference screenshot already contains the visible white login pill.
-         Keep the real React button invisible but exactly over the visible pill. */
+      /* The screenshot already contains the visible white Login pill. The React
+         button stays invisible but receives the tap over that exact area. */
       button[aria-label="Giriş Yap"] {
+        position: absolute !important;
         left: 12.9% !important;
         top: 59.5% !important;
         width: 74.2% !important;
         height: 6.05% !important;
-        z-index: 100 !important;
+        z-index: 120 !important;
         pointer-events: auto !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
@@ -68,6 +84,14 @@ function installIphone13LoginSafeArea() {
         box-shadow: none !important;
         font-size: 0 !important;
         opacity: 1 !important;
+      }
+
+      /* Keep the actual password controls interactive above the supplied image. */
+      input[aria-label="Şifreniz"],
+      button[aria-label="Giriş"],
+      button[aria-label="Kapat"] {
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
       }
     }
   `;
