@@ -1,34 +1,38 @@
 export {};
 
-type Tx={id:string|number;title?:string;amount?:string|number;date?:string;time?:string;recipientName?:string;recipientIban?:string;recipientBank?:string;transactionNumber?:string;type?:"income"|"expense"};
-type R={id:string;title:string;amount:number;date:string;time:string;recipientName:string;recipientIban:string;recipientBank:string;transactionNumber:string;incoming:boolean};
+document.addEventListener(
+  "click",
+  (event) => {
+    const element = event.target instanceof Element ? event.target : null;
+    const button = element?.closest<HTMLButtonElement>("button");
+    if (!button) return;
 
-const W=1240,H=1754,PW=595.28,PH=841.89,FONT="Arial, Helvetica, sans-serif";
-const MY_NAME="MUHAMMED YILMAZ";
-const MY_IBAN="TR31 0001 1041 2062 7050 01";
-const MY_ACCOUNT="4000/104120627-5001";
-const ADDRESS1="FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 / 3";
-const ADDRESS2="ÜRGÜP";
-const ADDRESS3="NEVŞEHİR";
+    const receiptScreen = button.closest<HTMLElement>(".fixed.inset-0");
+    if (!receiptScreen) return;
 
-function amount(v:string|number|undefined){if(typeof v==="number")return Math.abs(v);const n=Number(String(v??"0").replace(/TL|TRY/gi,"").replace(/\s/g,"").replace(/\./g,"").replace(",",".").replace(/[^\d+.-]/g,""));return Number.isFinite(n)?Math.abs(n):0}
-function money(v:number){return v.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function date(v:string){const s=String(v||"").trim(),m=s.match(/(\d{1,2})\s+([^\s]+)\s+(\d{4})/),mm:Record<string,string>={OCAK:"01",ŞUBAT:"02",SUBAT:"02",MART:"03",NİSAN:"04",NISAN:"04",MAYIS:"05",HAZİRAN:"06",HAZIRAN:"06",TEMMUZ:"07",AĞUSTOS:"08",AGUSTOS:"08",EYLÜL:"09",EYLUL:"09",EKİM:"10",EKIM:"10",KASIM:"11",ARALIK:"12"};if(m)return `${m[1].padStart(2,"0")}.${mm[m[2].toLocaleUpperCase("tr-TR")]||"01"}.${m[3]}`;const d=s.match(/(\d{1,2})[./-](\d{1,2})[./-](\d{4})/);return d?`${d[1].padStart(2,"0")}.${d[2].padStart(2,"0")}.${d[3]}`:s}
-function fee(v:number){return Math.min(25,Math.max(2,v*.001))}
-function latest():R|null{let a:Tx[]=[];try{const p=JSON.parse(localStorage.getItem("demo_transactions")||"[]");a=Array.isArray(p)?p:[]}catch{}if(!a.length)return null;const t=[...a].sort((x,y)=>Number(y.id||0)-Number(x.id||0))[0];const incoming=t.type==="income"||String(t.amount??"").trim().startsWith("+");return{id:String(t.id??""),title:String(t.title||(incoming?"FAST Gelen":"FAST Giden")),amount:amount(t.amount),date:String(t.date||""),time:String(t.time||"00:00"),recipientName:String(t.recipientName||"BELİRTİLMEMİŞ"),recipientIban:String(t.recipientIban||""),recipientBank:String(t.recipientBank||"Banka Bilgisi"),transactionNumber:String(t.transactionNumber||t.id||""),incoming}}
-function rr(c:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
-function lv(c:CanvasRenderingContext2D,l:string,v:string,x:number,y:number,lw=190){c.fillStyle="#111";c.font=`700 17px ${FONT}`;c.fillText(l,x,y);c.font=`400 17px ${FONT}`;c.fillText(":",x+lw,y);c.fillText(v,x+lw+22,y)}
-function fit(c:CanvasRenderingContext2D,t:string,w:number,x:number,y:number,lh=19,max=2){const words=t.split(/\s+/),lines:string[]=[];let line="";for(const word of words){const n=line?`${line} ${word}`:word;if(c.measureText(n).width<=w)line=n;else{if(line)lines.push(line);line=word;if(lines.length>=max-1)break}}if(line&&lines.length<max)lines.push(line);lines.forEach((q,i)=>c.fillText(q,x,y+i*lh))}
-function img(src:string){return new Promise<HTMLImageElement>((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error("img"));i.src=src})}
-async function canvasFor(t:R){const x=document.createElement("canvas");x.width=W;x.height=H;const c=x.getContext("2d");if(!c)throw Error("canvas");c.fillStyle="#fff";c.fillRect(0,0,W,H);try{const base=await img("/ziraat-amblem.jpg");c.drawImage(base,48,42,290,76);await new Promise(r=>setTimeout(r,80));c.fillStyle="#fff";c.fillRect(44,36,304,88);c.drawImage(base,48,42,290,76)}catch{}
-c.fillStyle="#111";c.textAlign="center";c.font=`700 24px ${FONT}`;c.fillText(t.incoming?"HESABA GELEN FAST":"HESAPTAN FAST",W/2,97);c.fillStyle="#c4001d";c.textAlign="right";c.font=`700 13px ${FONT}`;c.fillText("DEMO / ÖRNEK BELGE",1180,55);c.textAlign="left";
-c.strokeStyle="#bdbdbd";c.lineWidth=2;rr(c,49,111,1090,502,10);c.stroke();rr(c,66,127,538,210,9);c.stroke();rr(c,623,127,500,210,9);c.stroke();
-const d=date(t.date),sd=d.replace(/\./g,"/"),tm=t.time.length===5?`${t.time}:00`:t.time,no=t.transactionNumber.replace(/\D/g,"").slice(-5)||"41071",tail=t.id.replace(/\D/g,"").slice(-4)||"4038",doc=`F${no}_${tail}`,ys=[155,181,207,233,259,285,311,331];
-lv(c,"ŞUBE KODU/ADI","4000/ZİRAAT SÜPER ŞUBE",82,ys[0]);lv(c,"IBAN",MY_IBAN,82,ys[1]);lv(c,"HESAP NUMARASI",MY_ACCOUNT,82,ys[2]);lv(c,"VERGİ DAİRESİ","",82,ys[3]);lv(c,"VERGİ KİMLİK NO","10067921118",82,ys[4]);lv(c,"İŞLEM TARİHİ",`${sd}-${tm} - ${doc}`,82,ys[5]);lv(c,"VALÖR",d,82,ys[6]);lv(c,"İŞLEM YERİ","ZİRAAT MOBİL",82,ys[7]);
-c.fillStyle="#111";c.font=`700 17px ${FONT}`;c.fillText("SAYIN",643,155);c.fillText(MY_NAME,643,181);c.fillText(ADDRESS1,643,231);c.fillText(ADDRESS2,643,257);c.fillText(ADDRESS3,643,283);
-const sender=t.incoming?t.recipientName.toLocaleUpperCase("tr-TR"):MY_NAME,receiver=t.incoming?MY_NAME:t.recipientName.toLocaleUpperCase("tr-TR"),iban=t.incoming?MY_IBAN:t.recipientIban,f=t.incoming?0:fee(t.amount),fs=`${money(f)} TRY`,amt=`${money(t.amount)} TRY`;
-c.font=`400 17px ${FONT}`;let y=372;const line=(q:string,g=22)=>{c.fillText(q,92,y);y+=g};line(`Fast Mesaj Kodu : A01 Fast Sorgu No : ${t.transactionNumber}`);line(`Gönderen : ${sender}`);line(`Alan Banka : ${t.recipientBank}`);line(`Alıcı Hesap : ${iban}  Alıcı : ${receiver}`);line(`İşlem Tutarı : ${amt}`);line(`Komisyon : ${fs}  BSMV : 0,00 TRY  Mesaj Ücreti : 0,00 TRY`);line(`Toplam Masraf : ${fs}`);c.font=`400 16px ${FONT}`;fit(c,`${amt} tutarında ${t.title} işleminin yapılmasını, bu işlem için tarafıma bildirilen ${fs} masraf alınmasını talep ederim.`,750,92,y+2);
-const fy=557;c.font=`400 16px ${FONT}`;c.fillText(t.incoming?`Hesabınıza ${money(t.amount)} TL yatırılmıştır.`:`Hesabınızdan ${money(t.amount)} TL çekilmiştir.`,78,fy);c.fillText(`${sd}-${tm} EFTTGIDD INTERNET`,78,fy+23);c.fillText("INTERNET",78,fy+46);c.textAlign="center";c.font=`400 15px ${FONT}`;c.fillText("Saygılarımızla",935,fy-16);c.font=`700 16px ${FONT}`;c.fillText("T.C. ZİRAAT BANKASI A.Ş.",935,fy+6);c.fillText("İNTERNET ŞUBESİ",935,fy+28);c.textAlign="left";c.strokeStyle="#bdbdbd";c.lineWidth=1.5;c.beginPath();c.moveTo(49,615);c.lineTo(1139,615);c.stroke();c.fillStyle="#222";c.font=`400 11px ${FONT}`;c.fillText("Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri, müstenitli olsun olmasın, kesin ve aksi ileri sürülemez delil niteliğindedir.",48,642);c.fillText("Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul Ticaret Sicil No:475225-5",48,663);c.fillText("ÖRNEK BELGE — RESMÎ BANKA DEKONTU DEĞİLDİR.",48,684);return x}
-function pdf(x:HTMLCanvasElement){const u=x.toDataURL("image/jpeg",.94),j=atob(u.split(",")[1]||""),s=`q\n${PW} 0 0 ${PH} 0 0 cm\n/Im0 Do\nQ\n`,o=["<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>",`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`,`<< /Type /XObject /Subtype /Image /Width ${x.width} /Height ${x.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${j.length} >>\nstream\n${j}\nendstream`,`<< /Length ${s.length} >>\nstream\n${s}endstream`];let p="%PDF-1.4\n%âãÏÓ\n";const of=[0];o.forEach((q,i)=>{of[i+1]=p.length;p+=`${i+1} 0 obj\n${q}\nendobj\n`});const xr=p.length;p+=`xref\n0 ${o.length+1}\n0000000000 65535 f \n`;for(let i=1;i<=o.length;i++)p+=`${String(of[i]).padStart(10,"0")} 00000 n \n`;p+=`trailer\n<< /Size ${o.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;const b=new Uint8Array(p.length);for(let i=0;i<p.length;i++)b[i]=p.charCodeAt(i)&255;return new Blob([b],{type:"application/pdf"})}
-async function openPdf(t:R,w:Window|null){const b=pdf(await canvasFor(t)),u=URL.createObjectURL(b);if(w)w.location.href=u;else location.href=u;setTimeout(()=>URL.revokeObjectURL(u),120000)}
-document.addEventListener("click",e=>{const el=e.target instanceof Element?e.target:null,b=el?.closest<HTMLButtonElement>('button[aria-label="Mesajlar"]');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();const t=latest();if(!t){alert("Güncel dekont bilgisi bulunamadı.");return}const w=window.open("about:blank","_blank");void openPdf(t,w).catch(()=>{if(w&&!w.closed)w.close();alert("Dekont PDF'i oluşturulamadı. Lütfen tekrar deneyin.")})},true);
+    // Restrict this bridge to the open receipt/detail screen only.
+    const text = receiptScreen.textContent || "";
+    if (!text.includes("Fast Mesaj Kodu") || !text.includes("İşlem Tutarı")) return;
+
+    const header = button.closest("header");
+    if (!header) return;
+
+    const headerButtons = Array.from(header.querySelectorAll<HTMLButtonElement>("button"));
+    const isReceiptHeaderAction =
+      headerButtons.length > 0 && button === headerButtons[headerButtons.length - 1];
+    if (!isReceiptHeaderAction) return;
+
+    const pdfButton = receiptScreen.querySelector<HTMLButtonElement>(
+      'button[aria-label="Dekontu paylaş"]',
+    );
+    if (!pdfButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    // Use the existing working exporter, which reads the currently open receipt.
+    pdfButton.click();
+  },
+  true,
+);
