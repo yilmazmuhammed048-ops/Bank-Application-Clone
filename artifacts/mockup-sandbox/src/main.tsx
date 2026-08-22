@@ -10,6 +10,7 @@ import "./header-live-reference.css";
 import "./transactions-typography-reference.css";
 import "./pdf-approved-logo-patch";
 import "./transactions-pdf-reference-final";
+import "./receipt-pdf-reference";
 import "./login-safearea-reference";
 
 const hostname = window.location.hostname.toLowerCase();
