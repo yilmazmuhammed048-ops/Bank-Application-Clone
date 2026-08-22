@@ -26,9 +26,9 @@ function installIphone13LoginSafeArea() {
         transform: none !important;
       }
 
-      /* Hide only the baked status/header collision. Keep the promo/card tops intact. */
+      /* Reveal a little more of the promo-card row so its top border is never clipped. */
       div:has(> img[alt="Ziraat Mobil giriş ekranı"]) > img[alt="Ziraat Mobil giriş ekranı"] {
-        clip-path: inset(64px 0 var(--iphone13-login-safe-bottom) 0) !important;
+        clip-path: inset(52px 0 var(--iphone13-login-safe-bottom) 0) !important;
       }
 
       /* Exact supplied TR + Ziraat Bankası + message/bell row below iPhone 13 safe area. */
