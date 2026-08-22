@@ -55,12 +55,18 @@ function installIphone13LoginSafeArea() {
         display: none !important;
       }
 
-      /* Preserve the real React interaction over the button visible in the
-         supplied reference image. */
+      /* The visible Home Screen reference button sits at 59.5% of the viewport.
+         Keep the real React button exactly on top of that visual button so the
+         entire pill is tappable, not only its lower edge. */
       button[aria-label="Giriş Yap"] {
-        z-index: 60 !important;
+        left: 12.9% !important;
+        top: 59.5% !important;
+        width: 74.2% !important;
+        height: 5.65% !important;
+        z-index: 80 !important;
         pointer-events: auto !important;
         touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
       }
     }
   `;
