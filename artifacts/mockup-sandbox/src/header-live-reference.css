@@ -9,7 +9,7 @@ main > div:has(> div.pb-24) > header {
   min-height: 104px !important;
   max-height: 104px !important;
   margin: 0 !important;
-  padding: 12px 16px 11px !important;
+  padding: 10px 16.33px 10px !important;
   border: 0 !important;
   color: #fff !important;
   background-color: #e30620 !important;
@@ -57,68 +57,75 @@ main > div:has(> div.pb-24) > header > * {
   visibility: visible !important;
 }
 
+/* 1170px reference / 3 => exact 390px CSS geometry. */
 main > div:has(> div.pb-24) > header > div:first-child {
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 12.33px !important;
 }
 
+/* Avatar: x=49..168 in the 1170px reference => 39.67 CSS px. */
 main > div:has(> div.pb-24) > header > div:first-child > button:first-child {
   position: relative !important;
   display: grid !important;
-  width: 42px !important;
-  height: 42px !important;
-  flex: 0 0 42px !important;
+  width: 39.67px !important;
+  height: 39.67px !important;
+  flex: 0 0 39.67px !important;
+  padding: 0 !important;
   place-items: center !important;
+  border: 0 !important;
   border-radius: 999px !important;
   background: #f4f4f4 !important;
-  color: #8c9295 !important;
+  color: #8d9294 !important;
   box-shadow: none !important;
 }
 
 main > div:has(> div.pb-24) > header > div:first-child > button:first-child svg {
   width: 24px !important;
   height: 24px !important;
-  stroke-width: 1.55 !important;
+  stroke-width: 1.45 !important;
+  fill: #8d9294 !important;
 }
 
 main > div:has(> div.pb-24) > header > div:first-child > button:first-child::after {
   content: "12" !important;
   position: absolute !important;
-  top: -2px !important;
-  right: -2px !important;
+  top: -1px !important;
+  right: -1px !important;
   display: grid !important;
-  width: 17px !important;
-  height: 17px !important;
+  width: 16px !important;
+  height: 16px !important;
   place-items: center !important;
   border-radius: 999px !important;
-  background: #54585a !important;
+  background: #55595b !important;
   color: #fff !important;
-  font-size: 9px !important;
+  font-size: 8.8px !important;
   line-height: 1 !important;
   font-weight: 600 !important;
 }
 
+/* Search: 760 source px wide and 112 source px tall. */
 main > div:has(> div.pb-24) > header > div:first-child > div {
   display: flex !important;
-  height: 40px !important;
+  height: 37.33px !important;
   min-width: 0 !important;
   flex: 1 1 auto !important;
   align-items: center !important;
   gap: 10px !important;
   box-sizing: border-box !important;
-  padding: 0 15px !important;
-  border: 1.35px solid rgba(255,255,255,.60) !important;
+  padding: 0 14px !important;
+  border: 1px solid rgba(255,255,255,.62) !important;
   border-radius: 999px !important;
-  background: rgba(120,0,14,.12) !important;
+  background: rgba(123,0,15,.10) !important;
   color: #fff !important;
+  box-shadow: none !important;
 }
 
 main > div:has(> div.pb-24) > header > div:first-child > div svg {
   width: 20px !important;
   height: 20px !important;
   flex: 0 0 20px !important;
-  stroke-width: 1.7 !important;
+  stroke-width: 1.65 !important;
 }
 
 main > div:has(> div.pb-24) > header > div:first-child > div span {
@@ -126,22 +133,25 @@ main > div:has(> div.pb-24) > header > div:first-child > div span {
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
   color: #fff !important;
-  font-size: 15.2px !important;
+  font-size: 15px !important;
   line-height: 1 !important;
   font-weight: 400 !important;
-  letter-spacing: -.015em !important;
+  letter-spacing: -.014em !important;
 }
 
+/* Message button: same 119px source dimension as the avatar. */
 main > div:has(> div.pb-24) > header > div:first-child > button:last-child {
   display: grid !important;
-  width: 42px !important;
-  height: 42px !important;
-  flex: 0 0 42px !important;
+  width: 39.67px !important;
+  height: 39.67px !important;
+  flex: 0 0 39.67px !important;
+  padding: 0 !important;
   place-items: center !important;
-  border: 1px solid rgba(255,255,255,.26) !important;
-  border-radius: 15px !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  border-radius: 10.5px !important;
   background: rgba(255,255,255,.15) !important;
   color: #fff !important;
+  box-shadow: none !important;
 }
 
 main > div:has(> div.pb-24) > header > div:first-child > button:last-child svg {
@@ -150,9 +160,9 @@ main > div:has(> div.pb-24) > header > div:first-child > button:last-child svg {
   stroke-width: 1.8 !important;
 }
 
-/* App greeting. The JSX still says "İyi Günler"; visually replace that phrase with the locked reference text. */
+/* Locked greeting line from the supplied reference. */
 main > div:has(> div.pb-24) > header > p {
-  margin: 12px 0 0 !important;
+  margin: 15px 0 0 !important;
   color: #fff !important;
   font-size: 0 !important;
   line-height: 1.05 !important;
