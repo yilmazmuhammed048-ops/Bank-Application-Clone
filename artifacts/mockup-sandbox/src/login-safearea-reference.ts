@@ -84,18 +84,22 @@ function installIphone13LoginSafeArea() {
         opacity: 1 !important;
       }
 
-      /* The password reference already contains the outer input outline and its
-         static labels. Cover only the inside of that field, then render the real
-         input once. This prevents the double border/text seen in Home Screen mode. */
+      /* Replace the baked-in password field with one clean interactive capsule.
+         The white halo masks the reference outline underneath, then the single
+         gray border redraws the complete original rounded rectangle. */
       div:has(> input[aria-label="Şifreniz"]) {
-        left: calc(3.8% + 2px) !important;
-        top: calc(38.9% + 2px) !important;
-        width: calc(92.4% - 4px) !important;
-        height: calc(6.15% - 4px) !important;
-        border: 0 !important;
+        left: 3.8% !important;
+        top: 38.9% !important;
+        width: 92.4% !important;
+        height: 6.15% !important;
+        box-sizing: border-box !important;
+        border: 1px solid #9da1a3 !important;
         border-radius: 999px !important;
         background: #ffffff !important;
-        box-shadow: none !important;
+        box-shadow: 0 0 0 4px #ffffff !important;
+        padding-left: 4.2% !important;
+        padding-right: 4.2% !important;
+        overflow: hidden !important;
       }
 
       input[aria-label="Şifreniz"] {
@@ -104,6 +108,11 @@ function installIphone13LoginSafeArea() {
         box-shadow: none !important;
         -webkit-appearance: none !important;
         appearance: none !important;
+        min-width: 0 !important;
+      }
+
+      div:has(> input[aria-label="Şifreniz"]) > button {
+        white-space: nowrap !important;
       }
 
       /* Keep the actual password controls interactive above the supplied image. */
