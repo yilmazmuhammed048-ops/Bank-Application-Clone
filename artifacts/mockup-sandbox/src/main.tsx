@@ -174,6 +174,25 @@ function forceAdminApiToCanonicalHost() {
   }) as typeof window.fetch;
 }
 
+function lockOutgoingReceiptTitle() {
+  const apply = () => {
+    document.querySelectorAll("h2").forEach((heading) => {
+      if (heading.textContent?.trim() === "HESAPTAN FAST") {
+        heading.textContent = "Hesaptan Hesaba Havale";
+      }
+    });
+  };
+
+  apply();
+
+  const observer = new MutationObserver(apply);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+}
+
 async function start() {
   if (isAdminRoute) {
     // Always open the panel from the canonical shared state first.
@@ -188,6 +207,10 @@ async function start() {
   createRoot(document.getElementById("root")!).render(
     isAdminRoute ? <AdminApp /> : <App />,
   );
+
+  if (!isAdminRoute) {
+    lockOutgoingReceiptTitle();
+  }
 }
 
 start();
