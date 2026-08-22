@@ -8,7 +8,7 @@ import "./header-background-reference.css";
 import "./header-static-final.css";
 import "./header-live-reference.css";
 import "./transactions-typography-reference.css";
-import "./transactions-pdf-render-patch";
+import "./transactions-pdf-render-fix";
 import "./transactions-pdf";
 import "./login-safearea-reference";
 
