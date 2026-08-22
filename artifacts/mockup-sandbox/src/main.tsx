@@ -8,8 +8,7 @@ import "./header-background-reference.css";
 import "./header-static-final.css";
 import "./header-live-reference.css";
 import "./transactions-typography-reference.css";
-import "./transactions-pdf-render-fix";
-import "./transactions-pdf";
+import "./transactions-pdf-reference-final";
 import "./login-safearea-reference";
 
 const hostname = window.location.hostname.toLowerCase();
