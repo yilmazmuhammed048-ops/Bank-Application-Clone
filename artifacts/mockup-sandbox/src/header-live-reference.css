@@ -1,4 +1,4 @@
-/* Live home header lock. Status bar is left to the device/PWA; only the app header is styled here. */
+/* Live home header lock. The device/PWA owns the status bar; this styles only the app header below it. */
 main > div:has(> div.pb-24) > header {
   position: relative !important;
   display: block !important;
@@ -150,8 +150,18 @@ main > div:has(> div.pb-24) > header > div:first-child > button:last-child svg {
   stroke-width: 1.8 !important;
 }
 
+/* App greeting. The JSX still says "İyi Günler"; visually replace that phrase with the locked reference text. */
 main > div:has(> div.pb-24) > header > p {
   margin: 12px 0 0 !important;
+  color: #fff !important;
+  font-size: 0 !important;
+  line-height: 1.05 !important;
+  font-weight: 300 !important;
+  letter-spacing: -.018em !important;
+}
+
+main > div:has(> div.pb-24) > header > p::before {
+  content: "İyi Geceler " !important;
   color: #fff !important;
   font-size: 15.8px !important;
   line-height: 1.05 !important;
@@ -160,7 +170,11 @@ main > div:has(> div.pb-24) > header > p {
 }
 
 main > div:has(> div.pb-24) > header > p strong {
+  color: #fff !important;
+  font-size: 15.8px !important;
+  line-height: 1.05 !important;
   font-weight: 700 !important;
+  letter-spacing: -.018em !important;
 }
 
 @media (max-width: 370px) {
