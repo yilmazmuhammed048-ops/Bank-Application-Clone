@@ -1,0 +1,136 @@
+/* Shortcut card internals matched to the supplied reference crop. */
+
+/* Account heading + primary account actions polish. */
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section h2 {
+  font-size: 15px !important;
+  line-height: 1 !important;
+  color: #df0e21 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Balance value: exact compact sizing and tone from the supplied reference. */
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section > p:nth-of-type(2) {
+  font-size: 17px !important;
+  line-height: 1 !important;
+  color: #1b1a1f !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section > div:last-child {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 11px !important;
+  margin-top: 21px !important;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section > div:last-child > button {
+  display: flex !important;
+  height: 55px !important;
+  min-height: 55px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #ed0018 !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-size: 15.7px !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.018em !important;
+  white-space: nowrap !important;
+}
+
+/* Shortcut cards. */
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button {
+  gap: 10px !important;
+  font-weight: 400 !important;
+  color: #222427 !important;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button > span:first-child {
+  display: grid !important;
+  width: 34px !important;
+  height: 34px !important;
+  flex: 0 0 34px !important;
+  place-items: center !important;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button > span:first-child svg {
+  display: none !important;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button > span:first-child::before {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 34px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* All four shortcut glyphs use the same 1.9 stroke for a consistent visual weight. */
+/* Varlıklarım */
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(1) > span:first-child::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' fill='none' stroke='%23e30620' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 4a14 14 0 1 0 14 14H18V4Z'/%3E%3Cpath d='M21 4.4A14 14 0 0 1 31.6 15H21V4.4Z'/%3E%3Cpath d='m18 18 9.8 9.8'/%3E%3C/svg%3E");
+}
+
+/* Son İşlemler */
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(2) > span:first-child::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' fill='none' stroke='%23e30620' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8' y='7.5' width='20' height='24' rx='3.2'/%3E%3Crect x='12.5' y='4.5' width='11' height='6' rx='2.2'/%3E%3Ccircle cx='13' cy='16' r='0.8' fill='%23e30620' stroke='none'/%3E%3Cpath d='M17 16h6.5'/%3E%3Ccircle cx='13' cy='21' r='0.8' fill='%23e30620' stroke='none'/%3E%3Cpath d='M17 21h6.5'/%3E%3Ccircle cx='13' cy='26' r='0.8' fill='%23e30620' stroke='none'/%3E%3Cpath d='M17 26h6.5'/%3E%3C/svg%3E");
+}
+
+/* QR ile Para Çekme */
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(3) > span:first-child::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' fill='none' stroke='%23e30620' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8' y='6' width='20' height='9' rx='2.7'/%3E%3Cpath d='M10.5 15v13.5h15V15'/%3E%3Cpath d='M18 17.5v8.5'/%3E%3Cpath d='m14.5 22.5 3.5 3.5 3.5-3.5'/%3E%3C/svg%3E");
+}
+
+/* Para Transferi */
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(4) > span:first-child::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36' fill='none' stroke='%23e30620' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 11c4.1.9 7.6-1.6 12-.7 4.4.9 7.9-1.6 12-.7v16.8c-4.1-.9-7.6 1.6-12 .7-4.4-.9-7.9 1.6-12 .7V11Z'/%3E%3Cpath d='M11 16v6M25 15.5v6'/%3E%3Ccircle cx='18' cy='18.5' r='3.2'/%3E%3C/svg%3E");
+}
+
+/* Replace the existing forced line breaks with the exact reference labels. */
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button > span:last-child {
+  display: flex !important;
+  min-height: 34px !important;
+  width: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  white-space: normal !important;
+  color: #222427 !important;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button > span:last-child::after {
+  display: block;
+  width: 100%;
+  text-align: center;
+  white-space: pre-line;
+  font-size: 15.5px;
+  line-height: 1.08;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(1) > span:last-child::after {
+  content: "Varlıklarım";
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(2) > span:last-child::after {
+  content: "Son İşlemler";
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(3) > span:last-child::after {
+  content: "QR ile Para\A Çekme";
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > section > div:last-child > button:nth-child(4) > span:last-child::after {
+  content: "Para\A Transferi";
+}

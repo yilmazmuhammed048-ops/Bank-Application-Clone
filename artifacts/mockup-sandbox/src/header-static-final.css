@@ -1,0 +1,29 @@
+/* Static top lock: use the supplied 1170x429 image as the complete visible header. */
+main > div:has(> div.pb-24) > header {
+  position: relative !important;
+  display: block !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 143px !important;
+  min-height: 143px !important;
+  max-height: 143px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: #e30620 url('/header-static-final.jpg?lock=1') center top / 100% 100% no-repeat !important;
+}
+
+/* The image already contains the avatar, search, message icon, greeting and status bar. */
+main > div:has(> div.pb-24) > header > div:first-child,
+main > div:has(> div.pb-24) > header > p {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+main > div:has(> div.pb-24) > header::before,
+main > div:has(> div.pb-24) > header::after {
+  content: none !important;
+  display: none !important;
+}

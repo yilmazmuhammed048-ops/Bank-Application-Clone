@@ -1,0 +1,215 @@
+/* Live home header lock. The device/PWA owns the status bar; this styles only the app header below it. */
+main > div:has(> div.pb-24) > header {
+  position: relative !important;
+  display: block !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 104px !important;
+  min-height: 104px !important;
+  max-height: 104px !important;
+  margin: 0 !important;
+  padding: 10px 16.33px 10px !important;
+  border: 0 !important;
+  color: #fff !important;
+  background-color: #e30620 !important;
+  background-image:
+    linear-gradient(150deg, rgba(120,0,16,.20) 0 20%, transparent 42%),
+    linear-gradient(36deg, transparent 0 61%, rgba(119,0,15,.18) 61% 74%, transparent 74%),
+    linear-gradient(180deg, #e20b25 0%, #df061f 100%) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: cover !important;
+}
+
+main > div:has(> div.pb-24) > header::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  left: -8% !important;
+  top: -54px !important;
+  width: 126% !important;
+  height: 104px !important;
+  border-radius: 0 0 52% 38% !important;
+  transform: rotate(8deg) !important;
+  background: linear-gradient(180deg, rgba(255,45,65,.36), rgba(157,0,19,.10)) !important;
+  filter: blur(.2px) !important;
+  pointer-events: none !important;
+}
+
+main > div:has(> div.pb-24) > header::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  right: -72px !important;
+  bottom: -67px !important;
+  width: 255px !important;
+  height: 125px !important;
+  transform: rotate(37deg) !important;
+  background: linear-gradient(90deg, rgba(125,0,16,.25), rgba(125,0,16,.06)) !important;
+  pointer-events: none !important;
+}
+
+/* Exact override for the old static-header rules that hid these two nodes. */
+main > div:has(> div.pb-24) > header > div:first-child,
+main > div:has(> div.pb-24) > header > p {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+main > div:has(> div.pb-24) > header > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 1170px reference / 3 => exact 390px CSS geometry. */
+main > div:has(> div.pb-24) > header > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12.33px !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > button:first-child {
+  position: relative !important;
+  display: grid !important;
+  width: 39.67px !important;
+  height: 39.67px !important;
+  flex: 0 0 39.67px !important;
+  padding: 0 !important;
+  place-items: center !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #f4f4f4 !important;
+  color: #8d9294 !important;
+  box-shadow: none !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > button:first-child svg {
+  width: 24px !important;
+  height: 24px !important;
+  stroke-width: 1.45 !important;
+  fill: #8d9294 !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > button:first-child::after {
+  content: "12" !important;
+  position: absolute !important;
+  top: -1px !important;
+  right: -1px !important;
+  display: grid !important;
+  width: 16px !important;
+  height: 16px !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: #55595b !important;
+  color: #fff !important;
+  font-size: 8.8px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > div {
+  display: flex !important;
+  height: 37.33px !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+  padding: 0 14px !important;
+  border: 1px solid rgba(255,255,255,.62) !important;
+  border-radius: 999px !important;
+  background: rgba(123,0,15,.10) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > div svg {
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px !important;
+  stroke-width: 1.65 !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > div span {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  letter-spacing: -.014em !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > button:last-child {
+  display: grid !important;
+  width: 39.67px !important;
+  height: 39.67px !important;
+  flex: 0 0 39.67px !important;
+  padding: 0 !important;
+  place-items: center !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  border-radius: 10.5px !important;
+  background: rgba(255,255,255,.15) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+main > div:has(> div.pb-24) > header > div:first-child > button:last-child svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke-width: 1.8 !important;
+}
+
+main > div:has(> div.pb-24) > header > p {
+  display: block !important;
+  margin: 15px 0 0 !important;
+  color: #fff !important;
+  font-size: 0 !important;
+  line-height: 1.05 !important;
+  font-weight: 300 !important;
+  letter-spacing: -.018em !important;
+}
+
+main > div:has(> div.pb-24) > header > p::before {
+  content: "İyi Geceler " !important;
+  color: #fff !important;
+  font-size: 15.8px !important;
+  line-height: 1.05 !important;
+  font-weight: 300 !important;
+  letter-spacing: -.018em !important;
+}
+
+main > div:has(> div.pb-24) > header > p strong {
+  color: #fff !important;
+  font-size: 15.8px !important;
+  line-height: 1.05 !important;
+  font-weight: 700 !important;
+  letter-spacing: -.018em !important;
+}
+
+/* Relock the account title in the LAST imported stylesheet so older home rules cannot enlarge it. */
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section h2 {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: #df0e21 !important;
+}
+
+@media (max-width: 370px) {
+  main > div:has(> div.pb-24) > header {
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+  }
+
+  main > div:has(> div.pb-24) > header > div:first-child {
+    gap: 9px !important;
+  }
+
+  main > div:has(> div.pb-24) > header > div:first-child > div span {
+    font-size: 14px !important;
+  }
+}
