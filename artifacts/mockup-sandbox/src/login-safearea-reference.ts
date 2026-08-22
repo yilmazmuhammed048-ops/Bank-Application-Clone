@@ -15,7 +15,7 @@ function installIphone13LoginSafeArea() {
         background: #d91417 !important;
       }
 
-      /* Preserve the approved iPhone 13 artwork geometry. */
+      /* Preserve every approved coordinate outside the promo strip. */
       img[alt="Ziraat Mobil giriş ekranı"],
       img[alt="Ziraat Mobil şifre ekranı"] {
         top: -4.4% !important;
@@ -26,12 +26,11 @@ function installIphone13LoginSafeArea() {
         transform: none !important;
       }
 
-      /* Reveal a little more of the promo-card row so its top border is never clipped. */
       div:has(> img[alt="Ziraat Mobil giriş ekranı"]) > img[alt="Ziraat Mobil giriş ekranı"] {
         clip-path: inset(52px 0 var(--iphone13-login-safe-bottom) 0) !important;
       }
 
-      /* Exact supplied TR + Ziraat Bankası + message/bell row below iPhone 13 safe area. */
+      /* Exact TR + Ziraat Bankası + message/bell row. End it before the promo cards. */
       div:has(> img[alt="Ziraat Mobil giriş ekranı"])::before {
         content: "" !important;
         display: block !important;
@@ -40,7 +39,7 @@ function installIphone13LoginSafeArea() {
         left: 0 !important;
         top: var(--iphone13-login-safe-top) !important;
         width: 100% !important;
-        height: 68px !important;
+        height: 56px !important;
         pointer-events: none !important;
         background-image: url('/ziraat-login-reference.jpg') !important;
         background-repeat: no-repeat !important;
@@ -59,27 +58,6 @@ function installIphone13LoginSafeArea() {
         height: var(--iphone13-login-safe-top) !important;
         pointer-events: none !important;
         background: #d91417 !important;
-      }
-
-      /* In Home Screen mode the whole password sheet starts below the real status safe area.
-         This keeps the protruding avatar/profile clear of the clock/signal region. */
-      div:has(> img[alt="Ziraat Mobil şifre ekranı"]) {
-        position: absolute !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: var(--iphone13-login-safe-top) !important;
-        bottom: 0 !important;
-        width: 100% !important;
-        height: auto !important;
-        z-index: 160 !important;
-        overflow: hidden !important;
-        background: #ffffff !important;
-      }
-
-      div:has(> img[alt="Ziraat Mobil şifre ekranı"])::before,
-      div:has(> img[alt="Ziraat Mobil şifre ekranı"])::after {
-        content: none !important;
-        display: none !important;
       }
 
       [data-iphone13-exact-login-header="true"],
@@ -104,6 +82,46 @@ function installIphone13LoginSafeArea() {
         box-shadow: none !important;
         font-size: 0 !important;
         opacity: 1 !important;
+        overflow: visible !important;
+      }
+
+      /* Move ONLY the promo/card strip 12px down in iPhone 13 Home Screen mode.
+         This layer replaces the original strip with the same reference artwork,
+         shifted down, while every other element stays at its approved coordinate. */
+      button[aria-label="Giriş Yap"]::before {
+        content: "" !important;
+        position: fixed !important;
+        z-index: -1 !important;
+        left: 0 !important;
+        top: calc(var(--iphone13-login-safe-top) + 56px) !important;
+        width: 100vw !important;
+        height: 96px !important;
+        pointer-events: none !important;
+        background-color: #d91417 !important;
+        background-image: url('/ziraat-login-reference.jpg') !important;
+        background-repeat: no-repeat !important;
+        background-size: 100vw 106.8dvh !important;
+        background-position: center calc(-4.4dvh - var(--iphone13-login-safe-top) - 44px) !important;
+      }
+
+      /* Password sheet starts below the real iPhone 13 status safe area. */
+      div:has(> img[alt="Ziraat Mobil şifre ekranı"]) {
+        position: absolute !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: var(--iphone13-login-safe-top) !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        z-index: 160 !important;
+        overflow: hidden !important;
+        background: #ffffff !important;
+      }
+
+      div:has(> img[alt="Ziraat Mobil şifre ekranı"])::before,
+      div:has(> img[alt="Ziraat Mobil şifre ekranı"])::after {
+        content: none !important;
+        display: none !important;
       }
 
       /* One complete password capsule: the reference owns the outline; controls only paint inside it. */
@@ -121,7 +139,6 @@ function installIphone13LoginSafeArea() {
         overflow: visible !important;
       }
 
-      /* Cover only the baked placeholder, never the capsule outline. */
       input[aria-label="Şifreniz"] {
         position: absolute !important;
         left: 4.2% !important;
@@ -154,7 +171,6 @@ function installIphone13LoginSafeArea() {
         letter-spacing: 0 !important;
       }
 
-      /* Mask only the baked right label's interior. Transparent top/bottom preserve the capsule line. */
       div:has(> input[aria-label="Şifreniz"]) > button {
         position: absolute !important;
         right: 4.2% !important;
