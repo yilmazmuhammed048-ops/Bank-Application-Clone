@@ -7,7 +7,6 @@ import "./shortcut-reference.css";
 import "./header-background-reference.css";
 import "./header-static-final.css";
 import "./header-live-reference.css";
-import "./pdf-share";
 
 const hostname = window.location.hostname.toLowerCase();
 const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
