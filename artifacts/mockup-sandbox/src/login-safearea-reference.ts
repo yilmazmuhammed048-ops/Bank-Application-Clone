@@ -78,9 +78,7 @@ function installIphone13LoginSafeArea() {
         opacity: 1 !important;
       }
 
-      /* Keep only the capsule already present in the supplied password reference.
-         The real controls are transparent interaction layers, so no second oval or
-         duplicate static labels are drawn on top of the image. */
+      /* Keep only the capsule already present in the supplied password reference. */
       div:has(> input[aria-label="Şifreniz"]) {
         left: 3.8% !important;
         top: 38.9% !important;
@@ -95,26 +93,40 @@ function installIphone13LoginSafeArea() {
         overflow: visible !important;
       }
 
+      /* Cover the placeholder baked into the reference image, then render the real
+         placeholder and password on exactly the same baseline. When typing starts,
+         the native placeholder disappears and the bullets begin from that spot. */
       input[aria-label="Şifreniz"] {
         position: absolute !important;
         left: 4.2% !important;
-        top: 0 !important;
+        top: 16% !important;
         width: 46% !important;
-        height: 100% !important;
+        height: 68% !important;
+        box-sizing: border-box !important;
         border: 0 !important;
-        background: transparent !important;
+        border-radius: 0 !important;
+        background: #ffffff !important;
         box-shadow: none !important;
         -webkit-appearance: none !important;
         appearance: none !important;
         min-width: 0 !important;
+        margin: 0 !important;
         padding: 0 !important;
         color: #3f474b !important;
         caret-color: #333 !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        line-height: 1 !important;
+        letter-spacing: .12em !important;
+        vertical-align: middle !important;
       }
 
       input[aria-label="Şifreniz"]::placeholder {
-        color: transparent !important;
-        opacity: 0 !important;
+        color: #9da1a3 !important;
+        opacity: 1 !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0 !important;
       }
 
       div:has(> input[aria-label="Şifreniz"]) > button {
