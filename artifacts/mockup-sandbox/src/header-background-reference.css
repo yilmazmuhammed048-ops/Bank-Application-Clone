@@ -1,33 +1,29 @@
-/* Exact red artwork rebuilt from the supplied iPhone reference. */
+/* Full top region uses the exact supplied 1170x429 reference image. */
 html,
 body,
 #root {
   min-height: 100%;
-  background: #e40620;
+  background: #e30620;
 }
 
-/*
- * iPhone 13: the 1170x430 source maps to 390x143 CSS px.
- * The same patterned artwork covers the complete safe-area + header field.
- */
 main > div:has(> div.pb-24) > header {
   position: relative !important;
   isolation: isolate !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
-  height: max(143px, calc(96px + env(safe-area-inset-top, 0px))) !important;
-  min-height: max(143px, calc(96px + env(safe-area-inset-top, 0px))) !important;
-  padding: max(12px, calc(env(safe-area-inset-top, 0px) + 2px)) 16px 14px !important;
-  background-color: #e40620 !important;
-  /* Versioned URL deliberately bypasses the old cached flat-red asset on iPhone/PWA. */
-  background-image: url('/header-background-reference.jpg?pattern=v5') !important;
+  width: 100% !important;
+  height: min(158px, 36.6667vw) !important;
+  min-height: min(158px, 36.6667vw) !important;
+  padding: 0 !important;
+  background-color: #e30620 !important;
+  background-image: url('/header-top-reference-full.jpg?exact=v1') !important;
   background-repeat: no-repeat !important;
   background-position: center top !important;
   background-size: 100% 100% !important;
   background-blend-mode: normal !important;
 }
 
-/* The source image already contains the dark folds / diagonal graphic. */
+/* Nothing synthetic is layered over the supplied reference artwork. */
 main > div:has(> div.pb-24) > header::before,
 main > div:has(> div.pb-24) > header::after {
   content: none !important;
@@ -35,11 +31,14 @@ main > div:has(> div.pb-24) > header::after {
   background: none !important;
 }
 
-main > div:has(> div.pb-24) > header > * {
-  position: relative !important;
-  z-index: 1 !important;
+/* The reference already contains the status bar, avatar, search, message icon and greeting. */
+main > div:has(> div.pb-24) > header > div:first-child,
+main > div:has(> div.pb-24) > header > p {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
+/* White app content begins immediately after the complete red reference field. */
 main > div:has(> div.pb-24) > div.pb-24 {
   background: #fff !important;
 }
