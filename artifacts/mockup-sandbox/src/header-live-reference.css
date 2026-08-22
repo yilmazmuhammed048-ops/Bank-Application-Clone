@@ -223,3 +223,16 @@ main > div:has(> div.pb-24) > header {
   max-height: max(104px, calc(96px + env(safe-area-inset-top, 0px))) !important;
   padding-top: max(10px, calc(2px + env(safe-area-inset-top, 0px))) !important;
 }
+
+/* Account movements: same iPhone 13 Home Screen safe-area treatment.
+   The red bar remains behind the system status area while Back / title / Mail / Home
+   stay fully below the camera/notch. In a normal browser env() is 0 so geometry is unchanged. */
+main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"]) {
+  box-sizing: border-box !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  background-color: #d90b17 !important;
+}
+
+main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"]) > div:first-child {
+  height: 58px !important;
+}
