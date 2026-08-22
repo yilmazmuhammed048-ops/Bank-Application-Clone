@@ -84,6 +84,13 @@ function installTransactionTypographyReference() {
       font-weight: 600 !important;
       letter-spacing: -.012em !important;
     }
+
+    button[aria-label="Ana sayfa"] svg {
+      width: 27px !important;
+      height: 27px !important;
+      stroke-width: 1.55 !important;
+      fill: none !important;
+    }
   `;
 
   document.head.appendChild(style);
