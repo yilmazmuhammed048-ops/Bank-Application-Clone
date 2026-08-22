@@ -40,9 +40,7 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
-      /* Critical: the password panel must remain an absolute full-screen sheet.
-         A previous rule changed it to relative, so tapping Login opened it outside
-         the visible viewport even though the click handler fired. */
+      /* Password panel stays as a full-screen sheet above the login reference. */
       div:has(> img[alt="Ziraat Mobil şifre ekranı"]) {
         position: absolute !important;
         inset: 0 !important;
@@ -84,6 +82,28 @@ function installIphone13LoginSafeArea() {
         box-shadow: none !important;
         font-size: 0 !important;
         opacity: 1 !important;
+      }
+
+      /* The password reference already contains the outer input outline and its
+         static labels. Cover only the inside of that field, then render the real
+         input once. This prevents the double border/text seen in Home Screen mode. */
+      div:has(> input[aria-label="Şifreniz"]) {
+        left: calc(3.8% + 2px) !important;
+        top: calc(38.9% + 2px) !important;
+        width: calc(92.4% - 4px) !important;
+        height: calc(6.15% - 4px) !important;
+        border: 0 !important;
+        border-radius: 999px !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+      }
+
+      input[aria-label="Şifreniz"] {
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
       }
 
       /* Keep the actual password controls interactive above the supplied image. */
