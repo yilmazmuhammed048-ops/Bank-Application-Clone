@@ -92,6 +92,25 @@ function installTransactionTypographyReference() {
       fill: none !important;
     }
 
+    /* Splash screen: the reference artwork ends in #ce1515, while the app shell
+       normally uses #DF0E24. On iPhone Home Screen the bottom safe area can expose
+       that shell color as a visible strip. Match the shell to the artwork only while
+       the splash image is mounted so the artwork continues behind the home indicator. */
+    html:has(img[src="/ziraat-splash-reference.jpg"]),
+    body:has(img[src="/ziraat-splash-reference.jpg"]),
+    #root:has(img[src="/ziraat-splash-reference.jpg"]) {
+      background: #ce1515 !important;
+    }
+
+    #root > div:has(> img[src="/ziraat-splash-reference.jpg"]) {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: 100% !important;
+      background: #ce1515 !important;
+    }
+
     /* iPhone 13 Home Screen: extend only the artwork into the system safe area.
        The header is pulled upward by the safe inset, then that inset is added a
        second time to the header height/padding so the controls remain at their
