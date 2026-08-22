@@ -92,23 +92,23 @@ function installTransactionTypographyReference() {
       fill: none !important;
     }
 
-    /* iPhone 13 Home Screen: pull the visual header into the 47px system
-       safe area while adding the same space back to its height/padding.
-       The controls and the content below stay at their approved positions;
-       only the red artwork now continues behind the status/camera area. */
+    /* iPhone 13 Home Screen: extend only the artwork into the system safe area.
+       The header is pulled upward by the safe inset, then that inset is added a
+       second time to the header height/padding so the controls remain at their
+       approved safe position and the content below does not move. */
     @media (display-mode: standalone) and (min-width: 380px) and (max-width: 400px) {
       main > div:has(> div.pb-24) > header {
         --iphone13-home-safe-top: max(env(safe-area-inset-top, 0px), 47px);
         margin-top: calc(-1 * var(--iphone13-home-safe-top)) !important;
-        height: calc(104px + var(--iphone13-home-safe-top)) !important;
-        min-height: calc(104px + var(--iphone13-home-safe-top)) !important;
-        max-height: calc(104px + var(--iphone13-home-safe-top)) !important;
-        padding-top: calc(10px + var(--iphone13-home-safe-top)) !important;
+        height: calc(96px + var(--iphone13-home-safe-top) + var(--iphone13-home-safe-top)) !important;
+        min-height: calc(96px + var(--iphone13-home-safe-top) + var(--iphone13-home-safe-top)) !important;
+        max-height: calc(96px + var(--iphone13-home-safe-top) + var(--iphone13-home-safe-top)) !important;
+        padding-top: calc(2px + var(--iphone13-home-safe-top) + var(--iphone13-home-safe-top)) !important;
         background-position: center top !important;
       }
 
       main > div:has(> div.pb-24) > header::before {
-        height: calc(104px + var(--iphone13-home-safe-top)) !important;
+        height: calc(96px + var(--iphone13-home-safe-top) + var(--iphone13-home-safe-top)) !important;
       }
     }
   `;
