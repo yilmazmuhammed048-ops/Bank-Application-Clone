@@ -1,44 +1,85 @@
-/* Full top region uses the exact supplied 1170x429 reference image. */
+/* Final visual lock for the supplied iPhone reference. This file is imported last. */
 html,
 body,
 #root {
   min-height: 100%;
-  background: #e30620;
+  background: #e30620 !important;
 }
 
+/*
+ * Supplied header reference: 1170 x 429 px (iPhone 13 @3x => 390 x 143 CSS px).
+ * Render that exact bitmap, without synthetic gradients, from the very top.
+ */
 main > div:has(> div.pb-24) > header {
   position: relative !important;
   isolation: isolate !important;
+  display: block !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
   width: 100% !important;
-  height: min(158px, 36.6667vw) !important;
-  min-height: min(158px, 36.6667vw) !important;
+  height: min(157.67px, 36.6667vw) !important;
+  min-height: min(157.67px, 36.6667vw) !important;
+  max-height: 157.67px !important;
+  margin: 0 !important;
   padding: 0 !important;
+  border: 0 !important;
   background-color: #e30620 !important;
-  background-image: url('/header-top-reference-full.jpg?exact=v1') !important;
+  background-image: url('/header-top-reference-full.jpg?exact=20260822-0320') !important;
   background-repeat: no-repeat !important;
   background-position: center top !important;
   background-size: 100% 100% !important;
   background-blend-mode: normal !important;
 }
 
-/* Nothing synthetic is layered over the supplied reference artwork. */
 main > div:has(> div.pb-24) > header::before,
 main > div:has(> div.pb-24) > header::after {
   content: none !important;
   display: none !important;
-  background: none !important;
 }
 
-/* The reference already contains the status bar, avatar, search, message icon and greeting. */
+/* The exact reference bitmap already contains these header visuals. */
 main > div:has(> div.pb-24) > header > div:first-child,
 main > div:has(> div.pb-24) > header > p {
   opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none !important;
 }
 
-/* White app content begins immediately after the complete red reference field. */
+/* Keep the physical iPhone safe-area/notch background red. */
+@supports (padding-top: env(safe-area-inset-top)) {
+  html,
+  body,
+  #root,
+  main,
+  main > div:has(> div.pb-24) {
+    background-color: #e30620 !important;
+  }
+}
+
+/* White content begins only after the complete red header field. */
 main > div:has(> div.pb-24) > div.pb-24 {
   background: #fff !important;
+}
+
+/*
+ * Account typography measured from the supplied 1170px-wide reference crop.
+ * These rules live in the final stylesheet so they cannot be overridden by
+ * the earlier Tailwind/home/shortcut rules.
+ */
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section h2 {
+  margin-right: 58px !important;
+  font-size: 17px !important;
+  line-height: 18px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: #e20b24 !important;
+}
+
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section > p:nth-of-type(2) {
+  margin-top: 5px !important;
+  font-size: 19px !important;
+  line-height: 20px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.012em !important;
+  color: #1e1d22 !important;
 }
