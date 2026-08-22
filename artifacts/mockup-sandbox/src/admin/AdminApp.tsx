@@ -8,9 +8,11 @@ type Transaction = {
   description: string;
   amount: string;
   date: string;
+  time?: string;
   type: TransactionType;
   recipientName: string;
   recipientIban: string;
+  recipientBank?: string;
   transactionNumber: string;
 };
 
@@ -43,9 +45,11 @@ const defaultTransactions: Transaction[] = [
     description: "Kart ile ödeme",
     amount: "450,00",
     date: "17 Ağustos 2026",
+    time: "14:30",
     type: "expense",
     recipientName: "Fenerbahçe",
     recipientIban: "TR00 0000 0000 0000 0000 0000 00",
+    recipientBank: "Banka Bilgisi",
     transactionNumber: "202608170001",
   },
   {
@@ -54,9 +58,11 @@ const defaultTransactions: Transaction[] = [
     description: "Hesaba gelen ödeme",
     amount: "35.000,00",
     date: "15 Ağustos 2026",
+    time: "09:15",
     type: "income",
     recipientName: "Muhammed Yılmaz",
     recipientIban: "TR00 0000 0000 0000 0000 0000 00",
+    recipientBank: "Banka Bilgisi",
     transactionNumber: "202608150001",
   },
 ];
@@ -178,9 +184,11 @@ const addTransaction = () => {
     description: "İşlem açıklaması",
     amount: "100,00",
     date: "17 Ağustos 2026",
+    time: "12:00",
     type: "expense",
     recipientName: "Fenerbahçe",
     recipientIban: "TR00 0000 0000 0000 0000 0000 00",
+    recipientBank: "Banka Bilgisi",
     transactionNumber: "202608170001",
   };
   setTransactions((current) => [
@@ -734,6 +742,18 @@ const addTransaction = () => {
                 </div>
 
                 <div>
+                  <label style={styles.label}>Alan Banka (Dekont)</label>
+                  <input
+                    value={item.recipientBank ?? ""}
+                    onChange={(event) =>
+                      updateTransaction(item.id, "recipientBank", event.target.value)
+                    }
+                    placeholder="Örn: Türkiye İş Bankası A.Ş."
+                    style={styles.input}
+                  />
+                </div>
+
+                <div>
                   <label style={styles.label}>İşlem Numarası</label>
                   <input
                     value={item.transactionNumber}
@@ -744,7 +764,7 @@ const addTransaction = () => {
                   />
                 </div>
 
-                <div style={styles.fullWidth}>
+                <div>
                   <label style={styles.label}>
                     Tarih
                   </label>
@@ -757,6 +777,18 @@ const addTransaction = () => {
                         "date",
                         event.target.value,
                       )
+                    }
+                    style={styles.input}
+                  />
+                </div>
+
+                <div>
+                  <label style={styles.label}>İşlem Saati</label>
+                  <input
+                    type="time"
+                    value={item.time ?? ""}
+                    onChange={(event) =>
+                      updateTransaction(item.id, "time", event.target.value)
                     }
                     style={styles.input}
                   />
