@@ -2,9 +2,20 @@
 
 /* Account heading + primary account actions polish. */
 main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section h2 {
-  color: #e30620 !important;
-  font-weight: 500 !important;
-  letter-spacing: -0.018em !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  color: #df0e21 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Balance value: exact compact sizing and tone from the supplied reference. */
+main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section > p:nth-of-type(2) {
+  font-size: 17px !important;
+  line-height: 1 !important;
+  color: #1b1a1f !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
 }
 
 main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section > div:last-child {
