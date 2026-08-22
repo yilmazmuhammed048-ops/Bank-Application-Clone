@@ -21,22 +21,20 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
+      /* Keep the same geometry that already looks correct in Safari. Home Screen
+         must not rescale/reposition the supplied references; it only masks the
+         baked status/home-indicator strips. */
       img[alt="Ziraat Mobil giriş ekranı"],
       img[alt="Ziraat Mobil şifre ekranı"] {
-        top: 0 !important;
+        top: -4.4% !important;
         left: 0 !important;
         width: 100% !important;
-        height: 100% !important;
+        height: 106.8% !important;
         object-fit: fill !important;
         transform: none !important;
-        clip-path: inset(
-          var(--iphone13-login-safe-top)
-          0
-          var(--iphone13-login-safe-bottom)
-          0
-        ) !important;
       }
 
+      /* The password panel itself stays fixed to the visible PWA viewport. */
       div:has(> img[alt="Ziraat Mobil şifre ekranı"]) {
         position: absolute !important;
         inset: 0 !important;
@@ -60,10 +58,11 @@ function installIphone13LoginSafeArea() {
         display: none !important;
       }
 
+      /* Invisible tap target over the single Login pill in the reference. */
       button[aria-label="Giriş Yap"] {
         position: absolute !important;
         left: 12.9% !important;
-        top: 59.5% !important;
+        top: 62.95% !important;
         width: 74.2% !important;
         height: 6.05% !important;
         z-index: 120 !important;
@@ -78,71 +77,30 @@ function installIphone13LoginSafeArea() {
         opacity: 1 !important;
       }
 
-      /* Keep only the capsule already present in the supplied password reference. */
+      /* Do not move the password controls in standalone mode. Their component
+         geometry already matches the reference in Safari. Only make the real input
+         paint over the baked placeholder so text never doubles. */
       div:has(> input[aria-label="Şifreniz"]) {
-        left: 3.8% !important;
-        top: 38.9% !important;
-        width: 92.4% !important;
-        height: 6.15% !important;
         box-sizing: border-box !important;
         border: 0 !important;
-        border-radius: 0 !important;
         background: transparent !important;
         box-shadow: none !important;
-        padding: 0 !important;
-        overflow: visible !important;
       }
 
-      /* Cover the placeholder baked into the reference image, then render the real
-         placeholder and password on exactly the same baseline. When typing starts,
-         the native placeholder disappears and the bullets begin from that spot. */
       input[aria-label="Şifreniz"] {
-        position: absolute !important;
-        left: 4.2% !important;
-        top: 16% !important;
-        width: 46% !important;
-        height: 68% !important;
-        box-sizing: border-box !important;
         border: 0 !important;
-        border-radius: 0 !important;
         background: #ffffff !important;
         box-shadow: none !important;
         -webkit-appearance: none !important;
         appearance: none !important;
         min-width: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
         color: #3f474b !important;
         caret-color: #333 !important;
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        line-height: 1 !important;
-        letter-spacing: .12em !important;
-        vertical-align: middle !important;
       }
 
       input[aria-label="Şifreniz"]::placeholder {
         color: #9da1a3 !important;
         opacity: 1 !important;
-        font-size: 18px !important;
-        font-weight: 600 !important;
-        letter-spacing: 0 !important;
-      }
-
-      div:has(> input[aria-label="Şifreniz"]) > button {
-        position: absolute !important;
-        right: 4.2% !important;
-        top: 0 !important;
-        height: 100% !important;
-        width: 42% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: 0 !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        color: transparent !important;
-        text-decoration: none !important;
-        white-space: nowrap !important;
       }
 
       input[aria-label="Şifreniz"],
