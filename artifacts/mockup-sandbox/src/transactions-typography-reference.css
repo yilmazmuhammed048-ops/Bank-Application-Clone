@@ -1,0 +1,96 @@
+/* Account movements typography matched to the supplied mobile reference.
+   Scope is intentionally limited to the Transactions screen (identified by its filter control). */
+
+.min-h-screen:has(button[aria-label="Filtre"]) {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+/* Top title and period selector: compact, medium-weight bank UI text. */
+.min-h-screen:has(button[aria-label="Filtre"]) > header h1 {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.018em !important;
+}
+
+.min-h-screen:has(button[aria-label="Filtre"]) > header + div > button:first-child {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.012em !important;
+}
+
+/* Transaction cards. */
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.012em !important;
+}
+
+/* Date column: large thin day, lighter month/time like the reference. */
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(1) {
+  font-size: 27px !important;
+  font-weight: 300 !important;
+  line-height: .96 !important;
+  letter-spacing: -0.055em !important;
+}
+
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(2) {
+  font-size: 10.5px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: .035em !important;
+}
+
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(3) {
+  font-size: 10.5px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.018em !important;
+}
+
+/* Movement description: slightly larger, narrow and regular rather than bold. */
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) p {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  line-height: 1.16 !important;
+  letter-spacing: -0.026em !important;
+  color: #50595e !important;
+}
+
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) p + p {
+  margin-top: 2px !important;
+}
+
+/* Amount: compact semibold tabular numerals. */
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(3) {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 12.8px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.025em !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Remaining balance: small but readable, with the same restrained weights as reference. */
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:last-of-type > span:first-child {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.018em !important;
+  text-transform: none !important;
+}
+
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:last-of-type > span:last-child {
+  font-family: "Roboto", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 10.5px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.025em !important;
+  font-variant-numeric: tabular-nums;
+}
