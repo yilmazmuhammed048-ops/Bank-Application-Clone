@@ -52,13 +52,13 @@ function installIphone13LoginSafeArea() {
       }
 
       /* The reference screenshot already contains the visible white login pill.
-         Keep the real React button exactly on top of it as a transparent tap layer. */
+         Keep the real React button invisible but exactly over the visible pill. */
       button[aria-label="Giriş Yap"] {
         left: 12.9% !important;
-        top: 62.95% !important;
+        top: 59.5% !important;
         width: 74.2% !important;
         height: 6.05% !important;
-        z-index: 80 !important;
+        z-index: 100 !important;
         pointer-events: auto !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
@@ -67,6 +67,7 @@ function installIphone13LoginSafeArea() {
         border: 0 !important;
         box-shadow: none !important;
         font-size: 0 !important;
+        opacity: 1 !important;
       }
     }
   `;
