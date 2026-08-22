@@ -1,3 +1,5 @@
+import "./receipt-exact-logo-patch";
+
 export {};
 
 type StoredTransaction = {
