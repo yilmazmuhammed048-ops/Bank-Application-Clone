@@ -1,4 +1,26 @@
 const STYLE_ID = "transaction-card-reference-style";
+const DELETED_STORAGE_KEY = "demo_deleted_transaction_signatures";
+const LONG_PRESS_MS = 650;
+
+const pressTimers = new WeakMap<HTMLButtonElement, number>();
+const suppressClickUntil = new WeakMap<HTMLButtonElement, number>();
+const wiredCards = new WeakSet<HTMLButtonElement>();
+let activeDeleteCard: HTMLButtonElement | null = null;
+let deletedSignatures = readDeletedSignatures();
+
+function readDeletedSignatures() {
+  try {
+    const saved = localStorage.getItem(DELETED_STORAGE_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+    return new Set<string>(Array.isArray(parsed) ? parsed.map(String) : []);
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function persistDeletedSignatures() {
+  localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(Array.from(deletedSignatures)));
+}
 
 function installStyles() {
   if (document.getElementById(STYLE_ID)) return;
@@ -10,6 +32,10 @@ function installStyles() {
       min-height: 96px !important;
       border-radius: 9px !important;
       background: #fff !important;
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
+      touch-action: manipulation !important;
     }
 
     [data-transaction-reference-date="true"] {
@@ -109,6 +135,34 @@ function installStyles() {
       font-size: 11px !important;
       font-weight: 600 !important;
     }
+
+    [data-transaction-delete-action="true"] {
+      position: absolute !important;
+      z-index: 5 !important;
+      top: 31px !important;
+      right: 10px !important;
+      display: none !important;
+      height: 31px !important;
+      min-width: 54px !important;
+      padding: 0 14px !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 999px !important;
+      background: #e30620 !important;
+      color: #fff !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      line-height: 1 !important;
+      box-shadow: 0 2px 8px rgba(121, 0, 16, .18) !important;
+    }
+
+    [data-transaction-delete-active="true"] [data-transaction-delete-action="true"] {
+      display: flex !important;
+    }
+
+    [data-transaction-delete-active="true"] [data-transaction-reference-receipt="true"] {
+      display: none !important;
+    }
   `;
 
   document.head.appendChild(style);
@@ -140,6 +194,134 @@ function buildReferenceDetail(details: HTMLElement) {
   const operation = normalizeOperation(tailParts.join(" — "));
 
   return `${bank}/\n${iban}-${recipientName}${operation ? `/${operation}` : ""}`;
+}
+
+function buildTransactionSignature(
+  date: HTMLElement,
+  detailText: string,
+  amount: HTMLElement | undefined,
+) {
+  return [
+    date.textContent?.replace(/\s+/g, " ").trim() || "",
+    detailText.replace(/\s+/g, " ").trim(),
+    amount?.textContent?.replace(/\s+/g, " ").trim() || "",
+  ].join("||");
+}
+
+function deactivateDeleteCard() {
+  if (activeDeleteCard) {
+    delete activeDeleteCard.dataset.transactionDeleteActive;
+  }
+  activeDeleteCard = null;
+}
+
+function activateDeleteCard(card: HTMLButtonElement) {
+  if (activeDeleteCard && activeDeleteCard !== card) {
+    delete activeDeleteCard.dataset.transactionDeleteActive;
+  }
+
+  activeDeleteCard = card;
+  card.dataset.transactionDeleteActive = "true";
+  suppressClickUntil.set(card, Date.now() + 900);
+
+  if ("vibrate" in navigator) {
+    navigator.vibrate?.(15);
+  }
+}
+
+function deleteCard(card: HTMLButtonElement, signature: string) {
+  deletedSignatures.add(signature);
+  persistDeletedSignatures();
+  card.style.setProperty("display", "none", "important");
+  if (activeDeleteCard === card) activeDeleteCard = null;
+}
+
+function ensureDeleteAction(card: HTMLButtonElement, signature: string) {
+  let action = card.querySelector<HTMLElement>("[data-transaction-delete-action='true']");
+
+  if (!action) {
+    action = document.createElement("span");
+    action.dataset.transactionDeleteAction = "true";
+    action.setAttribute("role", "button");
+    action.setAttribute("aria-label", "Hesap hareketini sil");
+    action.tabIndex = 0;
+    action.textContent = "Sil";
+
+    action.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    action.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const currentSignature = action?.dataset.transactionSignature;
+      if (currentSignature) deleteCard(card, currentSignature);
+    });
+
+    action.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      event.stopPropagation();
+      const currentSignature = action?.dataset.transactionSignature;
+      if (currentSignature) deleteCard(card, currentSignature);
+    });
+
+    card.appendChild(action);
+  }
+
+  action.dataset.transactionSignature = signature;
+}
+
+function clearPressTimer(card: HTMLButtonElement) {
+  const timer = pressTimers.get(card);
+  if (timer !== undefined) {
+    window.clearTimeout(timer);
+    pressTimers.delete(card);
+  }
+}
+
+function wireLongPress(card: HTMLButtonElement) {
+  if (wiredCards.has(card)) return;
+  wiredCards.add(card);
+
+  card.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    if ((event.target as Element | null)?.closest("[data-transaction-delete-action='true']")) return;
+
+    clearPressTimer(card);
+    const timer = window.setTimeout(() => {
+      activateDeleteCard(card);
+    }, LONG_PRESS_MS);
+    pressTimers.set(card, timer);
+  });
+
+  ["pointerup", "pointercancel", "pointerleave"].forEach((eventName) => {
+    card.addEventListener(eventName, () => clearPressTimer(card));
+  });
+
+  card.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+  });
+
+  card.addEventListener(
+    "click",
+    (event) => {
+      if ((event.target as Element | null)?.closest("[data-transaction-delete-action='true']")) return;
+
+      const until = suppressClickUntil.get(card) || 0;
+      if (Date.now() < until) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+
+      if (activeDeleteCard && activeDeleteCard !== card) {
+        deactivateDeleteCard();
+      }
+    },
+    true,
+  );
 }
 
 function decorateTransactionCards() {
@@ -188,6 +370,21 @@ function decorateTransactionCards() {
     if (balance instanceof HTMLElement) {
       balance.dataset.transactionReferenceBalance = "true";
     }
+
+    const signature = buildTransactionSignature(
+      date,
+      detailText,
+      amount instanceof HTMLElement ? amount : undefined,
+    );
+
+    if (deletedSignatures.has(signature)) {
+      node.style.setProperty("display", "none", "important");
+      return;
+    }
+
+    node.style.removeProperty("display");
+    ensureDeleteAction(node, signature);
+    wireLongPress(node);
   });
 }
 
