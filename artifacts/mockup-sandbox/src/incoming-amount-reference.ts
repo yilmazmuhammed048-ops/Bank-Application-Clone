@@ -53,10 +53,10 @@ function installTransactionTypographyReference() {
     [data-transaction-reference-amount="true"] {
       top: 10px !important;
       right: 10px !important;
-      font-size: 15.5px !important;
-      font-weight: 600 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
       line-height: 1 !important;
-      letter-spacing: -.015em !important;
+      letter-spacing: -.012em !important;
     }
 
     [data-transaction-reference-receipt="true"] {
