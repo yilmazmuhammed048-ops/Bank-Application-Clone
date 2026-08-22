@@ -22,9 +22,6 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
-      /* Keep the supplied iPhone 13 reference at its native 390x844 geometry.
-         Only mask the fake status/home-indicator areas already baked into the
-         screenshot. The real PWA safe areas then show through behind iOS. */
       img[alt="Ziraat Mobil giriş ekranı"],
       img[alt="Ziraat Mobil şifre ekranı"] {
         top: 0 !important;
@@ -41,7 +38,6 @@ function installIphone13LoginSafeArea() {
         ) !important;
       }
 
-      /* Remove every previous safe-area/header patch. */
       div:has(> img[alt="Ziraat Mobil giriş ekranı"])::before,
       div:has(> img[alt="Ziraat Mobil giriş ekranı"])::after,
       div:has(> img[alt="Ziraat Mobil şifre ekranı"])::before,
@@ -55,18 +51,22 @@ function installIphone13LoginSafeArea() {
         display: none !important;
       }
 
-      /* The visible Home Screen reference button sits at 59.5% of the viewport.
-         Keep the real React button exactly on top of that visual button so the
-         entire pill is tappable, not only its lower edge. */
+      /* The reference screenshot already contains the visible white login pill.
+         Keep the real React button exactly on top of it as a transparent tap layer. */
       button[aria-label="Giriş Yap"] {
         left: 12.9% !important;
-        top: 59.5% !important;
+        top: 62.95% !important;
         width: 74.2% !important;
-        height: 5.65% !important;
+        height: 6.05% !important;
         z-index: 80 !important;
         pointer-events: auto !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
+        background: transparent !important;
+        color: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        font-size: 0 !important;
       }
     }
   `;
