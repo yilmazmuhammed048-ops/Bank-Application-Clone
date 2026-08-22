@@ -5,6 +5,16 @@ type MovementRow = {
   amount: string;
   balance: string;
   isCredit: boolean;
+  receiptNo: string;
+};
+
+type AccountInfo = {
+  name: string;
+  address: string;
+  branch: string;
+  accountNo: string;
+  iban: string;
+  currency: string;
 };
 
 const PDF_PAGE_WIDTH = 595.28;
@@ -12,72 +22,104 @@ const PDF_PAGE_HEIGHT = 841.89;
 const CANVAS_WIDTH = 1240;
 const CANVAS_HEIGHT = 1754;
 
-function roundedRect(
-  context: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-) {
-  const r = Math.min(radius, width / 2, height / 2);
-  context.beginPath();
-  context.moveTo(x + r, y);
-  context.lineTo(x + width - r, y);
-  context.quadraticCurveTo(x + width, y, x + width, y + r);
-  context.lineTo(x + width, y + height - r);
-  context.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
-  context.lineTo(x + r, y + height);
-  context.quadraticCurveTo(x, y + height, x, y + height - r);
-  context.lineTo(x, y + r);
-  context.quadraticCurveTo(x, y, x + r, y);
-  context.closePath();
+const MONTHS: Record<string, string> = {
+  OCA: "01",
+  ŞUB: "02",
+  SUB: "02",
+  MAR: "03",
+  NİS: "04",
+  NIS: "04",
+  MAY: "05",
+  HAZ: "06",
+  TEM: "07",
+  AĞU: "08",
+  AGU: "08",
+  EYL: "09",
+  EKİ: "10",
+  EKI: "10",
+  KAS: "11",
+  ARA: "12",
+};
+
+function readAccountInfo(): AccountInfo {
+  let saved: Record<string, unknown> = {};
+  try {
+    const raw = localStorage.getItem("demo_account");
+    saved = raw ? JSON.parse(raw) : {};
+  } catch {}
+
+  const value = (...keys: string[]) => {
+    for (const key of keys) {
+      const item = saved[key];
+      if (typeof item === "string" && item.trim()) return item.trim();
+    }
+    return "";
+  };
+
+  return {
+    name: value("name", "customerName", "ownerName") || "MUHAMMED YILMAZ",
+    address: value("address", "customerAddress") || "UYGULAMA İÇİ DEMO HESAP",
+    branch: value("branch", "branchName") || "ZİRAAT SÜPER ŞUBE",
+    accountNo: value("accountNo", "accountNumber") || "104120627-5001",
+    iban: value("iban") || "TR31000110412062705001",
+    currency: value("currency") || "TRY",
+  };
 }
 
-function wrapText(
-  context: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number,
-  maxLines: number,
-) {
+function normalizeDate(raw: string) {
+  const clean = raw.replace(/\s+/g, " ").trim();
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(clean)) return clean;
+  const [day = "", month = ""] = clean.toLocaleUpperCase("tr-TR").split(" ");
+  const monthNumber = MONTHS[month] || String(new Date().getMonth() + 1).padStart(2, "0");
+  return `${day.padStart(2, "0")}.${monthNumber}.${new Date().getFullYear()}`;
+}
+
+function parseMoney(value: string) {
+  const normalized = value
+    .replace(/TL/gi, "")
+    .replace(/\s/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .replace(/[^\d+.-]/g, "");
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function formatPdfMoney(value: number) {
+  return value.toLocaleString("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function wrapText(context: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines = 2) {
   const words = text.replace(/\s+/g, " ").trim().split(" ");
   const lines: string[] = [];
-  let current = "";
+  let line = "";
 
   for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
+    const candidate = line ? `${line} ${word}` : word;
     if (context.measureText(candidate).width <= maxWidth) {
-      current = candidate;
+      line = candidate;
       continue;
     }
-
-    if (current) lines.push(current);
-    current = word;
-
-    if (lines.length === maxLines) break;
+    if (line) lines.push(line);
+    line = word;
+    if (lines.length >= maxLines) break;
   }
 
-  if (lines.length < maxLines && current) lines.push(current);
-
-  if (lines.length === maxLines) {
-    const original = text.replace(/\s+/g, " ").trim();
-    const joined = lines.join(" ");
-    if (joined.length < original.length) {
-      let last = lines[maxLines - 1];
-      while (last.length > 1 && context.measureText(`${last}…`).width > maxWidth) {
-        last = last.slice(0, -1);
-      }
-      lines[maxLines - 1] = `${last.trimEnd()}…`;
-    }
+  if (lines.length < maxLines && line) lines.push(line);
+  if (lines.length === maxLines && words.join(" ").length > lines.join(" ").length) {
+    let last = lines[maxLines - 1];
+    while (last.length > 2 && context.measureText(`${last}…`).width > maxWidth) last = last.slice(0, -1);
+    lines[maxLines - 1] = `${last.trim()}…`;
   }
-
   return lines;
 }
 
 function readMovementRows(screen: HTMLElement): MovementRow[] {
   const filter = screen.querySelector<HTMLButtonElement>('button[aria-label="Filtre"]');
-  const controls = filter?.parentElement;
-  const list = controls?.nextElementSibling as HTMLElement | null;
+  const list = filter?.parentElement?.nextElementSibling as HTMLElement | null;
   if (!list) return [];
 
   const cards = Array.from(list.children).filter(
@@ -85,7 +127,7 @@ function readMovementRows(screen: HTMLElement): MovementRow[] {
   );
 
   return cards
-    .map((card) => {
+    .map((card, index) => {
       const directDivs = Array.from(card.children).filter(
         (element): element is HTMLDivElement => element instanceof HTMLDivElement,
       );
@@ -104,112 +146,174 @@ function readMovementRows(screen: HTMLElement): MovementRow[] {
       const balance = balanceSpans.at(-1)?.textContent?.trim() || "";
 
       return {
-        date: `${day} ${month}`.trim(),
+        date: normalizeDate(`${day} ${month}`),
         time,
         description,
         amount,
-        balance,
-        isCredit: amount.startsWith("+"),
+        balance: balance.replace(/\s*TL$/i, ""),
+        isCredit: amount.trim().startsWith("+"),
+        receiptNo: `F${String(52000 + index + 1)}`,
       } satisfies MovementRow;
     })
     .filter((row): row is MovementRow => Boolean(row));
 }
 
-function drawPage(rows: MovementRow[], pageNumber: number, pageCount: number) {
+function drawLogo(context: CanvasRenderingContext2D) {
+  context.fillStyle = "#e30620";
+  context.fillRect(54, 45, 10, 48);
+  context.fillRect(69, 38, 10, 55);
+  context.fillRect(84, 45, 10, 48);
+  context.fillStyle = "#111";
+  context.font = '700 42px "Helvetica Neue", Arial, sans-serif';
+  context.textBaseline = "middle";
+  context.fillText("Ziraat Bankası", 108, 68);
+}
+
+function drawInfoBox(context: CanvasRenderingContext2D, account: AccountInfo, period: string) {
+  const x = 46;
+  const y = 120;
+  const width = 1148;
+  const height = 170;
+  context.strokeStyle = "#111";
+  context.lineWidth = 2;
+  context.strokeRect(x, y, width, height);
+
+  const leftLabelX = 58;
+  const leftValueX = 138;
+  const rightLabelX = 690;
+  const rightValueX = 860;
+  context.fillStyle = "#111";
+  context.font = '700 19px Georgia, "Times New Roman", serif';
+  context.fillText("Sayın", leftLabelX, y + 34);
+  context.fillText("Adres", leftLabelX, y + 96);
+  context.fillText("Şube Kodu", rightLabelX, y + 34);
+  context.fillText("Müşteri/Hesap No", rightLabelX, y + 64);
+  context.fillText("IBAN", rightLabelX, y + 94);
+  context.fillText("Döviz Cinsi", rightLabelX, y + 124);
+  context.fillText("Dönem", rightLabelX, y + 154);
+
+  context.font = '400 19px Georgia, "Times New Roman", serif';
+  context.fillText(`:  ${account.name}`, leftValueX, y + 34);
+  const addressLines = wrapText(context, `:  ${account.address}`, 500, 2);
+  addressLines.forEach((line, index) => context.fillText(line, leftValueX, y + 96 + index * 24));
+  context.fillText(`:  ${account.branch}`, rightValueX, y + 34);
+  context.fillText(`:  ${account.accountNo}`, rightValueX, y + 64);
+  context.fillText(`:  ${account.iban}`, rightValueX, y + 94);
+  context.fillText(`:  ${account.currency}`, rightValueX, y + 124);
+  context.fillText(`:  ${period}`, rightValueX, y + 154);
+}
+
+function drawDemoMark(context: CanvasRenderingContext2D) {
+  context.save();
+  context.globalAlpha = 0.08;
+  context.translate(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+  context.rotate(-0.55);
+  context.textAlign = "center";
+  context.fillStyle = "#d40019";
+  context.font = '700 120px "Helvetica Neue", Arial, sans-serif';
+  context.fillText("DEMO / ÖRNEK BELGE", 0, 0);
+  context.restore();
+
+  context.fillStyle = "#d40019";
+  context.font = '700 18px "Helvetica Neue", Arial, sans-serif';
+  context.textAlign = "right";
+  context.fillText("DEMO / ÖRNEK BELGE", 1190, 70);
+  context.textAlign = "left";
+}
+
+function drawStatementPage(
+  rows: MovementRow[],
+  account: AccountInfo,
+  period: string,
+  pageNumber: number,
+  pageCount: number,
+  totals?: { debit: number; credit: number },
+) {
   const canvas = document.createElement("canvas");
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("PDF canvas could not be created.");
 
-  context.fillStyle = "#f2f3f4";
+  context.fillStyle = "#fff";
   context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  drawDemoMark(context);
+  drawLogo(context);
+  drawInfoBox(context, account, period);
 
-  context.fillStyle = "#e30620";
-  context.fillRect(0, 0, CANVAS_WIDTH, 164);
+  const tableX = 46;
+  const tableY = 320;
+  const tableWidth = 1148;
+  const headerHeight = 38;
+  const rowHeight = 64;
+  const colDate = tableX + 8;
+  const colReceipt = tableX + 118;
+  const colDescription = tableX + 250;
+  const colAmountRight = tableX + 1018;
+  const colBalanceRight = tableX + 1138;
 
-  context.fillStyle = "#ffffff";
-  context.font = '500 48px "Helvetica Neue", Arial, sans-serif';
-  context.textBaseline = "middle";
-  context.fillText("Hesap Hareketleri", 68, 79);
+  context.fillStyle = "#d7d7d7";
+  context.fillRect(tableX, tableY, tableWidth, headerHeight);
+  context.strokeStyle = "#111";
+  context.lineWidth = 2;
+  context.strokeRect(tableX, tableY, tableWidth, headerHeight);
 
-  const generated = new Intl.DateTimeFormat("tr-TR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date());
-  context.font = '300 23px "Helvetica Neue", Arial, sans-serif';
-  context.fillText(`Son 1 ay  •  ${generated}`, 70, 128);
+  context.fillStyle = "#111";
+  context.font = '700 19px Georgia, "Times New Roman", serif';
+  context.fillText("Tarih", colDate, tableY + 25);
+  context.fillText("Fiş No", colReceipt, tableY + 25);
+  context.fillText("Açıklama", colDescription, tableY + 25);
+  context.textAlign = "right";
+  context.fillText("Tutar", colAmountRight, tableY + 25);
+  context.fillText("Bakiye", colBalanceRight, tableY + 25);
+  context.textAlign = "left";
 
-  const cardX = 48;
-  const cardWidth = CANVAS_WIDTH - cardX * 2;
-  const cardHeight = 166;
-  const gap = 14;
-  let y = 194;
-
+  let y = tableY + headerHeight;
+  context.font = '400 17px Georgia, "Times New Roman", serif';
   for (const row of rows) {
-    context.fillStyle = "#ffffff";
-    roundedRect(context, cardX, y, cardWidth, cardHeight, 18);
-    context.fill();
-
-    context.strokeStyle = "#e4e6e7";
-    context.lineWidth = 2;
-    roundedRect(context, cardX, y, cardWidth, cardHeight, 18);
-    context.stroke();
-
-    const dateWidth = 130;
-    context.strokeStyle = "#e1e4e5";
-    context.lineWidth = 2;
-    context.beginPath();
-    context.moveTo(cardX + dateWidth, y + 24);
-    context.lineTo(cardX + dateWidth, y + cardHeight - 24);
-    context.stroke();
-
-    context.fillStyle = "#364047";
-    context.textAlign = "center";
-    context.font = '300 48px "Helvetica Neue", Arial, sans-serif';
-    context.fillText(row.date.split(" ")[0] || "", cardX + dateWidth / 2, y + 50);
-    context.font = '300 22px "Helvetica Neue", Arial, sans-serif';
-    context.fillText(row.date.split(" ").slice(1).join(" "), cardX + dateWidth / 2, y + 91);
-    context.font = '300 20px "Helvetica Neue", Arial, sans-serif';
-    context.fillText(row.time, cardX + dateWidth / 2, y + 126);
-
-    context.textAlign = "left";
-    context.fillStyle = "#4c565b";
-    context.font = '300 29px "Helvetica Neue", Arial, sans-serif';
-    const descriptionLines = wrapText(context, row.description, 700, 3);
-    descriptionLines.forEach((line, index) => {
-      context.fillText(line, cardX + dateWidth + 30, y + 42 + index * 34);
-    });
-
+    const baseline = y + 26;
+    context.fillStyle = "#111";
+    context.fillText(row.date, colDate, baseline);
+    context.fillText(row.receiptNo, colReceipt, baseline);
+    context.font = '400 17px Georgia, "Times New Roman", serif';
+    const descriptionLines = wrapText(context, `${row.description}${row.time ? ` / ${row.time}` : ""}`, 630, 2);
+    descriptionLines.forEach((line, index) => context.fillText(line, colDescription, baseline + index * 21));
     context.textAlign = "right";
-    context.fillStyle = row.isCredit ? "#36a957" : "#364047";
-    context.font = '500 30px "Helvetica Neue", Arial, sans-serif';
-    context.fillText(row.amount, cardX + cardWidth - 28, y + 43);
-
-    context.fillStyle = "#5d666b";
-    context.font = '300 22px "Helvetica Neue", Arial, sans-serif';
-    const label = "Kalan Bakiye:";
-    const valueFont = '500 23px "Helvetica Neue", Arial, sans-serif';
-    context.font = '300 22px "Helvetica Neue", Arial, sans-serif';
-    const labelWidth = context.measureText(label).width;
-    context.font = valueFont;
-    const valueWidth = context.measureText(row.balance).width;
-    const totalWidth = labelWidth + 14 + valueWidth;
-    const startX = cardX + cardWidth - 28 - totalWidth;
+    context.fillText(row.amount.replace(/\s*TL$/i, ""), colAmountRight, baseline);
+    context.fillText(row.balance, colBalanceRight, baseline);
     context.textAlign = "left";
-    context.font = '300 22px "Helvetica Neue", Arial, sans-serif';
-    context.fillText(label, startX, y + cardHeight - 29);
-    context.font = valueFont;
-    context.fillStyle = "#424c51";
-    context.fillText(row.balance, startX + labelWidth + 14, y + cardHeight - 29);
-
-    y += cardHeight + gap;
+    y += rowHeight;
   }
 
+  if (totals) {
+    context.font = '700 18px Georgia, "Times New Roman", serif';
+    context.fillText("Borç:", colReceipt, y + 28);
+    context.fillText("Alacak:", colReceipt, y + 58);
+    context.textAlign = "right";
+    context.fillText(`-${formatPdfMoney(totals.debit)}`, colAmountRight, y + 28);
+    context.fillText(formatPdfMoney(totals.credit), colAmountRight, y + 58);
+    context.textAlign = "left";
+    y += 78;
+  }
+
+  context.strokeStyle = "#111";
+  context.lineWidth = 2;
+  context.strokeRect(tableX, tableY, tableWidth, Math.max(headerHeight + rowHeight, y - tableY));
+
+  context.fillStyle = "#111";
+  context.font = '400 12px Arial, sans-serif';
+  context.fillText(
+    "Bu belge uygulama içi demo verilerinden üretilmiş örnek çıktıdır; resmî banka ekstresi değildir.",
+    tableX,
+    y + 42,
+  );
+  context.fillText("Hesap hareketleri uygulamadaki mevcut hareket listesini baz alır.", tableX, y + 61);
+
+  context.fillStyle = "#666";
+  context.font = '400 13px Arial, sans-serif';
   context.textAlign = "center";
-  context.fillStyle = "#7f888d";
-  context.font = '300 20px "Helvetica Neue", Arial, sans-serif';
   context.fillText(`${pageNumber} / ${pageCount}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT - 34);
+  context.textAlign = "left";
 
   return canvas;
 }
@@ -219,7 +323,7 @@ async function canvasToJpeg(canvas: HTMLCanvasElement) {
     canvas.toBlob(
       (result) => (result ? resolve(result) : reject(new Error("PDF page could not be encoded."))),
       "image/jpeg",
-      0.93,
+      0.94,
     );
   });
   return new Uint8Array(await blob.arrayBuffer());
@@ -242,7 +346,6 @@ async function buildPdf(canvases: HTMLCanvasElement[]) {
   const chunks: Uint8Array[] = [];
   const offsets: number[] = [];
   let byteOffset = 0;
-
   const pushText = (value: string) => {
     const bytes = encoder.encode(value);
     chunks.push(bytes);
@@ -257,36 +360,23 @@ async function buildPdf(canvases: HTMLCanvasElement[]) {
     pushText(`${number} 0 obj\n`);
   };
 
-  pushText("%PDF-1.4\n% Generated in Ziraat mockup\n");
-
+  pushText("%PDF-1.4\n% Demo account movements statement\n");
   beginObject(1);
   pushText("<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
-
   const pageObjectNumbers = images.map((_, index) => 3 + index * 3);
   beginObject(2);
-  pushText(
-    `<< /Type /Pages /Count ${images.length} /Kids [${pageObjectNumbers
-      .map((number) => `${number} 0 R`)
-      .join(" ")}] >>\nendobj\n`,
-  );
+  pushText(`<< /Type /Pages /Count ${images.length} /Kids [${pageObjectNumbers.map((number) => `${number} 0 R`).join(" ")}] >>\nendobj\n`);
 
   images.forEach((image, index) => {
     const pageObject = 3 + index * 3;
     const imageObject = pageObject + 1;
     const contentObject = pageObject + 2;
-
     beginObject(pageObject);
-    pushText(
-      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PDF_PAGE_WIDTH} ${PDF_PAGE_HEIGHT}] /Resources << /XObject << /Im0 ${imageObject} 0 R >> >> /Contents ${contentObject} 0 R >>\nendobj\n`,
-    );
-
+    pushText(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PDF_PAGE_WIDTH} ${PDF_PAGE_HEIGHT}] /Resources << /XObject << /Im0 ${imageObject} 0 R >> >> /Contents ${contentObject} 0 R >>\nendobj\n`);
     beginObject(imageObject);
-    pushText(
-      `<< /Type /XObject /Subtype /Image /Width ${CANVAS_WIDTH} /Height ${CANVAS_HEIGHT} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${image.length} >>\nstream\n`,
-    );
+    pushText(`<< /Type /XObject /Subtype /Image /Width ${CANVAS_WIDTH} /Height ${CANVAS_HEIGHT} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${image.length} >>\nstream\n`);
     pushBytes(image);
     pushText("\nendstream\nendobj\n");
-
     const content = `q\n${PDF_PAGE_WIDTH} 0 0 ${PDF_PAGE_HEIGHT} 0 0 cm\n/Im0 Do\nQ\n`;
     const contentBytes = encoder.encode(content);
     beginObject(contentObject);
@@ -297,31 +387,24 @@ async function buildPdf(canvases: HTMLCanvasElement[]) {
 
   const objectCount = 2 + images.length * 3;
   const xrefOffset = byteOffset;
-  pushText(`xref\n0 ${objectCount + 1}\n`);
-  pushText("0000000000 65535 f \n");
+  pushText(`xref\n0 ${objectCount + 1}\n0000000000 65535 f \n`);
   for (let index = 1; index <= objectCount; index += 1) {
     pushText(`${String(offsets[index] || 0).padStart(10, "0")} 00000 n \n`);
   }
   pushText(`trailer\n<< /Size ${objectCount + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
-
   return new Blob([concatBytes(chunks)], { type: "application/pdf" });
 }
 
 async function shareOrDownloadPdf(blob: Blob) {
-  const stamp = new Date().toISOString().slice(0, 10);
-  const filename = `hesap-hareketleri-${stamp}.pdf`;
+  const now = new Date();
+  const stamp = `${String(now.getDate()).padStart(2, "0")}${String(now.getMonth() + 1).padStart(2, "0")}${now.getFullYear()}`;
+  const filename = `Hesap_Hareketleri_${stamp}.pdf`;
   const file = new File([blob], filename, { type: "application/pdf" });
-  const navigatorWithShare = navigator as Navigator & {
-    canShare?: (data?: ShareData) => boolean;
-  };
+  const shareNavigator = navigator as Navigator & { canShare?: (data?: ShareData) => boolean };
 
-  if (navigator.share && navigatorWithShare.canShare?.({ files: [file] })) {
+  if (navigator.share && shareNavigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({
-        title: "Hesap Hareketleri",
-        text: "Hesap hareketleri PDF",
-        files: [file],
-      });
+      await navigator.share({ title: "Hesap Hareketleri", files: [file] });
       return;
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
@@ -344,18 +427,33 @@ let exporting = false;
 async function exportAccountMovements(screen: HTMLElement) {
   if (exporting) return;
   exporting = true;
-
   try {
     const rows = readMovementRows(screen);
     if (!rows.length) throw new Error("No account movements were found.");
 
-    const rowsPerPage = 8;
+    const account = readAccountInfo();
+    const now = new Date();
+    const from = new Date(now);
+    from.setMonth(from.getMonth() - 1);
+    const date = (value: Date) => `${String(value.getDate()).padStart(2, "0")}.${String(value.getMonth() + 1).padStart(2, "0")}.${value.getFullYear()}`;
+    const period = `${date(from)}-${date(now)}`;
+    const debit = rows.reduce((sum, row) => sum + (parseMoney(row.amount) < 0 ? Math.abs(parseMoney(row.amount)) : 0), 0);
+    const credit = rows.reduce((sum, row) => sum + (parseMoney(row.amount) > 0 ? parseMoney(row.amount) : 0), 0);
+
+    const rowsPerPage = 9;
     const pageCount = Math.ceil(rows.length / rowsPerPage);
     const canvases = Array.from({ length: pageCount }, (_, index) =>
-      drawPage(rows.slice(index * rowsPerPage, (index + 1) * rowsPerPage), index + 1, pageCount),
+      drawStatementPage(
+        rows.slice(index * rowsPerPage, (index + 1) * rowsPerPage),
+        account,
+        period,
+        index + 1,
+        pageCount,
+        index === pageCount - 1 ? { debit, credit } : undefined,
+      ),
     );
-    const pdf = await buildPdf(canvases);
-    await shareOrDownloadPdf(pdf);
+
+    await shareOrDownloadPdf(await buildPdf(canvases));
   } catch (error) {
     console.error("Account movements PDF export failed", error);
     window.alert("Hesap hareketleri PDF'i oluşturulamadı. Lütfen tekrar deneyin.");
@@ -370,13 +468,10 @@ function installTransactionsPdfExport() {
     (event) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-
       const mailButton = target.closest<HTMLButtonElement>('button[aria-label="Mesajlar"]');
       if (!mailButton) return;
-
       const screen = mailButton.closest<HTMLElement>(".min-h-screen");
       if (!screen?.querySelector('button[aria-label="Filtre"]')) return;
-
       event.preventDefault();
       event.stopPropagation();
       void exportAccountMovements(screen);
