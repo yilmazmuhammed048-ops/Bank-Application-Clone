@@ -67,17 +67,24 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
   maxWidth?: number,
 ) {
   let next = String(text);
+  const lower = next.toLocaleLowerCase("tr-TR");
 
   if (next.startsWith("Komisyon :")) {
     next = `Komisyon : ${RECEIPT_COMMISSION}  BSMV : ${RECEIPT_BSMV}  Mesaj Ücreti : ${RECEIPT_MESSAGE_FEE}`;
   } else if (next.startsWith("Toplam Masraf :")) {
     next = `Toplam Masraf : ${RECEIPT_TOTAL_FEE}`;
-  } else if (next.includes("tutarında") && next.toLocaleLowerCase("tr-TR").includes("işleminin yapılmasını")) {
+  } else if (next.includes("tutarında") && lower.includes("işleminin yapılmasını")) {
     next = next
       .replace(/(tutarında\s+).+?(\s+işleminin yapılmasını)/i, "$1Fast$2")
       .replace(/,\s*bu işlem için/i, ", Bu işlem için");
-  } else if (next.toLocaleLowerCase("tr-TR").includes("bildirilen") && next.toLocaleLowerCase("tr-TR").includes("masraf alınmasını talep ederim")) {
+  }
+
+  if (next.toLocaleLowerCase("tr-TR").includes("bildirilen")) {
     next = next.replace(/(bildirilen\s+)\d{1,3}(?:\.\d{3})*(?:,\d{2})?\s*TRY/i, `$1${RECEIPT_TOTAL_FEE}`);
+  }
+
+  if (next.toLocaleLowerCase("tr-TR").includes("masraf alınmasını talep ederim")) {
+    next = next.replace(/\d{1,3}(?:\.\d{3})*(?:,\d{2})?\s*TRY(?=\s+masraf)/i, RECEIPT_TOTAL_FEE);
   }
 
   if (typeof maxWidth === "number") {
