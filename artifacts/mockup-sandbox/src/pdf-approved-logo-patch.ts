@@ -1,22 +1,39 @@
-const CUSTOM_PDF_LOGO_URL = "/ziraat-amblem.jpg?v=custom-logo-20260823-2";
+const CUSTOM_PDF_LOGO_URL = "/ziraat-amblem.jpg?v=custom-logo-20260823-3";
 
 const originalDrawImage = CanvasRenderingContext2D.prototype.drawImage;
 const originalFillRect = CanvasRenderingContext2D.prototype.fillRect;
+const originalFillText = CanvasRenderingContext2D.prototype.fillText;
+
+const LOGO_X = 50;
+const LOGO_Y = 49;
+const LOGO_HEIGHT = 56;
+const LOGO_TEXT_GAP = 12;
+const LOGO_TEXT_Y = 86;
 
 const customLogo = new Image();
 customLogo.decoding = "sync";
 customLogo.src = CUSTOM_PDF_LOGO_URL;
 void customLogo.decode?.().catch(() => undefined);
 
-function drawCustomLogo(ctx: CanvasRenderingContext2D) {
+function customLogoWidth() {
   if (!customLogo.complete || customLogo.naturalWidth <= 0 || customLogo.naturalHeight <= 0) {
-    return false;
+    return 0;
   }
 
-  const logoHeight = 74;
-  const logoWidth = logoHeight * (customLogo.naturalWidth / customLogo.naturalHeight);
-  originalDrawImage.call(ctx, customLogo, 52, 41, logoWidth, logoHeight);
+  return LOGO_HEIGHT * (customLogo.naturalWidth / customLogo.naturalHeight);
+}
+
+function drawCustomLogo(ctx: CanvasRenderingContext2D) {
+  const logoWidth = customLogoWidth();
+  if (logoWidth <= 0) return false;
+
+  originalDrawImage.call(ctx, customLogo, LOGO_X, LOGO_Y, logoWidth, LOGO_HEIGHT);
   return true;
+}
+
+function customLogoTextX() {
+  const logoWidth = customLogoWidth();
+  return logoWidth > 0 ? LOGO_X + logoWidth + LOGO_TEXT_GAP : 72;
 }
 
 CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
@@ -47,12 +64,12 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
     this.textAlign = "left";
     this.textBaseline = "alphabetic";
     this.font = '700 31px "Times New Roman", Times, serif';
-    this.fillText("Ziraat Bankası", 105, 89);
+    originalFillText.call(this, "Ziraat Bankası", customLogoTextX(), LOGO_TEXT_Y);
 
     this.fillStyle = "#c6001d";
     this.textAlign = "right";
     this.font = "700 20px Arial, sans-serif";
-    this.fillText("DEMO / ÖRNEK BELGE", 1188, 72);
+    originalFillText.call(this, "DEMO / ÖRNEK BELGE", 1188, 72);
 
     this.restore();
     return;
@@ -84,6 +101,24 @@ CanvasRenderingContext2D.prototype.fillRect = function (...args: any[]) {
   }
 
   return originalFillRect.apply(this, args as any);
+};
+
+CanvasRenderingContext2D.prototype.fillText = function (...args: any[]) {
+  const canvas = this.canvas;
+  const text = String(args[0] ?? "");
+
+  // Runtime fallback kendi "Ziraat Bankası" yazısını x=72'ye basıyordu ve özel logonun
+  // üstüne geliyordu. Logo yüklüyse yazıyı logonun hemen sağına taşıyoruz.
+  if (
+    canvas?.width === 1240 &&
+    canvas?.height === 1754 &&
+    text === "Ziraat Bankası" &&
+    customLogoWidth() > 0
+  ) {
+    return originalFillText.call(this, text, customLogoTextX(), LOGO_TEXT_Y, args[3] as any);
+  }
+
+  return originalFillText.apply(this, args as any);
 };
 
 export {};
