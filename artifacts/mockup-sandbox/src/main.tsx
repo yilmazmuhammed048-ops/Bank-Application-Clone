@@ -11,6 +11,7 @@ import "./transactions-typography-reference.css";
 import "./transactions-message-fee-row";
 import "./transactions-archive-display";
 import "./transactions-reference-receipt-icon";
+import "./receipt-transaction-reference";
 import "./pdf-approved-logo-patch";
 import "./transactions-pdf-reference-final";
 import "./receipt-pdf-reference";
