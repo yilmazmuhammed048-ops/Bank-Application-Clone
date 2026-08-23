@@ -22,13 +22,14 @@
   letter-spacing: -0.015em !important;
 }
 
-/* Keep the existing card geometry. */
+/* Slightly shorter movement cards, like the reference. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button {
+  min-height: 96px !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   letter-spacing: -0.012em !important;
 }
 
-/* Date column: vertically centered instead of sitting high in the card. */
+/* Date column stays vertically centered inside the shorter card. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child {
   align-self: stretch !important;
   display: flex !important;
@@ -66,10 +67,12 @@
   color: #69747a !important;
 }
 
-/* Movement description: a little smaller and slightly wider toward the amount. */
+/* Movement description: thinner, a touch tighter, and slightly wider toward the amount. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) {
   overflow: hidden !important;
-  padding-right: 94px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  padding-right: 88px !important;
 }
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) p,
@@ -81,17 +84,17 @@
   overflow: hidden !important;
   white-space: normal !important;
   text-overflow: ellipsis !important;
-  max-height: 47.9px !important;
+  max-height: 46.2px !important;
   margin-top: 0 !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 13.75px !important;
-  font-weight: 400 !important;
-  line-height: 1.16 !important;
-  letter-spacing: -0.022em !important;
+  font-size: 13.5px !important;
+  font-weight: 300 !important;
+  line-height: 1.14 !important;
+  letter-spacing: -0.03em !important;
   color: #545e64 !important;
 }
 
-/* Amount at the upper-right: smaller and softer. */
+/* Amount at the upper-right remains compact and soft. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(3) {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-size: 14.5px !important;
