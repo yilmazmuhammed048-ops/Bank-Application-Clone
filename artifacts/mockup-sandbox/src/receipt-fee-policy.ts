@@ -264,8 +264,6 @@ scheduleApply();
 
 const receiptFrameMoveTo = CanvasRenderingContext2D.prototype.moveTo;
 CanvasRenderingContext2D.prototype.moveTo = function receiptFrameMoveToPatch(x: number, y: number) {
-  const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
-  if (isReceiptPdfCanvas && x === 655 && y === 145) x = 625;
   return receiptFrameMoveTo.call(this, x, y);
 };
 
@@ -277,15 +275,6 @@ CanvasRenderingContext2D.prototype.arcTo = function receiptFrameArcToPatch(
   y2: number,
   radius: number,
 ) {
-  const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
-
-  if (isReceiptPdfCanvas && radius === 9 && y1 >= 145 && y1 <= 390 && y2 >= 145 && y2 <= 390) {
-    if (x1 === 624) x1 = 598;
-    if (x2 === 624) x2 = 598;
-    if (x1 === 646) x1 = 616;
-    if (x2 === 646) x2 = 616;
-  }
-
   return receiptFrameArcTo.call(this, x1, y1, x2, y2, radius);
 };
 
@@ -309,12 +298,6 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFrameFillTextPatch
         if (y === 170) this.font = '700 14px Arial, Helvetica, sans-serif';
         else if (y === 195) this.font = '700 14.4px Arial, Helvetica, sans-serif';
         else this.font = '700 13.9px Arial, Helvetica, sans-serif';
-      }
-
-      if (x >= 90 && x < 646) x -= 3;
-      if (x === 665) {
-        x = 635;
-        if (y === 252 && typeof maxWidth === "number") maxWidth = 438;
       }
     }
 
