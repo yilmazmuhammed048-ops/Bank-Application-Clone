@@ -11,48 +11,43 @@ const ARCHIVE_VIEWS: ArchiveView[] = [
   {
     time: "18:30",
     amount: "-350,00 TL",
-    description:
-      "SANAL POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: YEMEKPAY/YEMEK SEPET MUTABAKAT: 5508756",
+    description: "YEMEKPAY / YEMEK SEPET — SANAL POS",
     balance: "30.798,92 TL",
   },
   {
     time: "13:34",
     amount: "-2.600,00 TL",
-    description:
-      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: M JET YUREGIR ADANA P MUTABAKAT: 3910060",
+    description: "M JET YUREGIR ADANA P — POS ALIŞVERİŞ",
     balance: "31.148,92 TL",
   },
   {
     time: "04:08",
     amount: "-2.900,00 TL",
-    description:
-      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: KONAK STONE HOUSE MUTABAKAT: 8630012",
+    description: "KONAK STONE HOUSE — POS ALIŞVERİŞ",
     balance: "33.748,92 TL",
   },
   {
     time: "03:23",
     amount: "-3.672,00 TL",
-    description:
-      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: ALTINOLUK SUPERMARKET MUTABAKAT: 85385...",
+    description: "ALTINOLUK SUPERMARKET — POS ALIŞVERİŞ",
     balance: "36.648,92 TL",
   },
   {
     time: "21:18",
     amount: "-10.000,00 TL",
-    description: "FERDİ ERKAN Ziraat Mobil Havale",
+    description: "FERDİ ERKAN — Ziraat Mobil Havale",
     balance: "40.320,92 TL",
   },
   {
     time: "19:29",
     amount: "-990,00 TL",
-    description:
-      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: EMRECAN BUFE MUTABAKAT: 9414914",
+    description: "EMRECAN BUFE — POS ALIŞVERİŞ",
     balance: "50.320,92 TL",
   },
   {
     time: "19:04",
     amount: "-48.000,00 TL",
-    description: "FEVZİ MUTLU Ziraat Mobil Havale",
+    description: "FEVZİ MUTLU — Ziraat Mobil Havale",
     balance: "51.310,92 TL",
   },
 ];
@@ -93,8 +88,6 @@ function applyArchiveDisplay() {
 
     row.dataset.archiveMovement = "true";
 
-    // Keep the application's original transaction-card typography/classes.
-    // Only reuse the first existing text line for the archived description.
     const details = findDetailsBox(row);
     if (details && details.dataset.archiveDescription !== archive.description) {
       const paragraphs = Array.from(details.querySelectorAll<HTMLParagraphElement>("p"));
@@ -102,8 +95,8 @@ function applyArchiveDisplay() {
 
       if (first) {
         first.textContent = archive.description;
-        first.classList.remove("line-clamp-1", "truncate");
-        first.classList.add("line-clamp-3");
+        first.classList.remove("line-clamp-1", "line-clamp-3", "truncate");
+        first.classList.add("line-clamp-2");
       }
 
       for (const paragraph of paragraphs.slice(1)) {
