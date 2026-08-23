@@ -107,6 +107,36 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
     return;
   }
 
+  if (isReceiptPdfCanvas && next === "Saygılarımızla") {
+    this.save();
+    this.fillStyle = "#2b2b2b";
+    this.textAlign = "center";
+    this.textBaseline = "alphabetic";
+    this.font = '500 12.5px Arial, Helvetica, sans-serif';
+    if (typeof maxWidth === "number") {
+      originalFillText.call(this, next, x, y, maxWidth);
+    } else {
+      originalFillText.call(this, next, x, y);
+    }
+    this.restore();
+    return;
+  }
+
+  if (isReceiptPdfCanvas && next === "İNTERNET ŞUBESİ") {
+    this.save();
+    this.fillStyle = "#242424";
+    this.textAlign = "center";
+    this.textBaseline = "alphabetic";
+    this.font = '500 12.5px Arial, Helvetica, sans-serif';
+    if (typeof maxWidth === "number") {
+      originalFillText.call(this, next, x, y, maxWidth);
+    } else {
+      originalFillText.call(this, next, x, y);
+    }
+    this.restore();
+    return;
+  }
+
   if (next.startsWith("Alıcı Hesap :")) {
     const receiverMatch = next.match(/^(.*Alıcı\s*:\s*)(.+)$/u);
     if (receiverMatch) {
