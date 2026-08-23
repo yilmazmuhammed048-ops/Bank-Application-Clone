@@ -39,6 +39,15 @@ const ADDRESS1 = "FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 / 3";
 const ADDRESS2 = "ÜRGÜP";
 const ADDRESS3 = "NEVŞEHİR";
 
+const RECEIPT_COMMISSION = 0;
+const RECEIPT_BSMV = 0.18;
+const RECEIPT_MESSAGE_FEE = 0.37;
+const RECEIPT_TOTAL_FEE = RECEIPT_COMMISSION + RECEIPT_BSMV + RECEIPT_MESSAGE_FEE;
+
+const ONES = ["", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"];
+const TENS = ["", "ON", "YİRMİ", "OTUZ", "KIRK", "ELLİ", "ALTMIŞ", "YETMİŞ", "SEKSEN", "DOKSAN"];
+const SCALES = ["", "BİN", "MİLYON", "MİLYAR", "TRİLYON"];
+
 function amount(v: string | number | undefined) {
   if (typeof v === "number") return Math.abs(v);
   const n = Number(
@@ -87,6 +96,82 @@ function date(v: string) {
   }
   const d = s.match(/(\d{1,2})[./-](\d{1,2})[./-](\d{4})/);
   return d ? `${d[1].padStart(2, "0")}.${d[2].padStart(2, "0")}.${d[3]}` : s;
+}
+
+function hashString(value: string) {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function stableReference(seed: string) {
+  const first = hashString(`${seed}|seconds`);
+  const second = hashString(`${seed}|reference-a`);
+  const third = hashString(`${seed}|reference-b`);
+
+  return {
+    seconds: String(first % 60).padStart(2, "0"),
+    code: `F${10000 + (second % 90000)}_${1000 + (third % 9000)}`,
+  };
+}
+
+function chunkToTurkish(value: number) {
+  const hundreds = Math.floor(value / 100);
+  const remainder = value % 100;
+  const tens = Math.floor(remainder / 10);
+  const ones = remainder % 10;
+  let result = "";
+
+  if (hundreds > 0) {
+    if (hundreds > 1) result += ONES[hundreds];
+    result += "YÜZ";
+  }
+
+  result += TENS[tens];
+  result += ONES[ones];
+  return result;
+}
+
+function integerToTurkish(value: number) {
+  const safeValue = Math.max(0, Math.floor(value));
+  if (safeValue === 0) return "SIFIR";
+
+  let remaining = safeValue;
+  let scaleIndex = 0;
+  const groups: string[] = [];
+
+  while (remaining > 0 && scaleIndex < SCALES.length) {
+    const chunk = remaining % 1000;
+    if (chunk > 0) {
+      const scale = SCALES[scaleIndex];
+      const group = scaleIndex === 1 && chunk === 1
+        ? "BİN"
+        : `${chunkToTurkish(chunk)}${scale}`;
+      groups.unshift(group);
+    }
+    remaining = Math.floor(remaining / 1000);
+    scaleIndex += 1;
+  }
+
+  return groups.join("");
+}
+
+function amountWords(value: number) {
+  const roundedKurus = Math.round(value * 100);
+  const lira = Math.floor(roundedKurus / 100);
+  const kurus = roundedKurus % 100;
+  return `${integerToTurkish(lira)}TL${integerToTurkish(kurus)}KR`;
+}
+
+function transactionClock(value: string) {
+  const match = String(value || "").match(/(\d{1,2}):(\d{2})/);
+  return {
+    hour: (match?.[1] || "00").padStart(2, "0"),
+    minute: match?.[2] || "00",
+  };
 }
 
 function current(screen: HTMLElement): ReceiptTx | null {
@@ -196,10 +281,10 @@ async function canvasFor(t: ReceiptTx) {
 
   c.fillStyle = "#c4001d";
   c.textAlign = "right";
-  c.font = `700 13px ${FONT}`;
+  c.font = `700 14px ${FONT}`;
+  c.fillText("DEMO / ÖRNEK BELGE", 1138, 76);
 
   c.textAlign = "left";
-
   c.strokeStyle = "#bdbdbd";
   c.lineWidth = 2;
   rr(c, 49, 111, 1090, 502, 10);
@@ -211,10 +296,10 @@ async function canvasFor(t: ReceiptTx) {
 
   const d = date(t.date);
   const sd = d.replace(/\./g, "/");
-  const tm = t.time.length === 5 ? `${t.time}:00` : t.time;
-  const no = t.transactionNumber.replace(/\D/g, "").slice(-5) || "41071";
-  const tail = t.id.replace(/\D/g, "").slice(-4) || "4038";
-  const doc = `F${no}_${tail}`;
+  const clock = transactionClock(t.time);
+  const reference = stableReference(`${sd}|${clock.hour}:${clock.minute}|${t.transactionNumber}`);
+  const timestamp = `${clock.hour}:${clock.minute}:${reference.seconds}`;
+  const doc = reference.code;
   const ys = [155, 181, 207, 233, 259, 285, 311, 331];
 
   lv(c, "ŞUBE KODU/ADI", "4000/ZİRAAT SÜPER ŞUBE", 82, ys[0]);
@@ -222,8 +307,8 @@ async function canvasFor(t: ReceiptTx) {
   lv(c, "HESAP NUMARASI", MY_ACCOUNT, 82, ys[2]);
   lv(c, "VERGİ DAİRESİ", "", 82, ys[3]);
   lv(c, "VERGİ KİMLİK NO", "10067921118", 82, ys[4]);
-  lv(c, "İŞLEM TARİHİ", `${sd}-${tm} - ${doc}`, 82, ys[5]);
-  lv(c, "VALÖR", d, 82, ys[6]);
+  lv(c, "İŞLEM TARİHİ", `${sd}-${timestamp}-${doc}`, 82, ys[5]);
+  lv(c, "VALÖR", sd, 82, ys[6]);
   lv(c, "İŞLEM YERİ", "ZİRAAT MOBİL", 82, ys[7]);
 
   c.fillStyle = "#111";
@@ -235,14 +320,12 @@ async function canvasFor(t: ReceiptTx) {
   c.fillText(ADDRESS3, 643, 283);
 
   const sender = t.incoming ? t.recipientName.toLocaleUpperCase("tr-TR") : MY_NAME;
-  const receiver = t.incoming ? MY_NAME : t.recipientName.toLocaleUpperCase("tr-TR");
+  const receiver = (t.incoming ? MY_NAME : t.recipientName).toLocaleLowerCase("tr-TR");
   const iban = t.incoming ? MY_IBAN : t.recipientIban;
-  const commission = 0;
-  const messageFee = 0.37;
-  const totalFee = commission + messageFee;
-  const commissionText = `${money(commission)} TRY`;
-  const messageFeeText = `${money(messageFee)} TRY`;
-  const totalFeeText = `${money(totalFee)} TRY`;
+  const commissionText = `${money(RECEIPT_COMMISSION)} TRY`;
+  const bsmvText = `${money(RECEIPT_BSMV)} TRY`;
+  const messageFeeText = `${money(RECEIPT_MESSAGE_FEE)} TRY`;
+  const totalFeeText = `${money(RECEIPT_TOTAL_FEE)} TRY`;
   const amt = `${money(t.amount)} TRY`;
 
   c.font = `400 17px ${FONT}`;
@@ -257,36 +340,43 @@ async function canvasFor(t: ReceiptTx) {
   line(`Alan Banka : ${t.recipientBank}`);
   line(`Alıcı Hesap : ${iban}  Alıcı : ${receiver}`);
   line(`İşlem Tutarı : ${amt}`);
-  line(`Komisyon : ${commissionText}  BSMV : 0,00 TRY  Mesaj Ücreti : ${messageFeeText}`);
+  line(`Komisyon : ${commissionText}  BSMV : ${bsmvText}  Mesaj Ücreti : ${messageFeeText}`);
   line(`Toplam Masraf : ${totalFeeText}`);
 
   c.font = `400 16px ${FONT}`;
   fit(
     c,
-    `${amt} tutarında ${t.title} işleminin yapılmasını, bu işlem için tarafıma bildirilen ${totalFeeText} masraf alınmasını talep ederim.`,
+    `${amt} tutarında Fast işleminin yapılmasını, Bu işlem için tarafıma bildirilen ${totalFeeText} masraf alınmasını talep ederim.`,
     750,
     92,
     y + 2,
   );
 
   const fy = 557;
+  c.fillStyle = "#111";
   c.font = `400 16px ${FONT}`;
-  c.fillText(
-    t.incoming
-      ? `Hesabınıza ${money(t.amount)} TL yatırılmıştır.`
-      : `Hesabınızdan ${money(t.amount)} TL çekilmiştir.`,
-    78,
-    fy,
-  );
-  c.fillText(`${sd}-${tm} EFTTGIDD INTERNET`, 78, fy + 23);
-  c.fillText("INTERNET", 78, fy + 46);
+  if (t.incoming) {
+    c.fillText(`Hesabınıza ${money(t.amount)} TL yatırılmıştır.`, 78, fy);
+  } else {
+    c.fillText(
+      `Hesabınızdan ${money(t.amount)} TL (Yalnız ${amountWords(t.amount)}) Çekilmiştir.`,
+      78,
+      fy,
+    );
+  }
+  c.fillText(`${sd}-${timestamp} EFTTGIDD INTERNET`, 78, fy + 18);
+  c.fillText("INTERNET", 78, fy + 36);
 
   c.textAlign = "center";
-  c.font = `400 15px ${FONT}`;
-  c.fillText("Saygılarımızla", 935, fy - 16);
-  c.font = `700 16px ${FONT}`;
-  c.fillText("T.C. ZİRAAT BANKASI A.Ş.", 935, fy + 6);
-  c.fillText("İNTERNET ŞUBESİ", 935, fy + 28);
+  c.fillStyle = "#55595b";
+  c.font = `400 12px ${FONT}`;
+  c.fillText("Saygılarımızla", 935, fy - 13);
+  c.fillStyle = "#303436";
+  c.font = `700 13px ${FONT}`;
+  c.fillText("T.C. ZİRAAT BANKASI A.Ş.", 935, fy + 4);
+  c.fillStyle = "#3d4143";
+  c.font = `600 12px ${FONT}`;
+  c.fillText("İNTERNET ŞUBESİ", 935, fy + 20);
 
   c.textAlign = "left";
   c.strokeStyle = "#bdbdbd";
@@ -296,19 +386,26 @@ async function canvasFor(t: ReceiptTx) {
   c.lineTo(1139, 615);
   c.stroke();
 
-  c.fillStyle = "#222";
+  c.fillStyle = "#222629";
   c.font = `400 11px ${FONT}`;
   c.fillText(
-    "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri, müstenitli olsun olmasın, kesin ve aksi ileri sürülemez delil niteliğindedir.",
+    "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri,müstenitli olsun olmasın,",
     48,
     642,
   );
+  c.fillText("kesin ve aksi ileri sürülemez delil niteliğindedir.", 48, 658);
   c.fillText(
     "Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul Ticaret Sicil No:475225-5",
     48,
-    663,
+    677,
   );
+  c.fillText("www.ziraatbank.com.tr", 48, 696);
 
+  c.textAlign = "center";
+  c.fillStyle = "#a00018";
+  c.font = `700 13px ${FONT}`;
+  c.fillText("ÖRNEK BELGE - RESMÎ BANKA DEKONTU DEĞİLDİR.", W / 2, 1715);
+  c.textAlign = "left";
 
   return x;
 }
