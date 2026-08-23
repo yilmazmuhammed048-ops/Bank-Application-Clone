@@ -93,17 +93,24 @@ function applyArchiveDisplay() {
 
     row.dataset.archiveMovement = "true";
 
+    // Keep the application's original transaction-card typography/classes.
+    // Only reuse the first existing text line for the archived description.
     const details = findDetailsBox(row);
     if (details && details.dataset.archiveDescription !== archive.description) {
-      details.replaceChildren();
-      details.dataset.archiveDescription = archive.description;
-      details.className = "min-w-0 flex-1 py-[12px] pl-3 pr-[106px]";
+      const paragraphs = Array.from(details.querySelectorAll<HTMLParagraphElement>("p"));
+      const first = paragraphs[0];
 
-      const description = document.createElement("p");
-      description.className =
-        "line-clamp-3 text-[11px] font-medium leading-[1.28] tracking-[0.005em] text-[#3f484e]";
-      description.textContent = archive.description;
-      details.appendChild(description);
+      if (first) {
+        first.textContent = archive.description;
+        first.classList.remove("line-clamp-1", "truncate");
+        first.classList.add("line-clamp-3");
+      }
+
+      for (const paragraph of paragraphs.slice(1)) {
+        paragraph.style.display = "none";
+      }
+
+      details.dataset.archiveDescription = archive.description;
     }
 
     const balanceBox = findBalanceBox(row);
