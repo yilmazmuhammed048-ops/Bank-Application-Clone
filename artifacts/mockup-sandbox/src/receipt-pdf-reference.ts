@@ -363,7 +363,7 @@ async function canvasFor(transaction: ReceiptTx) {
   context.fillStyle = C_ACCENT;
   context.textAlign = "right";
   context.font = `700 14px ${FONT}`;
-  context.fillText("DEMO / ÖRNEK BELGE", 1124, 76);
+
 
   context.textAlign = "left";
   context.strokeStyle = C_BORDER;
@@ -537,7 +537,7 @@ async function canvasFor(transaction: ReceiptTx) {
   context.fillStyle = C_ACCENT;
   context.font = `700 14px ${FONT}`;
   context.fillText(
-    "ÖRNEK BELGE — RESMÎ BANKA DEKONTU DEĞİLDİR.",
+    
     W / 2,
     1710,
   );
