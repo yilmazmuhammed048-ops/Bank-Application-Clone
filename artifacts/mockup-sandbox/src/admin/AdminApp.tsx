@@ -177,33 +177,42 @@ export default function AdminApp() {
     return transaction.type === "income" ? amount : -amount;
   };
 
-const addTransaction = () => {
-  const newTransaction: Transaction = {
-    id: Date.now(),
-    title: "Yeni İşlem",
-    description: "İşlem açıklaması",
-    amount: "100,00",
-    date: "17 Ağustos 2026",
-    time: "12:00",
-    type: "expense",
-    recipientName: "Fenerbahçe",
-    recipientIban: "TR00 0000 0000 0000 0000 0000 00",
-    recipientBank: "Banka Bilgisi",
-    transactionNumber: "202608170001",
-  };
-  setTransactions((current) => [
-    newTransaction,
-    ...current,
-  ]);
+  const addTransaction = () => {
+    const createdAt = new Date();
+    const transactionId = createdAt.getTime();
+    const newTransaction: Transaction = {
+      id: transactionId,
+      title: "Yeni İşlem",
+      description: "İşlem açıklaması",
+      amount: "100,00",
+      date: createdAt.toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      time: createdAt.toLocaleTimeString("tr-TR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      type: "expense",
+      recipientName: "Fenerbahçe",
+      recipientIban: "TR00 0000 0000 0000 0000 0000 00",
+      recipientBank: "Banka Bilgisi",
+      transactionNumber: String(transactionId),
+    };
+    setTransactions((current) => [
+      newTransaction,
+      ...current,
+    ]);
 
-  setAccount((currentAccount) => ({
-    ...currentAccount,
-    balance: formatBalance(
-      parseAmount(currentAccount.balance) +
-        transactionEffect(newTransaction),
-    ),
-  }));
-};
+    setAccount((currentAccount) => ({
+      ...currentAccount,
+      balance: formatBalance(
+        parseAmount(currentAccount.balance) +
+          transactionEffect(newTransaction),
+      ),
+    }));
+  };
 
   const updateTransaction = (
     id: number,
