@@ -22,72 +22,109 @@
   letter-spacing: -0.015em !important;
 }
 
-/* Keep the existing card geometry; only match the reference typography. */
+/* Keep the existing card geometry. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  letter-spacing: -0.015em !important;
+  letter-spacing: -0.012em !important;
 }
 
-/* Date column. */
+/* Date column: vertically centered instead of sitting high in the card. */
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child {
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(1) {
-  font-size: 29px !important;
+  margin-top: 0 !important;
+  font-size: 27.5px !important;
   font-weight: 300 !important;
   line-height: .96 !important;
-  letter-spacing: -0.055em !important;
+  letter-spacing: -0.05em !important;
+  color: #465057 !important;
 }
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(2) {
-  font-size: 14px !important;
+  margin-top: 5px !important;
+  font-size: 12px !important;
   font-weight: 400 !important;
   line-height: 1 !important;
   letter-spacing: .01em !important;
+  color: #657077 !important;
 }
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(3) {
-  font-size: 13.5px !important;
+  margin-top: 5px !important;
+  font-size: 12px !important;
   font-weight: 400 !important;
   line-height: 1 !important;
-  letter-spacing: -0.02em !important;
+  letter-spacing: -0.015em !important;
+  color: #69747a !important;
 }
 
-/* Movement description. */
+/* Movement description: slightly smaller and never more than 3 visible lines total. */
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) {
+  overflow: hidden !important;
+}
+
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) p {
+  display: block !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  -webkit-line-clamp: unset !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 16px !important;
+  font-size: 14.5px !important;
   font-weight: 400 !important;
-  line-height: 1.15 !important;
-  letter-spacing: -0.025em !important;
+  line-height: 1.16 !important;
+  letter-spacing: -0.02em !important;
+  color: #545e64 !important;
+}
+
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) p:nth-of-type(n+4) {
+  display: none !important;
 }
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) p + p {
-  margin-top: 1px !important;
+  margin-top: 2px !important;
 }
 
-/* Amount at the upper-right. */
+/* Amount at the upper-right: smaller and softer than before. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(3) {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 16.5px !important;
-  font-weight: 600 !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
   line-height: 1 !important;
-  letter-spacing: -0.03em !important;
+  letter-spacing: -0.025em !important;
   font-variant-numeric: tabular-nums;
+  color: #59636a !important;
+}
+
+.min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(3)[class*="text-[#24934c]"] {
+  color: #55ad6a !important;
 }
 
 /* Remaining balance at the lower-right. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:last-of-type > span:first-child {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 13.5px !important;
+  font-size: 12px !important;
   font-weight: 400 !important;
   line-height: 1 !important;
-  letter-spacing: -0.02em !important;
+  letter-spacing: -0.015em !important;
   text-transform: none !important;
+  color: #70797e !important;
 }
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:last-of-type > span:last-child {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 14.5px !important;
-  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
   line-height: 1 !important;
-  letter-spacing: -0.03em !important;
+  letter-spacing: -0.02em !important;
   font-variant-numeric: tabular-nums;
+  color: #59636a !important;
 }
