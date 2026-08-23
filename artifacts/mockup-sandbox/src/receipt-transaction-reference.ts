@@ -195,6 +195,56 @@ function applyReceiptSignoffReference(overlay: HTMLElement) {
   });
 }
 
+function applyReceiptLegalFooterReference(overlay: HTMLElement) {
+  const paragraphs = Array.from(overlay.querySelectorAll<HTMLParagraphElement>("p"));
+  const legalLine = paragraphs.find((node) =>
+    normalize(node.textContent || "").toLocaleLowerCase("tr-TR").startsWith("taraflar arasında tüm uyuşmazlıklarda"),
+  );
+  if (!legalLine) return;
+
+  const centerLine = legalLine.nextElementSibling as HTMLParagraphElement | null;
+  const webLine = centerLine?.nextElementSibling as HTMLParagraphElement | null;
+  if (!centerLine || !webLine) return;
+
+  const firstLine = "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri,müstenitli olsun olmasın,";
+  const secondLine = "kesin ve aksi ileri sürülemez delil niteliğindedir.";
+  const desiredLegal = `${firstLine} ${secondLine}`;
+  const desiredCenter = "Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul Ticaret Sicil No:475225-5";
+  const desiredWeb = "www.ziraatbank.com.tr";
+
+  if (normalize(legalLine.textContent || "") !== normalize(desiredLegal)) {
+    legalLine.replaceChildren(
+      document.createTextNode(firstLine),
+      document.createElement("br"),
+      document.createTextNode(secondLine),
+    );
+  }
+
+  if (normalize(centerLine.textContent || "") !== normalize(desiredCenter)) {
+    centerLine.textContent = desiredCenter;
+  }
+
+  if (normalize(webLine.textContent || "") !== normalize(desiredWeb)) {
+    webLine.textContent = desiredWeb;
+  }
+
+  for (const line of [legalLine, centerLine, webLine]) {
+    Object.assign(line.style, {
+      fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+      fontSize: "6.5px",
+      fontWeight: "400",
+      lineHeight: "1.3",
+      letterSpacing: "-0.01em",
+      color: "#222629",
+      textAlign: "left",
+    });
+  }
+
+  legalLine.style.marginTop = "4px";
+  centerLine.style.marginTop = "3px";
+  webLine.style.marginTop = "3px";
+}
+
 function applyWithdrawalReference(
   overlay: HTMLElement,
   date: string,
@@ -234,6 +284,7 @@ function applyReceiptTransactionReference() {
 
   for (const overlay of overlays) {
     applyReceiptSignoffReference(overlay);
+    applyReceiptLegalFooterReference(overlay);
 
     const transactionValue = findDocumentValue(overlay, "İŞLEM TARİHİ");
     const valueDate = findDocumentValue(overlay, "VALÖR");
