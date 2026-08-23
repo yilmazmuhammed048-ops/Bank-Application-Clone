@@ -69,7 +69,7 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
     this.fillStyle = "#c6001d";
     this.textAlign = "right";
     this.font = "700 20px Arial, sans-serif";
-    originalFillText.call(this, "DEMO / ÖRNEK BELGE", 1188, 72);
+  
 
     this.restore();
     return;
