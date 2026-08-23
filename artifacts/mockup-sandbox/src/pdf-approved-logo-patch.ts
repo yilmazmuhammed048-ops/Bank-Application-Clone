@@ -7,7 +7,7 @@ const originalFillText = CanvasRenderingContext2D.prototype.fillText;
 const LOGO_X = 50;
 const LOGO_Y = 49;
 const LOGO_HEIGHT = 56;
-const LOGO_TEXT_GAP = 12;
+const LOGO_TEXT_GAP = 5;
 const LOGO_TEXT_Y = 86;
 
 const customLogo = new Image();
