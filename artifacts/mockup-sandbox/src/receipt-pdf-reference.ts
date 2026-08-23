@@ -47,7 +47,7 @@ const RECEIPT_TOTAL_FEE =
 
 const C_TEXT = "#1f2326";
 const C_TEXT_SOFT = "#2d3235";
-const C_TEXT_LIGHT = "#4e5458";
+const C_TEXT_LIGHT = "#41464a";
 const C_BORDER = "#bfc3c6";
 const C_ACCENT = "#a00018";
 
@@ -269,12 +269,12 @@ function labelValue(
   context.font = `700 15.5px ${FONT}`;
   context.fillText(label, x, y);
 
-  context.fillStyle = C_TEXT_LIGHT;
-  context.font = `500 15px ${FONT}`;
+  context.fillStyle = C_TEXT_SOFT;
+  context.font = `600 15px ${FONT}`;
   context.fillText(":", x + labelWidth, y);
 
   context.fillStyle = C_TEXT;
-  context.font = `500 14.8px ${FONT}`;
+  context.font = `600 14.8px ${FONT}`;
   context.fillText(value, x + labelWidth + 17, y, 325);
 }
 
@@ -430,7 +430,7 @@ async function canvasFor(transaction: ReceiptTx) {
   const amountText = `${money(transaction.amount)} TRY`;
 
   context.fillStyle = C_TEXT;
-  context.font = `500 18.5px ${FONT}`;
+  context.font = `600 18.5px ${FONT}`;
 
   let y = 414;
   const line = (text: string, gap = 24) => {
@@ -450,7 +450,7 @@ async function canvasFor(transaction: ReceiptTx) {
   );
   line(`Toplam Masraf : ${totalFeeText}`);
 
-  context.font = `500 17.5px ${FONT}`;
+  context.font = `600 17.5px ${FONT}`;
   drawWrapped(
     context,
     `${amountText} tutarında Fast işleminin yapılmasını, Bu işlem için tarafıma bildirilen ${totalFeeText} masraf alınmasını talep ederim.`,
@@ -463,7 +463,7 @@ async function canvasFor(transaction: ReceiptTx) {
 
   const lowerY = 668;
   context.fillStyle = C_TEXT;
-  context.font = `500 18px ${FONT}`;
+  context.font = `600 18px ${FONT}`;
 
   if (transaction.incoming) {
     context.fillText(
@@ -482,7 +482,7 @@ async function canvasFor(transaction: ReceiptTx) {
   }
 
   context.fillStyle = C_TEXT;
-  context.font = `500 17.5px ${FONT}`;
+  context.font = `600 17.5px ${FONT}`;
   // receipt-transaction-reference shifts this timestamp 5px upward on the PDF.
   context.fillText(
     `${slashDate}-${timestamp} EFTTGIDD INTERNET`,
@@ -493,8 +493,8 @@ async function canvasFor(transaction: ReceiptTx) {
   context.fillText("INTERNET", 94, lowerY + 62);
 
   context.textAlign = "center";
-  context.fillStyle = C_TEXT_LIGHT;
-  context.font = `500 12.5px ${FONT}`;
+  context.fillStyle = C_TEXT_SOFT;
+  context.font = `600 12.5px ${FONT}`;
   context.fillText("Saygılarımızla", 960, 661);
 
   context.fillStyle = C_TEXT;
@@ -513,7 +513,7 @@ async function canvasFor(transaction: ReceiptTx) {
   context.stroke();
 
   context.fillStyle = C_TEXT;
-  context.font = `500 13.2px ${FONT}`;
+  context.font = `600 13.2px ${FONT}`;
   context.fillText(
     "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri,müstenitli olsun olmasın,",
     62,
