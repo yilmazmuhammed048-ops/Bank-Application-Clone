@@ -83,10 +83,62 @@ function findTransactionNumber(container: Element) {
   return match?.[1] || "receipt";
 }
 
+function applyReceiptSignoffReference(overlay: HTMLElement) {
+  const firstLine = Array.from(overlay.querySelectorAll<HTMLParagraphElement>("p")).find(
+    (node) => normalize(node.textContent || "").toLocaleLowerCase("tr-TR") === "saygılarımızla",
+  );
+  if (!firstLine) return;
+
+  const block = firstLine.parentElement as HTMLElement | null;
+  if (!block) return;
+
+  const lines = Array.from(block.querySelectorAll<HTMLParagraphElement>(":scope > p"));
+  if (lines.length < 3) return;
+
+  Object.assign(block.style, {
+    width: "102px",
+    minWidth: "102px",
+    paddingBottom: "1px",
+    textAlign: "center",
+    whiteSpace: "nowrap",
+    fontFamily: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+    lineHeight: "1.12",
+    letterSpacing: "0",
+    color: "#35393b",
+    transform: "translateY(-1px)",
+  });
+
+  Object.assign(lines[0].style, {
+    margin: "0",
+    fontSize: "5.1px",
+    fontWeight: "400",
+    lineHeight: "1.08",
+    color: "#55595b",
+  });
+
+  Object.assign(lines[1].style, {
+    margin: "1px 0 0",
+    fontSize: "5.7px",
+    fontWeight: "700",
+    lineHeight: "1.08",
+    color: "#303436",
+  });
+
+  Object.assign(lines[2].style, {
+    margin: "1px 0 0",
+    fontSize: "5.4px",
+    fontWeight: "600",
+    lineHeight: "1.08",
+    color: "#3d4143",
+  });
+}
+
 function applyReceiptTransactionReference() {
   const overlays = Array.from(document.querySelectorAll<HTMLElement>("div.fixed.inset-0"));
 
   for (const overlay of overlays) {
+    applyReceiptSignoffReference(overlay);
+
     const transactionValue = findDocumentValue(overlay, "İŞLEM TARİHİ");
     const valueDate = findDocumentValue(overlay, "VALÖR");
     if (!transactionValue || !valueDate) continue;
