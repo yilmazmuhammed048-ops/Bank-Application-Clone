@@ -11,6 +11,7 @@ const LEGAL_FOOTER_LINE_2 =
   "Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul Ticaret Sicil No:475225-5 www.ziraatbank.com.tr";
 
 let activeReceiptClock: { hour: string; minute: string } | null = null;
+let suppressRequestContinuationY: number | null = null;
 
 function normalize(value: string) {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
@@ -86,8 +87,23 @@ function applyReceiptFeePolicy() {
         text.toLocaleLowerCase("tr-TR").includes("işleminin yapılmasını") &&
         text.toLocaleLowerCase("tr-TR").includes("masraf alınmasını talep ederim")
       ) {
-        const next = `${receiptAmount} TRY tutarında Fast işleminin yapılmasını, Bu işlem için tarafıma bildirilen ${RECEIPT_TOTAL_FEE} masraf alınmasını talep ederim.`;
-        if (line.textContent !== next) line.textContent = next;
+        const firstLine = `${receiptAmount} TRY tutarında Fast işleminin yapılmasını, Bu işlem için`;
+        const secondLine = `tarafıma bildirilen ${RECEIPT_TOTAL_FEE} masraf alınmasını talep ederim.`;
+        const desired = `${firstLine} ${secondLine}`;
+        const hasReferenceBreak = !!line.querySelector("br");
+
+        if (normalize(line.textContent || "") !== normalize(desired) || !hasReferenceBreak) {
+          line.replaceChildren(
+            document.createTextNode(firstLine),
+            document.createElement("br"),
+            document.createTextNode(secondLine),
+          );
+        }
+
+        Object.assign(line.style, {
+          whiteSpace: "normal",
+          lineHeight: "1.18",
+        });
       }
     }
   }
@@ -171,6 +187,36 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
       nextY = 695;
     } else if (next === "INTERNET" && nextY >= 650 && nextY <= 760) {
       // Reference keeps INTERNET at the end of the timestamp line, not on a third line.
+      return;
+    }
+
+    const requestStart = next.match(/^(\d{1,3}(?:\.\d{3})*|\d+),\d{2}\s+TRY\s+tutarında/i);
+    if (requestStart && lower.includes("işleminin yapılmasını")) {
+      const amountMatch = next.match(/^(\d{1,3}(?:\.\d{3})*|\d+),\d{2}\s+TRY/i);
+      if (amountMatch) {
+        const firstLine = `${amountMatch[0]} tutarında Fast işleminin yapılmasını, Bu işlem için`;
+        const secondLine = `tarafıma bildirilen ${RECEIPT_TOTAL_FEE} masraf alınmasını talep ederim.`;
+
+        if (typeof maxWidth === "number") {
+          originalFillText.call(this, firstLine, x, nextY, maxWidth);
+          originalFillText.call(this, secondLine, x, nextY + 22, maxWidth);
+        } else {
+          originalFillText.call(this, firstLine, x, nextY);
+          originalFillText.call(this, secondLine, x, nextY + 22);
+        }
+
+        suppressRequestContinuationY = nextY + 22;
+        return;
+      }
+    }
+
+    if (
+      suppressRequestContinuationY !== null &&
+      Math.abs(nextY - suppressRequestContinuationY) <= 2 &&
+      lower.includes("tarafıma") &&
+      lower.includes("masraf")
+    ) {
+      suppressRequestContinuationY = null;
       return;
     }
   }
