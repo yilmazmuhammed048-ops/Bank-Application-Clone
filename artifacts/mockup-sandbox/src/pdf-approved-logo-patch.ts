@@ -1,7 +1,23 @@
+const CUSTOM_PDF_LOGO_URL = "/ziraat-amblem.jpg?v=custom-logo-20260823-2";
+
 const originalDrawImage = CanvasRenderingContext2D.prototype.drawImage;
-const statementLogo = new Image();
-statementLogo.src = "/ziraat-amblem.jpg";
-void statementLogo.decode?.().catch(() => undefined);
+const originalFillRect = CanvasRenderingContext2D.prototype.fillRect;
+
+const customLogo = new Image();
+customLogo.decoding = "sync";
+customLogo.src = CUSTOM_PDF_LOGO_URL;
+void customLogo.decode?.().catch(() => undefined);
+
+function drawCustomLogo(ctx: CanvasRenderingContext2D) {
+  if (!customLogo.complete || customLogo.naturalWidth <= 0 || customLogo.naturalHeight <= 0) {
+    return false;
+  }
+
+  const logoHeight = 74;
+  const logoWidth = logoHeight * (customLogo.naturalWidth / customLogo.naturalHeight);
+  originalDrawImage.call(ctx, customLogo, 52, 41, logoWidth, logoHeight);
+  return true;
+}
 
 CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
   const canvas = this.canvas;
@@ -20,33 +36,10 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
   ) {
     this.save();
 
-    // Clear the old embedded statement logo area.
     this.fillStyle = "#fff";
-    this.fillRect(44, 36, 390, 94);
+    originalFillRect.call(this, 44, 36, 390, 94);
 
-    if (statementLogo.complete && statementLogo.naturalWidth > 0) {
-      // The uploaded JPG contains a small white margin. Crop only that margin,
-      // while keeping the actual logo's aspect ratio intact.
-      const sx = statementLogo.naturalWidth * (2 / 68);
-      const sy = statementLogo.naturalHeight * (13 / 147);
-      const sw = statementLogo.naturalWidth * (61 / 68);
-      const sh = statementLogo.naturalHeight * (117 / 147);
-      const logoHeight = 76;
-      const logoWidth = logoHeight * (sw / sh);
-
-      originalDrawImage.call(
-        this,
-        statementLogo,
-        sx,
-        sy,
-        sw,
-        sh,
-        50,
-        40,
-        logoWidth,
-        logoHeight,
-      );
-    } else {
+    if (!drawCustomLogo(this)) {
       originalDrawImage.apply(this, args as any);
     }
 
@@ -54,13 +47,43 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
     this.textAlign = "left";
     this.textBaseline = "alphabetic";
     this.font = '700 31px "Times New Roman", Times, serif';
-    this.fillText("Ziraat Bankası", 101, 89);
+    this.fillText("Ziraat Bankası", 105, 89);
+
+    this.fillStyle = "#c6001d";
+    this.textAlign = "right";
+    this.font = "700 20px Arial, sans-serif";
+    this.fillText("DEMO / ÖRNEK BELGE", 1188, 72);
 
     this.restore();
     return;
   }
 
   return originalDrawImage.apply(this, args as any);
+};
+
+CanvasRenderingContext2D.prototype.fillRect = function (...args: any[]) {
+  const canvas = this.canvas;
+  const x = Number(args[0]);
+  const y = Number(args[1]);
+  const w = Number(args[2]);
+  const h = Number(args[3]);
+
+  // transactions-pdf-runtime-fix fallback: eski logo yüklenemezse kırmızı çizgi çiziyordu.
+  // Bu durumda da özel logoyu zorla yerleştiriyoruz.
+  if (
+    canvas?.width === 1240 &&
+    canvas?.height === 1754 &&
+    x === 50 &&
+    y === 55 &&
+    w === 12 &&
+    h === 48
+  ) {
+    if (drawCustomLogo(this)) {
+      return;
+    }
+  }
+
+  return originalFillRect.apply(this, args as any);
 };
 
 export {};
