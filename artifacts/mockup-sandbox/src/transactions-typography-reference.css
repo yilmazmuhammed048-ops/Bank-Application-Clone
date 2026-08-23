@@ -51,23 +51,23 @@
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(2) {
   margin-top: 5px !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
+  font-size: 11.25px !important;
+  font-weight: 425 !important;
   line-height: 1 !important;
   letter-spacing: .01em !important;
-  color: #657077 !important;
+  color: #5d676e !important;
 }
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:first-child > span:nth-child(3) {
-  margin-top: 5px !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
+  margin-top: 4px !important;
+  font-size: 11.25px !important;
+  font-weight: 425 !important;
   line-height: 1 !important;
   letter-spacing: -0.015em !important;
-  color: #69747a !important;
+  color: #626c72 !important;
 }
 
-/* Movement description: slightly smaller with only a very subtle increase in weight. */
+/* Movement description: subtly fuller and one step darker while preserving the 3-line clamp. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) {
   overflow: hidden !important;
   padding-top: 10px !important;
@@ -88,10 +88,10 @@
   margin-top: 0 !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   font-size: 13.25px !important;
-  font-weight: 350 !important;
+  font-weight: 375 !important;
   line-height: 1.14 !important;
   letter-spacing: -0.029em !important;
-  color: #545e64 !important;
+  color: #4d575d !important;
 }
 
 /* Amount at the upper-right remains compact and soft. */
