@@ -113,11 +113,10 @@ function makeFeeRow(original: HTMLButtonElement, signature: string) {
   const details = findDetailsBox(clone);
   if (details) {
     details.replaceChildren();
-    details.className = "min-w-0 flex-1 py-[19px] pl-3 pr-[106px]";
+    details.className = "min-w-0 flex-1 py-[12px] pl-3 pr-[106px]";
 
     const title = document.createElement("p");
-    title.className =
-      "truncate text-[15px] font-medium leading-[1.25] tracking-[0.01em] text-[#424b50]";
+    title.className = "truncate leading-[1.15]";
     title.textContent = MESSAGE_FEE_TITLE;
     details.appendChild(title);
   }
