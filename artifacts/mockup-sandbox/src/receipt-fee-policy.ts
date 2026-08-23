@@ -94,7 +94,7 @@ function applyReceiptFeePolicy() {
 
         if (normalize(line.textContent || "") !== normalize(desired) || !hasReferenceBreak) {
           line.replaceChildren(
-            document.createTextNode(firstLine),
+            document.createTextNode(`${firstLine} `),
             document.createElement("br"),
             document.createTextNode(secondLine),
           );
