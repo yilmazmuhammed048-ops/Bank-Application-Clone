@@ -10,6 +10,7 @@ import "./header-live-reference.css";
 import "./transactions-typography-reference.css";
 import "./transactions-message-fee-row";
 import "./transactions-archive-display";
+import "./transactions-reference-receipt-icon";
 import "./pdf-approved-logo-patch";
 import "./transactions-pdf-reference-final";
 import "./receipt-pdf-reference";
