@@ -3,7 +3,7 @@ export {};
 type ArchiveView = {
   time: string;
   amount: string;
-  description: string;
+  lines: string[];
   balance: string;
 };
 
@@ -11,43 +11,63 @@ const ARCHIVE_VIEWS: ArchiveView[] = [
   {
     time: "18:30",
     amount: "-350,00 TL",
-    description: "YEMEKPAY / YEMEK SEPET — SANAL POS",
+    lines: [
+      "SANAL POS ALIŞVERİŞ KART NO:",
+      "5124 **** **** 0162 İŞYERİ: YEMEKPAY/",
+      "YEMEK SEPET MUTABAKAT: 5508756",
+    ],
     balance: "30.798,92 TL",
   },
   {
     time: "13:34",
     amount: "-2.600,00 TL",
-    description: "M JET YUREGIR ADANA P — POS ALIŞVERİŞ",
+    lines: [
+      "POS ALIŞVERİŞ KART NO: 5124 ****",
+      "**** 0162 İŞYERİ: M JET YUREGIR",
+      "ADANA P MUTABAKAT: 3910060",
+    ],
     balance: "31.148,92 TL",
   },
   {
     time: "04:08",
     amount: "-2.900,00 TL",
-    description: "KONAK STONE HOUSE — POS ALIŞVERİŞ",
+    lines: [
+      "POS ALIŞVERİŞ KART NO: 5124 ****",
+      "**** 0162 İŞYERİ: KONAK STONE",
+      "HOUSE MUTABAKAT: 8630012",
+    ],
     balance: "33.748,92 TL",
   },
   {
     time: "03:23",
     amount: "-3.672,00 TL",
-    description: "ALTINOLUK SUPERMARKET — POS ALIŞVERİŞ",
+    lines: [
+      "POS ALIŞVERİŞ KART NO: 5124 ****",
+      "**** 0162 İŞYERİ: ALTINOLUK",
+      "SUPERMARKET MUTABAKAT: 85385...",
+    ],
     balance: "36.648,92 TL",
   },
   {
     time: "21:18",
     amount: "-10.000,00 TL",
-    description: "FERDİ ERKAN — Ziraat Mobil Havale",
+    lines: ["FERDİ ERKAN Ziraat Mobil Havale"],
     balance: "40.320,92 TL",
   },
   {
     time: "19:29",
     amount: "-990,00 TL",
-    description: "EMRECAN BUFE — POS ALIŞVERİŞ",
+    lines: [
+      "POS ALIŞVERİŞ KART NO: 5124 ****",
+      "**** 0162 İŞYERİ: EMRECAN BUFE",
+      "MUTABAKAT: 9414914",
+    ],
     balance: "50.320,92 TL",
   },
   {
     time: "19:04",
     amount: "-48.000,00 TL",
-    description: "FEVZİ MUTLU — Ziraat Mobil Havale",
+    lines: ["FEVZİ MUTLU Ziraat Mobil Havale"],
     balance: "51.310,92 TL",
   },
 ];
@@ -86,24 +106,18 @@ function applyArchiveDisplay() {
     const archive = findArchiveView(row);
     if (!archive) continue;
 
-    row.dataset.archiveMovement = "true";
-
     const details = findDetailsBox(row);
-    if (details && details.dataset.archiveDescription !== archive.description) {
+    if (details) {
       const paragraphs = Array.from(details.querySelectorAll<HTMLParagraphElement>("p"));
-      const first = paragraphs[0];
-
-      if (first) {
-        first.textContent = archive.description;
-        first.classList.remove("line-clamp-1", "line-clamp-3", "truncate");
-        first.classList.add("line-clamp-2");
-      }
-
-      for (const paragraph of paragraphs.slice(1)) {
-        paragraph.style.display = "none";
-      }
-
-      details.dataset.archiveDescription = archive.description;
+      paragraphs.forEach((paragraph, index) => {
+        const text = archive.lines[index];
+        if (text !== undefined) {
+          paragraph.textContent = text;
+          paragraph.style.removeProperty("display");
+        } else {
+          paragraph.style.display = "none";
+        }
+      });
     }
 
     const balanceBox = findBalanceBox(row);
