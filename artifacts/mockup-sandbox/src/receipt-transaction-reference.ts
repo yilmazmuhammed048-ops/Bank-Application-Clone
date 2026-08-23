@@ -112,6 +112,16 @@ function applyReceiptTransactionReference() {
       transactionValue.setAttribute("title", desiredTransaction.replace(/^:\s*/, ""));
     }
 
+    transactionValue.classList.remove("truncate");
+    transactionValue.setAttribute(
+      "style",
+      "white-space:nowrap;overflow:visible;text-overflow:clip;font-size:4.5px;letter-spacing:-0.025em;",
+    );
+    transactionValue.parentElement?.setAttribute(
+      "style",
+      "grid-template-columns:58px 1fr;column-gap:4px;",
+    );
+
     if (normalize(valueDate.textContent || "") !== normalize(desiredValue)) {
       valueDate.textContent = desiredValue;
       valueDate.setAttribute("title", date);
