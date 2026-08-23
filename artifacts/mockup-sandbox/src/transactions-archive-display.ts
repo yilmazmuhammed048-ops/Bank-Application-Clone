@@ -92,6 +92,37 @@ function findArchiveView(row: HTMLButtonElement) {
   );
 }
 
+function normalize(value: string) {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function compactMovementDetails(row: HTMLButtonElement, archive?: ArchiveView) {
+  const details = findDetailsBox(row);
+  if (!details) return;
+
+  const paragraphs = Array.from(details.querySelectorAll<HTMLParagraphElement>("p"));
+  const stored = details.dataset.compactMovementText;
+  const source = archive
+    ? normalize(archive.lines.join(" "))
+    : stored || normalize(paragraphs.map((paragraph) => paragraph.textContent || "").join(" "));
+
+  if (!source) return;
+  details.dataset.compactMovementText = source;
+
+  const alreadyCompact =
+    paragraphs.length === 1 &&
+    paragraphs[0]?.dataset.compactMovement === "true" &&
+    normalize(paragraphs[0]?.textContent || "") === source;
+
+  if (alreadyCompact) return;
+
+  const paragraph = document.createElement("p");
+  paragraph.dataset.compactMovement = "true";
+  paragraph.className = "movement-three-line-text";
+  paragraph.textContent = source;
+  details.replaceChildren(paragraph);
+}
+
 function applyArchiveDisplay() {
   const filter = document.querySelector<HTMLButtonElement>('button[aria-label="Filtre"]');
   const list = filter?.parentElement?.nextElementSibling;
@@ -103,22 +134,11 @@ function applyArchiveDisplay() {
 
   for (const row of rows) {
     if (row.dataset.messageFeeRow === "true") continue;
-    const archive = findArchiveView(row);
-    if (!archive) continue;
 
-    const details = findDetailsBox(row);
-    if (details) {
-      const paragraphs = Array.from(details.querySelectorAll<HTMLParagraphElement>("p"));
-      paragraphs.forEach((paragraph, index) => {
-        const text = archive.lines[index];
-        if (text !== undefined) {
-          paragraph.textContent = text;
-          paragraph.style.removeProperty("display");
-        } else {
-          paragraph.style.display = "none";
-        }
-      });
-    }
+    const archive = findArchiveView(row);
+    compactMovementDetails(row, archive);
+
+    if (!archive) continue;
 
     const balanceBox = findBalanceBox(row);
     if (balanceBox) {
