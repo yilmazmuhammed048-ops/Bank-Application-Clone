@@ -266,16 +266,29 @@ function applyWithdrawalReference(
   if (!amount) return;
 
   const amountInWords = `${integerToTurkish(amount.lira)}TL${integerToTurkish(amount.kurus)}KR`;
-  const desiredWithdrawal = `Hesabınızdan ${amount.display} TL (YALNIZ ${amountInWords}) Çekilmiştir.`;
+  const desiredWithdrawal = `Hesabınızdan ${amount.display} TL (Yalnız ${amountInWords}) Çekilmiştir.`;
   const desiredTimestamp = `${date}-${hour}:${minute}:${seconds} EFTTGIDD INTERNET`;
 
   if (normalize(withdrawalLine.textContent || "") !== normalize(desiredWithdrawal)) {
     withdrawalLine.textContent = desiredWithdrawal;
   }
 
+  Object.assign(withdrawalLine.style, {
+    marginBottom: "1px",
+    lineHeight: "1.12",
+  });
+
   const timestampLine = withdrawalLine.nextElementSibling as HTMLParagraphElement | null;
   if (timestampLine && normalize(timestampLine.textContent || "") !== normalize(desiredTimestamp)) {
     timestampLine.textContent = desiredTimestamp;
+  }
+
+  if (timestampLine) {
+    Object.assign(timestampLine.style, {
+      marginTop: "0px",
+      marginBottom: "0px",
+      lineHeight: "1.1",
+    });
   }
 }
 
@@ -329,6 +342,34 @@ function applyReceiptTransactionReference() {
     applyWithdrawalReference(overlay, date, hour, minute, reference.seconds);
   }
 }
+
+const originalReceiptReferenceFillText = CanvasRenderingContext2D.prototype.fillText;
+CanvasRenderingContext2D.prototype.fillText = function receiptReferenceFillText(...args: any[]) {
+  const canvas = this.canvas;
+  let text = String(args[0] ?? "");
+  let y = Number(args[2]);
+
+  if (canvas?.width === 1240 && canvas?.height === 1754) {
+    if (
+      text.toLocaleLowerCase("tr-TR").startsWith("hesabınızdan") &&
+      text.toLocaleLowerCase("tr-TR").includes("çekilmiştir")
+    ) {
+      const amount = parseDisplayedAmount(text);
+      if (amount) {
+        const amountInWords = `${integerToTurkish(amount.lira)}TL${integerToTurkish(amount.kurus)}KR`;
+        text = `Hesabınızdan ${amount.display} TL (Yalnız ${amountInWords}) Çekilmiştir.`;
+      }
+    } else if (/^\d{2}\/\d{2}\/\d{4}-\d{2}:\d{2}:\d{2}\s+EFTTGIDD\s+INTERNET$/i.test(text)) {
+      y -= 5;
+    } else if (text === "INTERNET" && y >= 590 && y <= 620) {
+      y -= 10;
+    }
+  }
+
+  args[0] = text;
+  args[2] = y;
+  return originalReceiptReferenceFillText.apply(this, args as any);
+};
 
 let queued = false;
 function queueApply() {
