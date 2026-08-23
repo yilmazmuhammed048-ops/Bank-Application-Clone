@@ -302,15 +302,20 @@ export default function ZiratMobile() {
       return;
     }
 
-    const now = Date.now();
+    const createdAt = new Date();
+    const now = createdAt.getTime();
     const newTransaction: Transaction = {
       id: String(now),
       title: "FAST Giden",
       subtitle: "FAST PARA TRANSFERİ",
       amount,
       kind: "debit",
-      date: "18 Ağustos 2026",
-      time: new Date().toLocaleTimeString("tr-TR", {
+      date: createdAt.toLocaleDateString("tr-TR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      time: createdAt.toLocaleTimeString("tr-TR", {
         hour: "2-digit",
         minute: "2-digit",
       }),
