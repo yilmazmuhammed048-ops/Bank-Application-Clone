@@ -10,6 +10,8 @@ const LEGAL_FOOTER_LINE_1 =
 const LEGAL_FOOTER_LINE_2 =
   "Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul Ticaret Sicil No:475225-5 www.ziraatbank.com.tr";
 
+let activeReceiptClock: { hour: string; minute: string } | null = null;
+
 function normalize(value: string) {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -24,6 +26,22 @@ function extractReceiptAmount(lines: HTMLParagraphElement[]) {
   return match ? `${match[1]},${match[2]}` : null;
 }
 
+function updateActiveReceiptClock(screen: HTMLElement) {
+  const transactionLabel = Array.from(screen.querySelectorAll<HTMLElement>("strong")).find(
+    (node) => normalize(node.textContent || "").toLocaleUpperCase("tr-TR") === "İŞLEM TARİHİ",
+  );
+  const row = transactionLabel?.parentElement;
+  const value = row?.querySelector<HTMLElement>("span");
+  const source = normalize(value?.getAttribute("title") || value?.textContent || "");
+  const match = source.match(/\b(\d{1,2}):(\d{2})(?::\d{2})?\b/);
+  if (!match) return;
+
+  activeReceiptClock = {
+    hour: match[1].padStart(2, "0"),
+    minute: match[2],
+  };
+}
+
 function applyReceiptFeePolicy() {
   const screens = Array.from(document.querySelectorAll<HTMLElement>(".fixed.inset-0"));
 
@@ -32,6 +50,8 @@ function applyReceiptFeePolicy() {
     if (!screenText.includes("Fast Mesaj Kodu") || !screenText.includes("İşlem Tutarı")) {
       continue;
     }
+
+    updateActiveReceiptClock(screen);
 
     const lines = Array.from(screen.querySelectorAll<HTMLParagraphElement>("p"));
     const receiptAmount = extractReceiptAmount(lines);
@@ -81,6 +101,7 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
   maxWidth?: number,
 ) {
   let next = String(text);
+  let nextY = y;
   const lower = next.toLocaleLowerCase("tr-TR");
   const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
 
@@ -114,9 +135,9 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
     this.textBaseline = "alphabetic";
     this.font = '500 12.5px Arial, Helvetica, sans-serif';
     if (typeof maxWidth === "number") {
-      originalFillText.call(this, next, x, y, maxWidth);
+      originalFillText.call(this, next, x, nextY, maxWidth);
     } else {
-      originalFillText.call(this, next, x, y);
+      originalFillText.call(this, next, x, nextY);
     }
     this.restore();
     return;
@@ -129,12 +150,29 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
     this.textBaseline = "alphabetic";
     this.font = '500 12.5px Arial, Helvetica, sans-serif';
     if (typeof maxWidth === "number") {
-      originalFillText.call(this, next, x, y, maxWidth);
+      originalFillText.call(this, next, x, nextY, maxWidth);
     } else {
-      originalFillText.call(this, next, x, y);
+      originalFillText.call(this, next, x, nextY);
     }
     this.restore();
     return;
+  }
+
+  if (isReceiptPdfCanvas) {
+    const timestampMatch = next.match(
+      /^(\d{2}\/\d{2}\/\d{4})-(\d{2}):(\d{2}):(\d{2})\s+EFTTGIDD\s+INTERNET$/i,
+    );
+
+    if (timestampMatch) {
+      const hour = activeReceiptClock?.hour || timestampMatch[2];
+      const minute = activeReceiptClock?.minute || timestampMatch[3];
+      next = `${timestampMatch[1]}-${hour}:${minute}:${timestampMatch[4]} EFTTGIDD INTERNET`;
+      // The inner reference patch moves this line another 5px upward.
+      nextY = 695;
+    } else if (next === "INTERNET" && nextY >= 650 && nextY <= 760) {
+      // Reference keeps INTERNET at the end of the timestamp line, not on a third line.
+      return;
+    }
   }
 
   if (next.startsWith("Alıcı Hesap :")) {
@@ -163,9 +201,9 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
   }
 
   if (typeof maxWidth === "number") {
-    return originalFillText.call(this, next, x, y, maxWidth);
+    return originalFillText.call(this, next, x, nextY, maxWidth);
   }
-  return originalFillText.call(this, next, x, y);
+  return originalFillText.call(this, next, x, nextY);
 };
 
 let scheduled = false;
