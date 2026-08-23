@@ -44,6 +44,12 @@ const RECEIPT_BSMV = 0.18;
 const RECEIPT_MESSAGE_FEE = 0.37;
 const RECEIPT_TOTAL_FEE = RECEIPT_COMMISSION + RECEIPT_BSMV + RECEIPT_MESSAGE_FEE;
 
+const C_TEXT = "#2f3437";
+const C_TEXT_SOFT = "#4a5054";
+const C_TEXT_LIGHT = "#62686c";
+const C_BORDER = "#cfd2d4";
+const C_ACCENT = "#a00018";
+
 const ONES = ["", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"];
 const TENS = ["", "ON", "YİRMİ", "OTUZ", "KIRK", "ELLİ", "ALTMIŞ", "YETMİŞ", "SEKSEN", "DOKSAN"];
 const SCALES = ["", "BİN", "MİLYON", "MİLYAR", "TRİLYON"];
@@ -219,13 +225,15 @@ function rr(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: num
   c.closePath();
 }
 
-function lv(c: CanvasRenderingContext2D, l: string, v: string, x: number, y: number, lw = 190) {
-  c.fillStyle = "#111";
-  c.font = `700 17px ${FONT}`;
+function lv(c: CanvasRenderingContext2D, l: string, v: string, x: number, y: number, lw = 180) {
+  c.fillStyle = C_TEXT_SOFT;
+  c.font = `700 16px ${FONT}`;
   c.fillText(l, x, y);
-  c.font = `400 17px ${FONT}`;
+  c.fillStyle = C_TEXT_LIGHT;
+  c.font = `400 16px ${FONT}`;
   c.fillText(":", x + lw, y);
-  c.fillText(v, x + lw + 22, y);
+  c.fillStyle = C_TEXT;
+  c.fillText(v, x + lw + 18, y);
 }
 
 function fit(c: CanvasRenderingContext2D, t: string, w: number, x: number, y: number, lh = 19, max = 2) {
@@ -274,24 +282,25 @@ async function canvasFor(t: ReceiptTx) {
     c.drawImage(base, 48, 42, 290, 76);
   } catch {}
 
-  c.fillStyle = "#111";
+  c.fillStyle = C_TEXT;
   c.textAlign = "center";
-  c.font = `700 24px ${FONT}`;
+  c.font = `700 23px ${FONT}`;
   c.fillText(t.incoming ? "HESABA GELEN FAST" : "HESAPTAN FAST", W / 2, 97);
 
-  c.fillStyle = "#c4001d";
+  c.fillStyle = C_ACCENT;
   c.textAlign = "right";
   c.font = `700 14px ${FONT}`;
-  c.fillText("DEMO / ÖRNEK BELGE", 1138, 76);
+  c.fillText("DEMO / ÖRNEK BELGE", 1078, 76);
 
   c.textAlign = "left";
-  c.strokeStyle = "#bdbdbd";
-  c.lineWidth = 2;
-  rr(c, 49, 111, 1090, 502, 10);
+  c.strokeStyle = C_BORDER;
+  c.lineWidth = 1.8;
+  rr(c, 78, 111, 1000, 502, 10);
   c.stroke();
-  rr(c, 66, 127, 538, 210, 9);
+  c.lineWidth = 1.5;
+  rr(c, 94, 127, 468, 210, 9);
   c.stroke();
-  rr(c, 623, 127, 500, 210, 9);
+  rr(c, 594, 127, 468, 210, 9);
   c.stroke();
 
   const d = date(t.date);
@@ -302,22 +311,22 @@ async function canvasFor(t: ReceiptTx) {
   const doc = reference.code;
   const ys = [155, 181, 207, 233, 259, 285, 311, 331];
 
-  lv(c, "ŞUBE KODU/ADI", "4000/ZİRAAT SÜPER ŞUBE", 82, ys[0]);
-  lv(c, "IBAN", MY_IBAN, 82, ys[1]);
-  lv(c, "HESAP NUMARASI", MY_ACCOUNT, 82, ys[2]);
-  lv(c, "VERGİ DAİRESİ", "", 82, ys[3]);
-  lv(c, "VERGİ KİMLİK NO", "10067921118", 82, ys[4]);
-  lv(c, "İŞLEM TARİHİ", `${sd}-${timestamp}-${doc}`, 82, ys[5]);
-  lv(c, "VALÖR", sd, 82, ys[6]);
-  lv(c, "İŞLEM YERİ", "ZİRAAT MOBİL", 82, ys[7]);
+  lv(c, "ŞUBE KODU/ADI", "4000/ZİRAAT SÜPER ŞUBE", 108, ys[0]);
+  lv(c, "IBAN", MY_IBAN, 108, ys[1]);
+  lv(c, "HESAP NUMARASI", MY_ACCOUNT, 108, ys[2]);
+  lv(c, "VERGİ DAİRESİ", "", 108, ys[3]);
+  lv(c, "VERGİ KİMLİK NO", "10067921118", 108, ys[4]);
+  lv(c, "İŞLEM TARİHİ", `${sd}-${timestamp}-${doc}`, 108, ys[5]);
+  lv(c, "VALÖR", sd, 108, ys[6]);
+  lv(c, "İŞLEM YERİ", "ZİRAAT MOBİL", 108, ys[7]);
 
-  c.fillStyle = "#111";
-  c.font = `700 17px ${FONT}`;
-  c.fillText("SAYIN", 643, 155);
-  c.fillText(MY_NAME, 643, 181);
-  c.fillText(ADDRESS1, 643, 231);
-  c.fillText(ADDRESS2, 643, 257);
-  c.fillText(ADDRESS3, 643, 283);
+  c.fillStyle = C_TEXT;
+  c.font = `700 16px ${FONT}`;
+  c.fillText("SAYIN", 614, 155);
+  c.fillText(MY_NAME, 614, 181);
+  c.fillText(ADDRESS1, 614, 231);
+  c.fillText(ADDRESS2, 614, 257);
+  c.fillText(ADDRESS3, 614, 283);
 
   const sender = t.incoming ? t.recipientName.toLocaleUpperCase("tr-TR") : MY_NAME;
   const receiver = (t.incoming ? MY_NAME : t.recipientName).toLocaleLowerCase("tr-TR");
@@ -328,10 +337,11 @@ async function canvasFor(t: ReceiptTx) {
   const totalFeeText = `${money(RECEIPT_TOTAL_FEE)} TRY`;
   const amt = `${money(t.amount)} TRY`;
 
-  c.font = `400 17px ${FONT}`;
+  c.fillStyle = C_TEXT;
+  c.font = `400 16px ${FONT}`;
   let y = 372;
   const line = (q: string, g = 22) => {
-    c.fillText(q, 92, y);
+    c.fillText(q, 108, y);
     y += g;
   };
 
@@ -343,66 +353,70 @@ async function canvasFor(t: ReceiptTx) {
   line(`Komisyon : ${commissionText}  BSMV : ${bsmvText}  Mesaj Ücreti : ${messageFeeText}`);
   line(`Toplam Masraf : ${totalFeeText}`);
 
-  c.font = `400 16px ${FONT}`;
+  c.fillStyle = C_TEXT;
+  c.font = `400 15.5px ${FONT}`;
   fit(
     c,
     `${amt} tutarında Fast işleminin yapılmasını, Bu işlem için tarafıma bildirilen ${totalFeeText} masraf alınmasını talep ederim.`,
-    750,
-    92,
-    y + 2,
+    700,
+    108,
+    y + 4,
+    19,
+    2,
   );
 
   const fy = 557;
-  c.fillStyle = "#111";
+  c.fillStyle = C_TEXT;
   c.font = `400 16px ${FONT}`;
   if (t.incoming) {
-    c.fillText(`Hesabınıza ${money(t.amount)} TL yatırılmıştır.`, 78, fy);
+    c.fillText(`Hesabınıza ${money(t.amount)} TL yatırılmıştır.`, 94, fy);
   } else {
     c.fillText(
       `Hesabınızdan ${money(t.amount)} TL (Yalnız ${amountWords(t.amount)}) Çekilmiştir.`,
-      78,
+      94,
       fy,
     );
   }
-  c.fillText(`${sd}-${timestamp} EFTTGIDD INTERNET`, 78, fy + 18);
-  c.fillText("INTERNET", 78, fy + 36);
+  c.fillStyle = C_TEXT_SOFT;
+  c.fillText(`${sd}-${timestamp} EFTTGIDD INTERNET`, 94, fy + 18);
+  c.fillText("INTERNET", 94, fy + 36);
 
   c.textAlign = "center";
-  c.fillStyle = "#55595b";
-  c.font = `400 12px ${FONT}`;
-  c.fillText("Saygılarımızla", 935, fy - 13);
+  c.fillStyle = "#666b6e";
+  c.font = `400 11px ${FONT}`;
+  c.fillText("Saygılarımızla", 920, fy - 12);
   c.fillStyle = "#303436";
-  c.font = `700 13px ${FONT}`;
-  c.fillText("T.C. ZİRAAT BANKASI A.Ş.", 935, fy + 4);
-  c.fillStyle = "#3d4143";
-  c.font = `600 12px ${FONT}`;
-  c.fillText("İNTERNET ŞUBESİ", 935, fy + 20);
+  c.font = `700 12px ${FONT}`;
+  c.fillText("T.C. ZİRAAT BANKASI A.Ş.", 920, fy + 3);
+  c.fillStyle = "#44484b";
+  c.font = `600 11px ${FONT}`;
+  c.fillText("İNTERNET ŞUBESİ", 920, fy + 18);
 
   c.textAlign = "left";
-  c.strokeStyle = "#bdbdbd";
-  c.lineWidth = 1.5;
+  c.strokeStyle = C_BORDER;
+  c.lineWidth = 1.2;
   c.beginPath();
-  c.moveTo(49, 615);
-  c.lineTo(1139, 615);
+  c.moveTo(78, 615);
+  c.lineTo(1078, 615);
   c.stroke();
 
-  c.fillStyle = "#222629";
-  c.font = `400 11px ${FONT}`;
+  c.fillStyle = C_TEXT;
+  c.font = `400 10.5px ${FONT}`;
   c.fillText(
     "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri,müstenitli olsun olmasın,",
-    48,
+    78,
     642,
   );
-  c.fillText("kesin ve aksi ileri sürülemez delil niteliğindedir.", 48, 658);
+  c.fillText("kesin ve aksi ileri sürülemez delil niteliğindedir.", 78, 658);
   c.fillText(
     "Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul Ticaret Sicil No:475225-5",
-    48,
+    78,
     677,
   );
-  c.fillText("www.ziraatbank.com.tr", 48, 696);
+  c.fillText("www.ziraatbank.com.tr", 78, 696);
 
   c.textAlign = "center";
-  c.fillStyle = "#a00018";
+  c.fillStyle = C_ACCENT;
   c.font = `700 13px ${FONT}`;
   c.fillText("ÖRNEK BELGE - RESMÎ BANKA DEKONTU DEĞİLDİR.", W / 2, 1715);
   c.textAlign = "left";
