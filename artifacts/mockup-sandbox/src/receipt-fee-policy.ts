@@ -5,6 +5,11 @@ const RECEIPT_BSMV = "0,18 TRY";
 const RECEIPT_MESSAGE_FEE = "0,37 TRY";
 const RECEIPT_TOTAL_FEE = "0,55 TRY";
 
+const LEGAL_FOOTER_LINE_1 =
+  "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri,müstenitli olsun olmasın, kesin ve aksi ileri sürülemez delil niteliğindedir.";
+const LEGAL_FOOTER_LINE_2 =
+  "Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul Ticaret Sicil No:475225-5 www.ziraatbank.com.tr";
+
 function normalize(value: string) {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -77,6 +82,30 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
 ) {
   let next = String(text);
   const lower = next.toLocaleLowerCase("tr-TR");
+  const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
+
+  if (isReceiptPdfCanvas && next.startsWith("Taraflar arasında tüm uyuşmazlıklarda")) {
+    this.save();
+    this.fillStyle = "#111";
+    this.textAlign = "left";
+    this.textBaseline = "alphabetic";
+    this.font = '500 11.6px Arial, Helvetica, sans-serif';
+    originalFillText.call(this, LEGAL_FOOTER_LINE_1, 62, 775, 1062);
+    originalFillText.call(this, LEGAL_FOOTER_LINE_2, 62, 797, 1062);
+    this.restore();
+    return;
+  }
+
+  if (
+    isReceiptPdfCanvas &&
+    (
+      next.startsWith("kesin ve aksi ileri sürülemez delil niteliğindedir") ||
+      next.startsWith("Merkez: Finanskent Mahallesi Finans Caddesi") ||
+      next === "www.ziraatbank.com.tr"
+    )
+  ) {
+    return;
+  }
 
   if (next.startsWith("Alıcı Hesap :")) {
     const receiverMatch = next.match(/^(.*Alıcı\s*:\s*)(.+)$/u);
