@@ -59,3 +59,31 @@ main > div:has(> div.pb-24) > header[class]::after {
   background: linear-gradient(90deg, rgba(125,0,16,.22), rgba(125,0,16,.05)) !important;
   pointer-events: none !important;
 }
+
+/* Keep the visual artwork only on the home header.
+   Account movements and receipt/dekont headers stay plain red. */
+html body main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"]) {
+  background: #e30620 !important;
+  background-color: #e30620 !important;
+  background-image: none !important;
+}
+
+html body main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"])::before,
+html body main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"])::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+html body main > div > div.fixed.inset-0.z-\[60\] > header.sticky {
+  background: #e30620 !important;
+  background-color: #e30620 !important;
+  background-image: none !important;
+}
+
+html body main > div > div.fixed.inset-0.z-\[60\] > header.sticky::before,
+html body main > div > div.fixed.inset-0.z-\[60\] > header.sticky::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
