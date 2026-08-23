@@ -60,16 +60,15 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
       originalDrawImage.apply(this, args as any);
     }
 
-    this.fillStyle = "#111";
+    this.fillStyle = "#151719";
     this.textAlign = "left";
     this.textBaseline = "alphabetic";
-    this.font = '700 31px "Times New Roman", Times, serif';
+    this.font = '700 29px Arial, "Helvetica Neue", Helvetica, sans-serif';
     originalFillText.call(this, "Ziraat Bankası", customLogoTextX(), LOGO_TEXT_Y);
 
     this.fillStyle = "#c6001d";
     this.textAlign = "right";
     this.font = "700 20px Arial, sans-serif";
-  
 
     this.restore();
     return;
@@ -85,8 +84,6 @@ CanvasRenderingContext2D.prototype.fillRect = function (...args: any[]) {
   const w = Number(args[2]);
   const h = Number(args[3]);
 
-  // transactions-pdf-runtime-fix fallback: eski logo yüklenemezse kırmızı çizgi çiziyordu.
-  // Bu durumda da özel logoyu zorla yerleştiriyoruz.
   if (
     canvas?.width === 1240 &&
     canvas?.height === 1754 &&
@@ -107,8 +104,6 @@ CanvasRenderingContext2D.prototype.fillText = function (...args: any[]) {
   const canvas = this.canvas;
   const text = String(args[0] ?? "");
 
-  // Runtime fallback kendi "Ziraat Bankası" yazısını x=72'ye basıyordu ve özel logonun
-  // üstüne geliyordu. Logo yüklüyse yazıyı logonun hemen sağına taşıyoruz.
   if (
     canvas?.width === 1240 &&
     canvas?.height === 1754 &&
