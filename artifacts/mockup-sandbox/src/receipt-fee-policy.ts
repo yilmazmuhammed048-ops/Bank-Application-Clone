@@ -202,9 +202,9 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
 
     if (
       suppressRequestContinuationY !== null &&
-      Math.abs(nextY - suppressRequestContinuationY) <= 2 &&
-      lower.includes("tarafıma") &&
-      lower.includes("masraf")
+      nextY >= suppressRequestContinuationY &&
+      nextY <= suppressRequestContinuationY + 40 &&
+      lower.includes("talep ederim")
     ) {
       suppressRequestContinuationY = null;
       return;
