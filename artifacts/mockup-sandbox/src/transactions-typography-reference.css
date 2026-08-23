@@ -67,7 +67,7 @@
   color: #69747a !important;
 }
 
-/* Movement description: thinner, a touch tighter, and slightly wider toward the amount. */
+/* Movement description: slightly smaller with only a very subtle increase in weight. */
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) {
   overflow: hidden !important;
   padding-top: 10px !important;
@@ -84,13 +84,13 @@
   overflow: hidden !important;
   white-space: normal !important;
   text-overflow: ellipsis !important;
-  max-height: 46.2px !important;
+  max-height: 45.4px !important;
   margin-top: 0 !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 13.5px !important;
-  font-weight: 300 !important;
+  font-size: 13.25px !important;
+  font-weight: 350 !important;
   line-height: 1.14 !important;
-  letter-spacing: -0.03em !important;
+  letter-spacing: -0.029em !important;
   color: #545e64 !important;
 }
 
