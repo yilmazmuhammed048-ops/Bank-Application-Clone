@@ -34,6 +34,15 @@ function applyReceiptFeePolicy() {
     for (const line of lines) {
       const text = normalize(line.textContent || "");
 
+      if (text.startsWith("Alıcı Hesap :")) {
+        const receiver = line.querySelector<HTMLElement>("strong");
+        if (receiver) {
+          const nextReceiver = (receiver.textContent || "").toLocaleLowerCase("tr-TR");
+          if (receiver.textContent !== nextReceiver) receiver.textContent = nextReceiver;
+        }
+        continue;
+      }
+
       if (text.startsWith("Komisyon :")) {
         const next = `Komisyon : ${RECEIPT_COMMISSION} BSMV : ${RECEIPT_BSMV} Mesaj Ücreti : ${RECEIPT_MESSAGE_FEE}`;
         if (line.textContent !== next) line.textContent = next;
@@ -68,6 +77,13 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
 ) {
   let next = String(text);
   const lower = next.toLocaleLowerCase("tr-TR");
+
+  if (next.startsWith("Alıcı Hesap :")) {
+    const receiverMatch = next.match(/^(.*Alıcı\s*:\s*)(.+)$/u);
+    if (receiverMatch) {
+      next = `${receiverMatch[1]}${receiverMatch[2].toLocaleLowerCase("tr-TR")}`;
+    }
+  }
 
   if (next.startsWith("Komisyon :")) {
     next = `Komisyon : ${RECEIPT_COMMISSION}  BSMV : ${RECEIPT_BSMV}  Mesaj Ücreti : ${RECEIPT_MESSAGE_FEE}`;
