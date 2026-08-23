@@ -183,10 +183,8 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
       const hour = activeReceiptClock?.hour || timestampMatch[2];
       const minute = activeReceiptClock?.minute || timestampMatch[3];
       next = `${timestampMatch[1]}-${hour}:${minute}:${timestampMatch[4]} EFTTGIDD INTERNET`;
-      // The inner reference patch moves this line another 5px upward.
       nextY = 695;
     } else if (next === "INTERNET" && nextY >= 650 && nextY <= 760) {
-      // Reference keeps INTERNET at the end of the timestamp line, not on a third line.
       return;
     }
 
@@ -271,3 +269,53 @@ observer.observe(document.documentElement, {
 
 document.addEventListener("DOMContentLoaded", applyReceiptFeePolicy);
 scheduleApply();
+
+const receiptFrameMoveTo = CanvasRenderingContext2D.prototype.moveTo;
+CanvasRenderingContext2D.prototype.moveTo = function receiptFrameMoveToPatch(x: number, y: number) {
+  const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
+  if (isReceiptPdfCanvas && x === 655 && y === 145) x = 625;
+  return receiptFrameMoveTo.call(this, x, y);
+};
+
+const receiptFrameArcTo = CanvasRenderingContext2D.prototype.arcTo;
+CanvasRenderingContext2D.prototype.arcTo = function receiptFrameArcToPatch(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  radius: number,
+) {
+  const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
+
+  if (isReceiptPdfCanvas && radius === 9 && y1 >= 145 && y1 <= 390 && y2 >= 145 && y2 <= 390) {
+    if (x1 === 624) x1 = 598;
+    if (x2 === 624) x2 = 598;
+    if (x1 === 646) x1 = 616;
+    if (x2 === 646) x2 = 616;
+  }
+
+  return receiptFrameArcTo.call(this, x1, y1, x2, y2, radius);
+};
+
+const receiptFrameFillText = CanvasRenderingContext2D.prototype.fillText;
+CanvasRenderingContext2D.prototype.fillText = function receiptFrameFillTextPatch(
+  text: string,
+  x: number,
+  y: number,
+  maxWidth?: number,
+) {
+  const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
+
+  if (isReceiptPdfCanvas && y >= 160 && y <= 350) {
+    if (x >= 90 && x < 646) x -= 3;
+    if (x === 665) {
+      x = 635;
+      if (y === 252 && typeof maxWidth === "number") maxWidth = 438;
+    }
+  }
+
+  if (typeof maxWidth === "number") {
+    return receiptFrameFillText.call(this, text, x, y, maxWidth);
+  }
+  return receiptFrameFillText.call(this, text, x, y);
+};
