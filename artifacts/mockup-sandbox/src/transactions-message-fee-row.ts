@@ -68,6 +68,26 @@ function findDetailsBox(row: HTMLElement) {
   );
 }
 
+function findDateBox(row: HTMLElement) {
+  return Array.from(row.children).find((element): element is HTMLElement => {
+    if (!(element instanceof HTMLElement)) return false;
+    const spans = element.querySelectorAll("span");
+    return spans.length >= 3 && /^\d{1,2}:\d{2}$/.test((spans[2]?.textContent || "").trim());
+  });
+}
+
+function syncFeeTimestamp(original: HTMLButtonElement, feeRow: HTMLButtonElement) {
+  const originalDateBox = findDateBox(original);
+  const feeDateBox = findDateBox(feeRow);
+  if (!originalDateBox || !feeDateBox) return;
+
+  const source = Array.from(originalDateBox.querySelectorAll("span"));
+  const target = Array.from(feeDateBox.querySelectorAll("span"));
+  for (let i = 0; i < Math.min(3, source.length, target.length); i += 1) {
+    target[i].textContent = source[i].textContent;
+  }
+}
+
 function updateFeeBalance(original: HTMLButtonElement, feeRow: HTMLButtonElement) {
   const originalBalanceBox = findBalanceBox(original);
   const feeBalanceBox = findBalanceBox(feeRow);
@@ -105,6 +125,7 @@ function makeFeeRow(original: HTMLButtonElement, signature: string) {
   const amountBox = findAmountBox(clone);
   if (amountBox) amountBox.textContent = "-0,37 TL";
 
+  syncFeeTimestamp(original, clone);
   updateFeeBalance(original, clone);
   return clone;
 }
@@ -146,6 +167,7 @@ function applyMessageFeeRows() {
       next.dataset.messageFeeRow === "true" &&
       next.dataset.messageFeeFor === signature
     ) {
+      syncFeeTimestamp(movement, next);
       updateFeeBalance(movement, next);
       continue;
     }
