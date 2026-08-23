@@ -12,15 +12,42 @@ main > div:has(> div.pb-24) > header {
   padding: 10px 16.33px 10px !important;
   border: 0 !important;
   color: #fff !important;
-  background: #e30620 !important;
-  background-image: none !important;
+  background-color: #e30620 !important;
+  background-image:
+    linear-gradient(150deg, rgba(120,0,16,.20) 0 20%, transparent 42%),
+    linear-gradient(36deg, transparent 0 61%, rgba(119,0,15,.18) 61% 74%, transparent 74%),
+    linear-gradient(180deg, #e20b25 0%, #df061f 100%) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: cover !important;
 }
 
-/* Keep the red header plain: no artwork, waves, overlays or gradients. */
-main > div:has(> div.pb-24) > header::before,
+main > div:has(> div.pb-24) > header::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  left: -8% !important;
+  top: -54px !important;
+  width: 126% !important;
+  height: 104px !important;
+  border-radius: 0 0 52% 38% !important;
+  transform: rotate(8deg) !important;
+  background: linear-gradient(180deg, rgba(255,45,65,.36), rgba(157,0,19,.10)) !important;
+  filter: blur(.2px) !important;
+  pointer-events: none !important;
+}
+
 main > div:has(> div.pb-24) > header::after {
-  content: none !important;
-  display: none !important;
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  right: -72px !important;
+  bottom: -67px !important;
+  width: 255px !important;
+  height: 125px !important;
+  transform: rotate(37deg) !important;
+  background: linear-gradient(90deg, rgba(125,0,16,.25), rgba(125,0,16,.06)) !important;
+  pointer-events: none !important;
 }
 
 /* Exact override for the old static-header rules that hid these two nodes. */
@@ -170,4 +197,130 @@ main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section h2 {
   font-weight: 600 !important;
   letter-spacing: -0.01em !important;
   color: #df0e21 !important;
+}
+
+@media (max-width: 370px) {
+  main > div:has(> div.pb-24) > header {
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+  }
+
+  main > div:has(> div.pb-24) > header > div:first-child {
+    gap: 9px !important;
+  }
+
+  main > div:has(> div.pb-24) > header > div:first-child > div span {
+    font-size: 14px !important;
+  }
+}
+
+/* iPhone 13 Home Screen safe-area: keep the red artwork behind the notch,
+   but place avatar/search/message below the camera area. Reference geometry:
+   controls start at ~49px and the full red header ends at ~143px. */
+main > div:has(> div.pb-24) > header {
+  height: max(104px, calc(96px + env(safe-area-inset-top, 0px))) !important;
+  min-height: max(104px, calc(96px + env(safe-area-inset-top, 0px))) !important;
+  max-height: max(104px, calc(96px + env(safe-area-inset-top, 0px))) !important;
+  padding-top: max(10px, calc(2px + env(safe-area-inset-top, 0px))) !important;
+}
+
+/* Account movements: same iPhone 13 Home Screen safe-area treatment.
+   The red bar remains behind the system status area while Back / title / Mail / Home
+   stay fully below the camera/notch. In a normal browser env() is 0 so geometry is unchanged. */
+main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"]) {
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  background-color: #e30620 !important;
+  background-image:
+    linear-gradient(150deg, rgba(120,0,16,.20) 0 20%, transparent 42%),
+    linear-gradient(36deg, transparent 0 61%, rgba(119,0,15,.18) 61% 74%, transparent 74%),
+    linear-gradient(180deg, #e20b25 0%, #df061f 100%) !important;
+  background-repeat: no-repeat !important;
+  background-position: center top !important;
+  background-size: cover !important;
+}
+
+main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"])::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  left: -8% !important;
+  top: -54px !important;
+  width: 126% !important;
+  height: calc(104px + env(safe-area-inset-top, 0px)) !important;
+  border-radius: 0 0 52% 38% !important;
+  transform: rotate(8deg) !important;
+  background: linear-gradient(180deg, rgba(255,45,65,.36), rgba(157,0,19,.10)) !important;
+  pointer-events: none !important;
+}
+
+main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"])::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  right: -72px !important;
+  bottom: -67px !important;
+  width: 255px !important;
+  height: 125px !important;
+  transform: rotate(37deg) !important;
+  background: linear-gradient(90deg, rgba(125,0,16,.25), rgba(125,0,16,.06)) !important;
+  pointer-events: none !important;
+}
+
+main > div > div.min-h-screen > header:has(button[aria-label="Mesajlar"]):has(button[aria-label="Ana sayfa"]) > div:first-child {
+  position: relative !important;
+  z-index: 1 !important;
+  height: 58px !important;
+}
+
+/* Receipt detail: keep its sticky red header below the iPhone 13 camera/notch too,
+   while using the same patterned artwork as the home and transaction headers. */
+main > div > div.fixed.inset-0.z-\[60\] > header.sticky {
+  position: sticky !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  background-color: #e30620 !important;
+  background-image:
+    linear-gradient(150deg, rgba(120,0,16,.20) 0 20%, transparent 42%),
+    linear-gradient(36deg, transparent 0 61%, rgba(119,0,15,.18) 61% 74%, transparent 74%),
+    linear-gradient(180deg, #e20b25 0%, #df061f 100%) !important;
+  background-repeat: no-repeat !important;
+  background-position: center top !important;
+  background-size: cover !important;
+}
+
+main > div > div.fixed.inset-0.z-\[60\] > header.sticky::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  left: -8% !important;
+  top: -54px !important;
+  width: 126% !important;
+  height: calc(104px + env(safe-area-inset-top, 0px)) !important;
+  border-radius: 0 0 52% 38% !important;
+  transform: rotate(8deg) !important;
+  background: linear-gradient(180deg, rgba(255,45,65,.36), rgba(157,0,19,.10)) !important;
+  pointer-events: none !important;
+}
+
+main > div > div.fixed.inset-0.z-\[60\] > header.sticky::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  right: -72px !important;
+  bottom: -67px !important;
+  width: 255px !important;
+  height: 125px !important;
+  transform: rotate(37deg) !important;
+  background: linear-gradient(90deg, rgba(125,0,16,.25), rgba(125,0,16,.06)) !important;
+  pointer-events: none !important;
+}
+
+main > div > div.fixed.inset-0.z-\[60\] > header.sticky > div:first-child {
+  position: relative !important;
+  z-index: 1 !important;
+  min-height: 56px !important;
 }
