@@ -197,7 +197,7 @@ async function canvasFor(t: ReceiptTx) {
   c.fillStyle = "#c4001d";
   c.textAlign = "right";
   c.font = `700 13px ${FONT}`;
-  c.fillText("DEMO / ÖRNEK BELGE", 1180, 55);
+
   c.textAlign = "left";
 
   c.strokeStyle = "#bdbdbd";
@@ -308,7 +308,7 @@ async function canvasFor(t: ReceiptTx) {
     48,
     663,
   );
-  c.fillText("ÖRNEK BELGE — RESMÎ BANKA DEKONTU DEĞİLDİR.", 48, 684);
+
 
   return x;
 }
