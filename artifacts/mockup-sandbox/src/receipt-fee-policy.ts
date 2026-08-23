@@ -126,9 +126,9 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
     this.fillStyle = "#1d1d1d";
     this.textAlign = "left";
     this.textBaseline = "alphabetic";
-    this.font = '600 11.8px Arial, Helvetica, sans-serif';
-    originalFillText.call(this, LEGAL_FOOTER_LINE_1, 62, 775, 1062);
-    originalFillText.call(this, LEGAL_FOOTER_LINE_2, 62, 797, 1062);
+    this.font = '500 10.8px Arial, Helvetica, sans-serif';
+    originalFillText.call(this, LEGAL_FOOTER_LINE_1, 62, 765, 1062);
+    originalFillText.call(this, LEGAL_FOOTER_LINE_2, 62, 783, 1062);
     this.restore();
     return;
   }
@@ -149,12 +149,8 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
     this.fillStyle = "#242424";
     this.textAlign = "center";
     this.textBaseline = "alphabetic";
-    this.font = '600 12.5px Arial, Helvetica, sans-serif';
-    if (typeof maxWidth === "number") {
-      originalFillText.call(this, next, x, nextY, maxWidth);
-    } else {
-      originalFillText.call(this, next, x, nextY);
-    }
+    this.font = '500 11px Arial, Helvetica, sans-serif';
+    originalFillText.call(this, next, x, 654);
     this.restore();
     return;
   }
@@ -164,12 +160,8 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
     this.fillStyle = "#202020";
     this.textAlign = "center";
     this.textBaseline = "alphabetic";
-    this.font = '600 12.5px Arial, Helvetica, sans-serif';
-    if (typeof maxWidth === "number") {
-      originalFillText.call(this, next, x, nextY, maxWidth);
-    } else {
-      originalFillText.call(this, next, x, nextY);
-    }
+    this.font = '500 11px Arial, Helvetica, sans-serif';
+    originalFillText.call(this, next, x, 688);
     this.restore();
     return;
   }
@@ -183,7 +175,7 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
       const hour = activeReceiptClock?.hour || timestampMatch[2];
       const minute = activeReceiptClock?.minute || timestampMatch[3];
       next = `${timestampMatch[1]}-${hour}:${minute}:${timestampMatch[4]} EFTTGIDD INTERNET`;
-      nextY = 695;
+      nextY = 660;
     } else if (next === "INTERNET" && nextY >= 650 && nextY <= 760) {
       return;
     }
@@ -197,13 +189,13 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
 
         if (typeof maxWidth === "number") {
           originalFillText.call(this, firstLine, x, nextY, maxWidth);
-          originalFillText.call(this, secondLine, x, nextY + 22, maxWidth);
+          originalFillText.call(this, secondLine, x, nextY + 18, maxWidth);
         } else {
           originalFillText.call(this, firstLine, x, nextY);
-          originalFillText.call(this, secondLine, x, nextY + 22);
+          originalFillText.call(this, secondLine, x, nextY + 18);
         }
 
-        suppressRequestContinuationY = nextY + 22;
+        suppressRequestContinuationY = nextY + 18;
         return;
       }
     }
@@ -305,12 +297,49 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFrameFillTextPatch
   maxWidth?: number,
 ) {
   const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
+  const nextText = String(text);
 
-  if (isReceiptPdfCanvas && y >= 160 && y <= 350) {
-    if (x >= 90 && x < 646) x -= 3;
-    if (x === 665) {
-      x = 635;
-      if (y === 252 && typeof maxWidth === "number") maxWidth = 438;
+  if (isReceiptPdfCanvas) {
+    if (y >= 160 && y <= 350) {
+      if (x === 95) this.font = '700 14px Arial, Helvetica, sans-serif';
+      if (x === 275) this.font = '500 13.6px Arial, Helvetica, sans-serif';
+      if (x === 292) this.font = '500 13.4px Arial, Helvetica, sans-serif';
+
+      if (x === 665) {
+        if (y === 170) this.font = '700 14px Arial, Helvetica, sans-serif';
+        else if (y === 195) this.font = '700 14.4px Arial, Helvetica, sans-serif';
+        else this.font = '700 13.9px Arial, Helvetica, sans-serif';
+      }
+
+      if (x >= 90 && x < 646) x -= 3;
+      if (x === 665) {
+        x = 635;
+        if (y === 252 && typeof maxWidth === "number") maxWidth = 438;
+      }
+    }
+
+    if (x === 106 && y >= 414 && y <= 558) {
+      this.font = '500 15.6px Arial, Helvetica, sans-serif';
+      y = 414 + Math.round((y - 414) / 24) * 20;
+    }
+
+    if (x === 106 && y === 588) {
+      this.font = '500 14.8px Arial, Helvetica, sans-serif';
+      y = 566;
+    }
+
+    if (x === 94 && y === 668) {
+      this.font = '500 15.4px Arial, Helvetica, sans-serif';
+      y = 638;
+    }
+
+    if (/^\d{2}\/\d{2}\/\d{4}-\d{2}:\d{2}:\d{2}\s+EFTTGIDD\s+INTERNET$/i.test(nextText)) {
+      this.font = '500 14.6px Arial, Helvetica, sans-serif';
+    }
+
+    if (nextText === "T.C. ZİRAAT BANKASI A.Ş.") {
+      this.font = '700 11.8px Arial, Helvetica, sans-serif';
+      y = 672;
     }
   }
 
