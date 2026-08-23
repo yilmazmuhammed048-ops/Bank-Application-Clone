@@ -103,6 +103,15 @@ function updateFeeBalance(original: HTMLButtonElement, feeRow: HTMLButtonElement
   if (valueSpan) valueSpan.textContent = formatMoney(feeBalance);
 }
 
+function updateFeeAmount(feeRow: HTMLButtonElement) {
+  const amountBox = findAmountBox(feeRow);
+  if (!amountBox) return;
+
+  amountBox.textContent = "-0,37 TL";
+  amountBox.classList.remove("text-[#24934c]");
+  amountBox.classList.add("text-[#303a40]");
+}
+
 function makeFeeRow(original: HTMLButtonElement, signature: string) {
   const clone = original.cloneNode(true) as HTMLButtonElement;
   clone.dataset.messageFeeRow = "true";
@@ -121,8 +130,7 @@ function makeFeeRow(original: HTMLButtonElement, signature: string) {
     details.appendChild(title);
   }
 
-  const amountBox = findAmountBox(clone);
-  if (amountBox) amountBox.textContent = "-0,37 TL";
+  updateFeeAmount(clone);
 
   syncFeeTimestamp(original, clone);
   updateFeeBalance(original, clone);
@@ -166,6 +174,7 @@ function applyMessageFeeRows() {
       next.dataset.messageFeeRow === "true" &&
       next.dataset.messageFeeFor === signature
     ) {
+      updateFeeAmount(next);
       syncFeeTimestamp(movement, next);
       updateFeeBalance(movement, next);
       continue;
