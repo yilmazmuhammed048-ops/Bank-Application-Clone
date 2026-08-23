@@ -9,6 +9,7 @@ import "./header-static-final.css";
 import "./header-live-reference.css";
 import "./transactions-typography-reference.css";
 import "./transactions-message-fee-row";
+import "./transactions-archive-display";
 import "./pdf-approved-logo-patch";
 import "./transactions-pdf-reference-final";
 import "./receipt-pdf-reference";
@@ -21,6 +22,127 @@ const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
 const isAdminPath = window.location.pathname === "/admin" || window.location.pathname === "/admin/";
 const isAdminRoute = isAdminHost || isAdminPath;
 const SHARED_API = "https://banka-yonetim-paneli.vercel.app/api/state";
+
+const ARCHIVE_TRANSACTIONS = [
+  {
+    id: 1787326200000,
+    title: "Kart Ödemesi",
+    description:
+      "SANAL POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: YEMEKPAY/YEMEK SEPET MUTABAKAT: 5508756",
+    amount: "350,00",
+    date: "21 Ağustos 2026",
+    time: "18:30",
+    recipientName: "YEMEKPAY / YEMEK SEPET",
+    recipientIban: "",
+    recipientBank: "Sanal POS Alışveriş",
+    transactionNumber: "ARCHIVE-20260821-1830-350",
+    type: "expense",
+  },
+  {
+    id: 1787308440000,
+    title: "Kart Ödemesi",
+    description:
+      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: M JET YUREGIR ADANA P MUTABAKAT: 3910060",
+    amount: "2.600,00",
+    date: "21 Ağustos 2026",
+    time: "13:34",
+    recipientName: "M JET YUREGIR ADANA P",
+    recipientIban: "",
+    recipientBank: "POS Alışveriş",
+    transactionNumber: "ARCHIVE-20260821-1334-2600",
+    type: "expense",
+  },
+  {
+    id: 1787274480000,
+    title: "Kart Ödemesi",
+    description:
+      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: KONAK STONE HOUSE MUTABAKAT: 8630012",
+    amount: "2.900,00",
+    date: "21 Ağustos 2026",
+    time: "04:08",
+    recipientName: "KONAK STONE HOUSE",
+    recipientIban: "",
+    recipientBank: "POS Alışveriş",
+    transactionNumber: "ARCHIVE-20260821-0408-2900",
+    type: "expense",
+  },
+  {
+    id: 1787271780000,
+    title: "Kart Ödemesi",
+    description:
+      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: ALTINOLUK SUPERMARKET MUTABAKAT: 85385...",
+    amount: "3.672,00",
+    date: "21 Ağustos 2026",
+    time: "03:23",
+    recipientName: "ALTINOLUK SUPERMARKET",
+    recipientIban: "",
+    recipientBank: "POS Alışveriş",
+    transactionNumber: "ARCHIVE-20260821-0323-3672",
+    type: "expense",
+  },
+  {
+    id: 1787249880000,
+    title: "Havale Giden",
+    description: "FERDİ ERKAN Ziraat Mobil Havale",
+    amount: "10.000,00",
+    date: "20 Ağustos 2026",
+    time: "21:18",
+    recipientName: "FERDİ ERKAN",
+    recipientIban: "",
+    recipientBank: "Ziraat Mobil Havale",
+    transactionNumber: "ARCHIVE-20260820-2118-10000",
+    type: "expense",
+  },
+  {
+    id: 1787243340000,
+    title: "Kart Ödemesi",
+    description:
+      "POS ALIŞVERİŞ KART NO: 5124 **** **** 0162 İŞYERİ: EMRECAN BUFE MUTABAKAT: 9414914",
+    amount: "990,00",
+    date: "20 Ağustos 2026",
+    time: "19:29",
+    recipientName: "EMRECAN BUFE",
+    recipientIban: "",
+    recipientBank: "POS Alışveriş",
+    transactionNumber: "ARCHIVE-20260820-1929-990",
+    type: "expense",
+  },
+  {
+    id: 1787241840000,
+    title: "Havale Giden",
+    description: "FEVZİ MUTLU Ziraat Mobil Havale",
+    amount: "48.000,00",
+    date: "20 Ağustos 2026",
+    time: "19:04",
+    recipientName: "FEVZİ MUTLU",
+    recipientIban: "",
+    recipientBank: "Ziraat Mobil Havale",
+    transactionNumber: "ARCHIVE-20260820-1904-48000",
+    type: "expense",
+  },
+];
+
+function transactionKey(transaction: any) {
+  return String(
+    transaction?.transactionNumber ??
+      `${transaction?.id ?? ""}|${transaction?.date ?? ""}|${transaction?.time ?? ""}|${transaction?.amount ?? ""}`,
+  );
+}
+
+function withArchiveTransactions(remoteTransactions: any[]) {
+  const merged = new Map<string, any>();
+
+  for (const transaction of remoteTransactions) {
+    merged.set(transactionKey(transaction), transaction);
+  }
+
+  for (const transaction of ARCHIVE_TRANSACTIONS) {
+    const key = transactionKey(transaction);
+    if (!merged.has(key)) merged.set(key, transaction);
+  }
+
+  return Array.from(merged.values());
+}
 
 async function loadSharedState() {
   try {
@@ -38,13 +160,14 @@ async function loadSharedState() {
       }
     }
 
-    // The management panel/API is the single source of truth.
-    // Store the remote list exactly as returned so edits and deletions are not
-    // reintroduced from stale localStorage data.
     if (Array.isArray(data.transactions)) {
+      const transactions = isAdminRoute
+        ? data.transactions
+        : withArchiveTransactions(data.transactions);
+
       localStorage.setItem(
         "demo_transactions",
-        JSON.stringify(data.transactions),
+        JSON.stringify(transactions),
       );
     }
   } catch {
