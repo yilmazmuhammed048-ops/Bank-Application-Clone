@@ -19,6 +19,10 @@ const TURKISH_MONTHS: Record<string, string> = {
   ARALIK: "12",
 };
 
+const ONES = ["", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"];
+const TENS = ["", "ON", "YİRMİ", "OTUZ", "KIRK", "ELLİ", "ALTMIŞ", "YETMİŞ", "SEKSEN", "DOKSAN"];
+const SCALES = ["", "BİN", "MİLYON", "MİLYAR", "TRİLYON"];
+
 function normalize(value: string) {
   return value.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -63,6 +67,64 @@ function numericDate(dateText: string) {
   if (!month) return null;
 
   return `${longDate[1].padStart(2, "0")}/${month}/${longDate[3]}`;
+}
+
+function chunkToTurkish(value: number) {
+  const hundreds = Math.floor(value / 100);
+  const remainder = value % 100;
+  const tens = Math.floor(remainder / 10);
+  const ones = remainder % 10;
+  let result = "";
+
+  if (hundreds > 0) {
+    if (hundreds > 1) result += ONES[hundreds];
+    result += "YÜZ";
+  }
+
+  result += TENS[tens];
+  result += ONES[ones];
+  return result;
+}
+
+function integerToTurkish(value: number) {
+  const safeValue = Math.max(0, Math.floor(value));
+  if (safeValue === 0) return "SIFIR";
+
+  let remaining = safeValue;
+  let scaleIndex = 0;
+  const groups: string[] = [];
+
+  while (remaining > 0 && scaleIndex < SCALES.length) {
+    const chunk = remaining % 1000;
+
+    if (chunk > 0) {
+      const scale = SCALES[scaleIndex];
+      const group = scaleIndex === 1 && chunk === 1
+        ? "BİN"
+        : `${chunkToTurkish(chunk)}${scale}`;
+      groups.unshift(group);
+    }
+
+    remaining = Math.floor(remaining / 1000);
+    scaleIndex += 1;
+  }
+
+  return groups.join("");
+}
+
+function parseDisplayedAmount(text: string) {
+  const match = normalize(text).match(/(\d{1,3}(?:\.\d{3})*|\d+),(\d{2})/);
+  if (!match) return null;
+
+  const lira = Number(match[1].replace(/\./g, ""));
+  const kurus = Number(match[2]);
+  if (!Number.isFinite(lira) || !Number.isFinite(kurus)) return null;
+
+  return {
+    display: `${match[1]},${match[2]}`,
+    lira,
+    kurus,
+  };
 }
 
 function findDocumentValue(container: Element, label: string) {
@@ -133,6 +195,40 @@ function applyReceiptSignoffReference(overlay: HTMLElement) {
   });
 }
 
+function applyWithdrawalReference(
+  overlay: HTMLElement,
+  date: string,
+  hour: string,
+  minute: string,
+  seconds: string,
+) {
+  const paragraphs = Array.from(overlay.querySelectorAll<HTMLParagraphElement>("p"));
+  const amountLine = paragraphs.find((node) =>
+    normalize(node.textContent || "").toLocaleUpperCase("tr-TR").startsWith("İŞLEM TUTARI"),
+  );
+  const withdrawalLine = paragraphs.find((node) =>
+    normalize(node.textContent || "").toLocaleLowerCase("tr-TR").startsWith("hesabınızdan"),
+  );
+
+  if (!amountLine || !withdrawalLine) return;
+
+  const amount = parseDisplayedAmount(amountLine.textContent || "");
+  if (!amount) return;
+
+  const amountInWords = `${integerToTurkish(amount.lira)}TL${integerToTurkish(amount.kurus)}KR`;
+  const desiredWithdrawal = `Hesabınızdan ${amount.display} TL (YALNIZ ${amountInWords}) Çekilmiştir.`;
+  const desiredTimestamp = `${date}-${hour}:${minute}:${seconds} EFTTGIDD INTERNET`;
+
+  if (normalize(withdrawalLine.textContent || "") !== normalize(desiredWithdrawal)) {
+    withdrawalLine.textContent = desiredWithdrawal;
+  }
+
+  const timestampLine = withdrawalLine.nextElementSibling as HTMLParagraphElement | null;
+  if (timestampLine && normalize(timestampLine.textContent || "") !== normalize(desiredTimestamp)) {
+    timestampLine.textContent = desiredTimestamp;
+  }
+}
+
 function applyReceiptTransactionReference() {
   const overlays = Array.from(document.querySelectorAll<HTMLElement>("div.fixed.inset-0"));
 
@@ -178,6 +274,8 @@ function applyReceiptTransactionReference() {
       valueDate.textContent = desiredValue;
       valueDate.setAttribute("title", date);
     }
+
+    applyWithdrawalReference(overlay, date, hour, minute, reference.seconds);
   }
 }
 
