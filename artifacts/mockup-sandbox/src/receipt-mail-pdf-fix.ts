@@ -1,4 +1,5 @@
 import "./receipt-exact-logo-patch";
+import "./receipt-pdf-file-save";
 
 export {};
 
