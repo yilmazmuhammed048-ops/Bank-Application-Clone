@@ -123,10 +123,10 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
 
   if (isReceiptPdfCanvas && next.startsWith("Taraflar arasında tüm uyuşmazlıklarda")) {
     this.save();
-    this.fillStyle = "#111";
+    this.fillStyle = "#1d1d1d";
     this.textAlign = "left";
     this.textBaseline = "alphabetic";
-    this.font = '500 11.6px Arial, Helvetica, sans-serif';
+    this.font = '600 11.8px Arial, Helvetica, sans-serif';
     originalFillText.call(this, LEGAL_FOOTER_LINE_1, 62, 775, 1062);
     originalFillText.call(this, LEGAL_FOOTER_LINE_2, 62, 797, 1062);
     this.restore();
@@ -146,10 +146,10 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
 
   if (isReceiptPdfCanvas && next === "Saygılarımızla") {
     this.save();
-    this.fillStyle = "#2b2b2b";
+    this.fillStyle = "#242424";
     this.textAlign = "center";
     this.textBaseline = "alphabetic";
-    this.font = '500 12.5px Arial, Helvetica, sans-serif';
+    this.font = '600 12.5px Arial, Helvetica, sans-serif';
     if (typeof maxWidth === "number") {
       originalFillText.call(this, next, x, nextY, maxWidth);
     } else {
@@ -161,10 +161,10 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFeeFillText(
 
   if (isReceiptPdfCanvas && next === "İNTERNET ŞUBESİ") {
     this.save();
-    this.fillStyle = "#242424";
+    this.fillStyle = "#202020";
     this.textAlign = "center";
     this.textBaseline = "alphabetic";
-    this.font = '500 12.5px Arial, Helvetica, sans-serif';
+    this.font = '600 12.5px Arial, Helvetica, sans-serif';
     if (typeof maxWidth === "number") {
       originalFillText.call(this, next, x, nextY, maxWidth);
     } else {
