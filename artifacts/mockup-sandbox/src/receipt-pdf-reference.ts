@@ -51,6 +51,10 @@ const C_TEXT_LIGHT = "#41464a";
 const C_BORDER = "#bfc3c6";
 const C_ACCENT = "#a00018";
 
+// Capture the renderer that exists when this module loads. Receipt layout
+// patches imported later cannot hide or duplicate these core PDF lines.
+const CORE_FILL_TEXT = CanvasRenderingContext2D.prototype.fillText;
+
 const ONES = ["", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"];
 const TENS = ["", "ON", "YİRMİ", "OTUZ", "KIRK", "ELLİ", "ALTMIŞ", "YETMİŞ", "SEKSEN", "DOKSAN"];
 const SCALES = ["", "BİN", "MİLYON", "MİLYAR", "TRİLYON"];
@@ -278,48 +282,6 @@ function labelValue(
   context.fillText(value, x + labelWidth + 17, y, 325);
 }
 
-function wrappedLines(
-  context: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number,
-  maxLines: number,
-) {
-  const words = text.split(/\s+/);
-  const lines: string[] = [];
-  let line = "";
-
-  for (const word of words) {
-    const candidate = line ? `${line} ${word}` : word;
-    if (context.measureText(candidate).width <= maxWidth) {
-      line = candidate;
-      continue;
-    }
-
-    if (line) lines.push(line);
-    line = word;
-
-    if (lines.length >= maxLines - 1) break;
-  }
-
-  if (line && lines.length < maxLines) lines.push(line);
-  return lines;
-}
-
-function drawWrapped(
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-  maxLines: number,
-) {
-  const lines = wrappedLines(context, text, maxWidth, maxLines);
-  lines.forEach((line, index) => {
-    context.fillText(line, x, y + index * lineHeight);
-  });
-}
-
 function img(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
@@ -351,6 +313,18 @@ async function canvasFor(transaction: ReceiptTx) {
     context.drawImage(base, 48, 42, 290, 76);
   } catch {}
 
+  // Permanent demo marker. This is drawn by the core renderer so it remains
+  // present in every generated receipt PDF.
+  context.save();
+  context.fillStyle = "#b00020";
+  context.fillRect(1046, 42, 142, 48);
+  context.fillStyle = "#ffffff";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = `700 25px ${FONT}`;
+  CORE_FILL_TEXT.call(context, "DEMO", 1117, 66);
+  context.restore();
+
   context.fillStyle = C_TEXT;
   context.textAlign = "center";
   context.font = `700 24px ${FONT}`;
@@ -363,7 +337,6 @@ async function canvasFor(transaction: ReceiptTx) {
   context.fillStyle = C_ACCENT;
   context.textAlign = "right";
   context.font = `700 14px ${FONT}`;
-
 
   context.textAlign = "left";
   context.strokeStyle = C_BORDER;
@@ -429,18 +402,21 @@ async function canvasFor(transaction: ReceiptTx) {
   const totalFeeText = `${money(RECEIPT_TOTAL_FEE)} TRY`;
   const amountText = `${money(transaction.amount)} TRY`;
 
+  // Draw the whole detail section directly. x=106.01 avoids old exact-x
+  // layout patches, while CORE_FILL_TEXT bypasses patches imported later.
   context.fillStyle = C_TEXT;
-  context.font = `500 18.5px ${FONT}`;
+  context.textAlign = "left";
+  context.textBaseline = "alphabetic";
+  context.font = `500 15.6px ${FONT}`;
 
   let y = 414;
-  const line = (text: string, gap = 24) => {
-    context.fillText(text, 106, y, 1005);
-    y += gap;
+  const line = (text: string) => {
+    CORE_FILL_TEXT.call(context, text, 106.01, y, 1005);
+    y += 20;
   };
 
-  line(
-    `Fast Mesaj Kodu : A01 Fast Sorgu No : ${transaction.transactionNumber}`,
-  );
+  line("124587");
+  line(`Fast Mesaj Kodu : A01 Fast Sorgu No : ${transaction.transactionNumber}`);
   line(`Gönderen : ${sender}`);
   line(`Alan Banka : ${transaction.recipientBank}`);
   line(`Alıcı Hesap : ${iban}  Alıcı : ${receiver}`);
@@ -450,15 +426,22 @@ async function canvasFor(transaction: ReceiptTx) {
   );
   line(`Toplam Masraf : ${totalFeeText}`);
 
-  context.font = `500 17.5px ${FONT}`;
-  drawWrapped(
+  // Exactly two request lines. No wrapped continuation can create a second
+  // standalone "ederim." line.
+  context.font = `500 14.8px ${FONT}`;
+  CORE_FILL_TEXT.call(
     context,
-    `${amountText} tutarında Fast işleminin yapılmasını, Bu işlem için tarafıma bildirilen ${totalFeeText} masraf alınmasını talep ederim.`,
-    106,
-    588,
+    `${amountText} tutarında Fast işleminin yapılmasını, Bu işlem için`,
+    106.01,
+    584,
     910,
-    22,
-    2,
+  );
+  CORE_FILL_TEXT.call(
+    context,
+    `tarafıma bildirilen ${totalFeeText} masraf alınmasını talep ederim.`,
+    106.01,
+    602,
+    910,
   );
 
   const lowerY = 668;
@@ -536,11 +519,6 @@ async function canvasFor(transaction: ReceiptTx) {
   context.textAlign = "center";
   context.fillStyle = C_ACCENT;
   context.font = `700 14px ${FONT}`;
-  context.fillText(
-    
-    W / 2,
-    1710,
-  );
   context.textAlign = "left";
 
   return canvas;
