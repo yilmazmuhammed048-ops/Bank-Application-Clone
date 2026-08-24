@@ -148,7 +148,7 @@ window.addEventListener("storage", scheduleApply);
 scheduleApply();
 
 const DEMO_BANNER_ID = "global-demo-test-banner";
-const DEMO_LABEL = "DEMO / TEST — GERÇEK BANKACILIK İŞLEMİ DEĞİLDİR";
+
 
 function installDemoBanner() {
   if (!document.body || document.getElementById(DEMO_BANNER_ID)) return;
@@ -311,8 +311,7 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.font = `800 ${Math.max(22, Math.floor(canvas.width * 0.022))}px Arial, Helvetica, sans-serif`;
-  context.fillText(
-    "DEMO / TEST — GERÇEK BANKACILIK BELGESİ DEĞİLDİR",
+
     canvas.width / 2,
     canvas.height - footerHeight / 2,
     canvas.width * 0.94,
