@@ -72,7 +72,7 @@ function syncReceiptDescription() {
       color: fastStyle.color,
       textAlign: fastStyle.textAlign,
       marginTop: "0",
-      marginBottom: "3px",
+      marginBottom: "0",
       padding: "0",
       whiteSpace: "normal",
       overflowWrap: "anywhere",
