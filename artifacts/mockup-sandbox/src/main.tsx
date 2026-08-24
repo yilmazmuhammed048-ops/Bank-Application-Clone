@@ -17,7 +17,6 @@ import "./transactions-pdf-reference-final";
 import "./receipt-pdf-reference";
 import "./receipt-mail-pdf-fix";
 import "./receipt-fee-policy";
-import "./receipt-pdf-final-text-fix";
 import "./login-safearea-reference";
 
 const hostname = window.location.hostname.toLowerCase();
