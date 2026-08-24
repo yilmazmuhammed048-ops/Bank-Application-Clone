@@ -10,9 +10,6 @@ type StoredTransaction = {
 };
 
 const DELETED_KEYS_STORAGE = "demo_deleted_transaction_keys";
-const LONG_PRESS_MS = 460;
-const MOVE_TOLERANCE = 28;
-
 const hostname = window.location.hostname.toLowerCase();
 const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
 const isAdminPath =
@@ -64,12 +61,10 @@ function readDeletedKeys() {
 }
 
 function writeDeletedKeys(keys: string[]) {
-  try {
-    localStorage.setItem(
-      DELETED_KEYS_STORAGE,
-      JSON.stringify(Array.from(new Set(keys))),
-    );
-  } catch {}
+  localStorage.setItem(
+    DELETED_KEYS_STORAGE,
+    JSON.stringify(Array.from(new Set(keys))),
+  );
 }
 
 function readTransactions(): StoredTransaction[] {
@@ -97,7 +92,7 @@ function adjustStoredAccount(delta: number) {
     localStorage.setItem("demo_account", JSON.stringify(account));
     localStorage.setItem("demo_balance", nextBalance);
   } catch {
-    // Keep the last valid account state if storage is unavailable.
+    // Keep the last valid demo account state.
   }
 }
 
@@ -113,12 +108,10 @@ function removeTransaction(transaction: StoredTransaction) {
 
   localStorage.setItem("demo_transactions", JSON.stringify(remaining));
 
-  // Deleting an expense gives its amount back; deleting an income removes it.
+  // Reverse the deleted movement immediately. The shared-state sync in
+  // main.tsx deterministically applies the same adjustment on later polls.
   adjustStoredAccount(-transactionEffect(transaction));
-
-  // App.tsx listens for storage and refreshes its React state immediately.
   window.dispatchEvent(new Event("storage"));
-  window.dispatchEvent(new CustomEvent("demo-transactions-changed"));
 }
 
 function movementList() {
@@ -161,29 +154,23 @@ function syncMovementRows() {
 
   rows.forEach((row, index) => {
     const transaction = transactions[index];
-    if (transaction) {
-      row.dataset.demoTransactionKey = transactionKey(transaction);
-    } else {
+    if (!transaction) {
       delete row.dataset.demoTransactionKey;
+      return;
     }
 
-    const touchStyle = row.style as CSSStyleDeclaration & {
-      webkitTouchCallout?: string;
-      webkitUserSelect?: string;
-    };
-    touchStyle.webkitTouchCallout = "none";
-    touchStyle.webkitUserSelect = "none";
+    row.dataset.demoTransactionKey = transactionKey(transaction);
+    row.style.webkitTouchCallout = "none";
+    row.style.webkitUserSelect = "none";
     row.style.userSelect = "none";
     row.style.touchAction = "pan-y";
   });
 }
 
 function transactionForRow(row: HTMLButtonElement) {
-  const transactions = sortedTransactions();
   const key = row.dataset.demoTransactionKey;
-
   if (key) {
-    const matched = transactions.find(
+    const matched = readTransactions().find(
       (transaction) => transactionKey(transaction) === key,
     );
     if (matched) return matched;
@@ -191,22 +178,8 @@ function transactionForRow(row: HTMLButtonElement) {
 
   const rows = movementRows();
   const index = rows.indexOf(row);
-  if (index >= 0 && transactions[index]) return transactions[index];
-
-  // Last fallback: match the visible time and amount. This survives extra rows
-  // inserted by display patches and keeps long-press working after DOM changes.
-  const rowText = (row.innerText || row.textContent || "").replace(/\s+/g, " ");
-  return (
-    transactions.find((transaction) => {
-      const time = String(transaction.time || "").trim();
-      const rawAmount = String(transaction.amount ?? "").trim();
-      const amountDigits = rawAmount.replace(/[^\d]/g, "");
-      return (
-        (!!time && rowText.includes(time)) &&
-        (!amountDigits || rowText.replace(/[^\d]/g, "").includes(amountDigits))
-      );
-    }) ?? null
-  );
+  if (index < 0) return null;
+  return sortedTransactions()[index] ?? null;
 }
 
 function rowFromTarget(target: EventTarget | null) {
@@ -227,7 +200,6 @@ let pressTimer: number | null = null;
 let pressRow: HTMLButtonElement | null = null;
 let startX = 0;
 let startY = 0;
-let lastPointerDownAt = 0;
 
 function cancelPress() {
   if (pressTimer !== null) {
@@ -245,7 +217,7 @@ function clearOverlay() {
 
 function positionOverlay(row: HTMLButtonElement, action: HTMLDivElement) {
   const rect = row.getBoundingClientRect();
-  const width = Math.min(90, Math.max(76, rect.width * 0.22));
+  const width = Math.min(88, Math.max(74, rect.width * 0.22));
 
   Object.assign(action.style, {
     position: "fixed",
@@ -269,13 +241,12 @@ function showDeleteAction(row: HTMLButtonElement) {
   syncMovementRows();
   const selected = transactionForRow(row);
   if (!selected) return;
-
   const selectedKey = transactionKey(selected);
   if (!selectedKey) return;
 
   clearOverlay();
   armedRow = row;
-  suppressClickUntil = Date.now() + 1600;
+  suppressClickUntil = Date.now() + 1400;
 
   const action = document.createElement("div");
   action.setAttribute("data-demo-longpress-delete", "true");
@@ -325,9 +296,11 @@ function showDeleteAction(row: HTMLButtonElement) {
     window.setTimeout(syncMovementRows, 0);
   };
 
-  action.addEventListener("pointerup", runDelete);
   action.addEventListener("click", runDelete);
-  action.addEventListener("touchend", runDelete, { passive: false });
+  action.addEventListener("touchend", (event) => {
+    event.preventDefault();
+    runDelete(event);
+  });
   action.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") runDelete(event);
   });
@@ -344,7 +317,6 @@ function armAfterDelay(row: HTMLButtonElement, x: number, y: number) {
   clearOverlay();
   cancelPress();
   syncMovementRows();
-
   pressRow = row;
   startX = x;
   startY = y;
@@ -352,14 +324,7 @@ function armAfterDelay(row: HTMLButtonElement, x: number, y: number) {
     pressTimer = null;
     pressRow = null;
     showDeleteAction(row);
-  }, LONG_PRESS_MS);
-}
-
-function moveTooFar(x: number, y: number) {
-  return (
-    Math.abs(x - startX) > MOVE_TOLERANCE ||
-    Math.abs(y - startY) > MOVE_TOLERANCE
-  );
+  }, 480);
 }
 
 let syncScheduled = false;
@@ -381,58 +346,17 @@ if (!isAdminRoute) {
 
   document.addEventListener("DOMContentLoaded", scheduleRowSync);
   window.addEventListener("storage", scheduleRowSync);
-  window.addEventListener("demo-transactions-changed", scheduleRowSync);
   scheduleRowSync();
 
-  // Pointer Events are the primary path. Unlike the previous version, touch
-  // pointers are intentionally handled here too; some installed/PWA browsers
-  // do not deliver the separate touchstart path reliably.
-  document.addEventListener(
-    "pointerdown",
-    (event) => {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
-      if ((event.target as Element | null)?.closest?.('[data-demo-longpress-delete="true"]')) return;
-
-      const row = rowFromTarget(event.target);
-      if (!row) {
-        clearOverlay();
-        cancelPress();
-        return;
-      }
-
-      lastPointerDownAt = Date.now();
-      armAfterDelay(row, event.clientX, event.clientY);
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "pointermove",
-    (event) => {
-      if (pressTimer === null || !pressRow) return;
-      if (moveTooFar(event.clientX, event.clientY)) cancelPress();
-    },
-    true,
-  );
-
-  document.addEventListener("pointerup", cancelPress, true);
-  document.addEventListener("pointercancel", cancelPress, true);
-
-  // Touch fallback for older Safari/WebView builds. Skip it when a pointerdown
-  // was just received so the same press does not keep restarting its timer.
   document.addEventListener(
     "touchstart",
     (event) => {
-      if (Date.now() - lastPointerDownAt < 80) return;
       if (event.touches.length !== 1) return;
-
       const row = rowFromTarget(event.target);
       if (!row) {
         clearOverlay();
-        cancelPress();
         return;
       }
-
       const touch = event.touches[0];
       armAfterDelay(row, touch.clientX, touch.clientY);
     },
@@ -444,29 +368,54 @@ if (!isAdminRoute) {
     (event) => {
       if (pressTimer === null || !pressRow || event.touches.length !== 1) return;
       const touch = event.touches[0];
-      if (moveTooFar(touch.clientX, touch.clientY)) cancelPress();
+      if (
+        Math.abs(touch.clientX - startX) > 24 ||
+        Math.abs(touch.clientY - startY) > 24
+      ) {
+        cancelPress();
+      }
     },
     { passive: true, capture: true },
   );
 
-  document.addEventListener("touchend", cancelPress, true);
-  document.addEventListener("touchcancel", cancelPress, true);
+  document.addEventListener("touchend", () => cancelPress(), true);
+  document.addEventListener("touchcancel", () => cancelPress(), true);
 
-  // Desktop mouse fallback for engines without Pointer Events.
   document.addEventListener(
-    "mousedown",
+    "pointerdown",
     (event) => {
-      if (Date.now() - lastPointerDownAt < 80 || event.button !== 0) return;
+      if (event.pointerType === "touch" || event.button !== 0) return;
       const row = rowFromTarget(event.target);
-      if (!row) return;
+      if (!row) {
+        clearOverlay();
+        return;
+      }
       armAfterDelay(row, event.clientX, event.clientY);
     },
     true,
   );
-  document.addEventListener("mouseup", cancelPress, true);
 
-  // Native mobile long-press often becomes contextmenu; make that open the
-  // delete action instead of the browser context menu.
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (event.pointerType === "touch" || pressTimer === null || !pressRow) return;
+      if (
+        Math.abs(event.clientX - startX) > 24 ||
+        Math.abs(event.clientY - startY) > 24
+      ) {
+        cancelPress();
+      }
+    },
+    true,
+  );
+
+  document.addEventListener("pointerup", (event) => {
+    if (event.pointerType !== "touch") cancelPress();
+  }, true);
+  document.addEventListener("pointercancel", cancelPress, true);
+
+  // Mobile Safari/Android may turn a long press into contextmenu before the
+  // timer callback is visible. Use that event as a second long-press path.
   document.addEventListener(
     "contextmenu",
     (event) => {
@@ -488,14 +437,6 @@ if (!isAdminRoute) {
   );
 
   document.addEventListener(
-    "dragstart",
-    (event) => {
-      if (rowFromTarget(event.target)) event.preventDefault();
-    },
-    true,
-  );
-
-  document.addEventListener(
     "click",
     (event) => {
       if (Date.now() >= suppressClickUntil || !armedRow) return;
@@ -508,15 +449,11 @@ if (!isAdminRoute) {
     true,
   );
 
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (overlay && armedRow && armedRow.isConnected) {
-        positionOverlay(armedRow, overlay);
-      }
-    },
-    true,
-  );
+  window.addEventListener("scroll", () => {
+    if (overlay && armedRow && armedRow.isConnected) {
+      positionOverlay(armedRow, overlay);
+    }
+  }, true);
 
   window.addEventListener("resize", () => {
     if (overlay && armedRow && armedRow.isConnected) {
