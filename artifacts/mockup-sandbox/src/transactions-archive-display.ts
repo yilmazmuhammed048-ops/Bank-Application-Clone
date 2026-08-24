@@ -4,7 +4,6 @@ type ArchiveView = {
   time: string;
   amount: string;
   lines: string[];
-  balance: string;
 };
 
 const ARCHIVE_VIEWS: ArchiveView[] = [
@@ -16,7 +15,6 @@ const ARCHIVE_VIEWS: ArchiveView[] = [
       "5124 **** **** 0162 İŞYERİ: YEMEKPAY/",
       "YEMEK SEPET MUTABAKAT: 5508756",
     ],
-    balance: "30.798,92 TL",
   },
   {
     time: "13:34",
@@ -26,7 +24,6 @@ const ARCHIVE_VIEWS: ArchiveView[] = [
       "**** 0162 İŞYERİ: M JET YUREGIR",
       "ADANA P MUTABAKAT: 3910060",
     ],
-    balance: "31.148,92 TL",
   },
   {
     time: "04:08",
@@ -36,7 +33,6 @@ const ARCHIVE_VIEWS: ArchiveView[] = [
       "**** 0162 İŞYERİ: KONAK STONE",
       "HOUSE MUTABAKAT: 8630012",
     ],
-    balance: "33.748,92 TL",
   },
   {
     time: "03:23",
@@ -46,13 +42,11 @@ const ARCHIVE_VIEWS: ArchiveView[] = [
       "**** 0162 İŞYERİ: ALTINOLUK",
       "SUPERMARKET MUTABAKAT: 85385...",
     ],
-    balance: "36.648,92 TL",
   },
   {
     time: "21:18",
     amount: "-10.000,00 TL",
     lines: ["FERDİ ERKAN Ziraat Mobil Havale"],
-    balance: "40.320,92 TL",
   },
   {
     time: "19:29",
@@ -62,13 +56,11 @@ const ARCHIVE_VIEWS: ArchiveView[] = [
       "**** 0162 İŞYERİ: EMRECAN BUFE",
       "MUTABAKAT: 9414914",
     ],
-    balance: "50.320,92 TL",
   },
   {
     time: "19:04",
     amount: "-48.000,00 TL",
     lines: ["FEVZİ MUTLU Ziraat Mobil Havale"],
-    balance: "51.310,92 TL",
   },
 ];
 
@@ -76,12 +68,6 @@ function findDetailsBox(row: HTMLElement) {
   return Array.from(row.children).find(
     (element): element is HTMLElement =>
       element instanceof HTMLElement && element.querySelector("p") !== null,
-  );
-}
-
-function findBalanceBox(row: HTMLElement) {
-  return Array.from(row.querySelectorAll<HTMLElement>("div")).find((element) =>
-    /Kalan\s+Bakiye/i.test(element.textContent || ""),
   );
 }
 
@@ -137,15 +123,6 @@ function applyArchiveDisplay() {
 
     const archive = findArchiveView(row);
     compactMovementDetails(row, archive);
-
-    if (!archive) continue;
-
-    const balanceBox = findBalanceBox(row);
-    if (balanceBox) {
-      const spans = Array.from(balanceBox.querySelectorAll("span"));
-      const value = spans.at(-1);
-      if (value) value.textContent = archive.balance;
-    }
   }
 }
 
