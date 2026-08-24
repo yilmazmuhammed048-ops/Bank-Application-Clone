@@ -152,6 +152,42 @@ function normalizeState(value: any): State {
   };
 }
 
+function transactionKey(transaction: any) {
+  const value = transaction?.id ?? transaction?.transactionNumber;
+  if (value === undefined || value === null || String(value) === "") return null;
+  return String(value);
+}
+
+function mergeTransactions(current: unknown[], incoming: unknown[]) {
+  const currentKeys = new Set(
+    current
+      .map((transaction) => transactionKey(transaction))
+      .filter((key): key is string => Boolean(key)),
+  );
+  const incomingKeys = new Set(
+    incoming
+      .map((transaction) => transactionKey(transaction))
+      .filter((key): key is string => Boolean(key)),
+  );
+
+  const hasNewTransaction = Array.from(incomingKeys).some(
+    (key) => !currentKeys.has(key),
+  );
+
+  if (!hasNewTransaction) {
+    return incoming;
+  }
+
+  const merged = [...incoming];
+  for (const transaction of current) {
+    const key = transactionKey(transaction);
+    if (key && incomingKeys.has(key)) continue;
+    merged.push(transaction);
+  }
+
+  return merged;
+}
+
 function blobAuth() {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (!token) throw new Error("BLOB_READ_WRITE_TOKEN is missing");
@@ -244,7 +280,7 @@ export default async function handler(req: any, res: any) {
             ? body.account
             : current.account,
         transactions: Array.isArray(body.transactions)
-          ? body.transactions
+          ? mergeTransactions(current.transactions, body.transactions)
           : current.transactions,
       };
 
