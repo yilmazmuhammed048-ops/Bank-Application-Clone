@@ -239,6 +239,7 @@ function showDeleteAction(row: HTMLButtonElement) {
     event.preventDefault();
     event.stopPropagation();
     if (event instanceof MouseEvent) event.stopImmediatePropagation();
+    suppressRowClickUntil = Date.now() + 1200;
     removeTransaction(selected);
     clearOverlay();
     requestAnimationFrame(syncMovementRows);
@@ -382,9 +383,9 @@ if (!isAdminRoute) {
     "click",
     (event) => {
       if (isDeleteTarget(event.target)) return;
-      if (Date.now() >= suppressRowClickUntil || !armedRow) return;
+      if (Date.now() >= suppressRowClickUntil) return;
       const row = rowFromTarget(event.target);
-      if (row !== armedRow) return;
+      if (!row) return;
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
