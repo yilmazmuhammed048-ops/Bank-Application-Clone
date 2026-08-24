@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", scheduleApply);
 window.addEventListener("storage", scheduleApply);
 scheduleApply();
 
-const DEMO_BANNER_ID = "global-demo-test-banner";
+const DEMO_BANNER_ID = "global-demo-test-banner"
 
 
 function installDemoBanner() {
