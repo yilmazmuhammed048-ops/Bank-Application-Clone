@@ -131,6 +131,9 @@ function applyDeletedTransactionFilter(value: string) {
       JSON.stringify(filtered),
     );
 
+    // The remote sync writes the original demo account first. Re-apply the
+    // effect of locally deleted movements so the displayed balance stays
+    // consistent with the filtered movement list.
     let adjustment = 0;
     for (const key of activeDeletedKeys) {
       const transaction = byKey.get(key);
@@ -177,7 +180,7 @@ function removeTransaction(transaction: StoredTransaction) {
     JSON.stringify(remaining),
   );
 
-  // Reverse the deleted movement's effect on the current balance.
+  // Reverse the deleted movement's effect on the current balance immediately.
   adjustStoredAccount(-transactionEffect(transaction));
   window.dispatchEvent(new Event("storage"));
 }
@@ -279,6 +282,11 @@ function deleteIconMarkup() {
 }
 
 function showDeleteAction(row: HTMLButtonElement) {
+  const selected = transactionForRow(row);
+  if (!selected) return;
+  const selectedKey = transactionKey(selected);
+  if (!selectedKey) return;
+
   clearOverlay();
   armedRow = row;
   suppressClickUntil = Date.now() + 1200;
@@ -308,12 +316,21 @@ function showDeleteAction(row: HTMLButtonElement) {
   });
 
   positionOverlay(row, action);
+  let didDelete = false;
 
   const runDelete = (event: Event) => {
     event.preventDefault();
     event.stopPropagation();
+    if (didDelete) return;
+    didDelete = true;
 
-    const transaction = transactionForRow(row);
+    // The React row may be replaced between long-press and the tap on "Sil".
+    // Resolve the transaction by the key captured at long-press time instead
+    // of relying on the old DOM node still being present.
+    const transaction = readTransactions().find(
+      (item) => transactionKey(item) === selectedKey,
+    );
+
     if (!transaction) {
       clearOverlay();
       return;
@@ -354,7 +371,6 @@ function armAfterDelay(row: HTMLButtonElement, x: number, y: number) {
 }
 
 if (!isAdminRoute) {
-  // Touch path: reliable on iOS/Android browsers even when pointer events are quirky.
   document.addEventListener(
     "touchstart",
     (event) => {
@@ -388,7 +404,6 @@ if (!isAdminRoute) {
   document.addEventListener("touchend", () => cancelPress(), true);
   document.addEventListener("touchcancel", () => cancelPress(), true);
 
-  // Mouse/pen path for desktop testing and stylus use.
   document.addEventListener(
     "pointerdown",
     (event) => {
@@ -422,7 +437,6 @@ if (!isAdminRoute) {
   }, true);
   document.addEventListener("pointercancel", cancelPress, true);
 
-  // Prevent the release click after a successful long press from opening the receipt.
   document.addEventListener(
     "click",
     (event) => {
@@ -446,11 +460,15 @@ if (!isAdminRoute) {
   );
 
   window.addEventListener("scroll", () => {
-    if (overlay && armedRow) positionOverlay(armedRow, overlay);
+    if (overlay && armedRow && armedRow.isConnected) {
+      positionOverlay(armedRow, overlay);
+    }
   }, true);
 
   window.addEventListener("resize", () => {
-    if (overlay && armedRow) positionOverlay(armedRow, overlay);
+    if (overlay && armedRow && armedRow.isConnected) {
+      positionOverlay(armedRow, overlay);
+    }
   });
 
   document.addEventListener("visibilitychange", () => {
