@@ -135,10 +135,9 @@ document.addEventListener(
   true,
 );
 
-const receiptDescriptionCanvases = new WeakSet<HTMLCanvasElement>();
-const receiptDescriptionFillText = CanvasRenderingContext2D.prototype.fillText;
+const receiptFastCodeFillText = CanvasRenderingContext2D.prototype.fillText;
 
-CanvasRenderingContext2D.prototype.fillText = function receiptDescriptionLinePatch(
+CanvasRenderingContext2D.prototype.fillText = function receiptFastCodeLabelPatch(
   text: string,
   x: number,
   y: number,
@@ -147,35 +146,24 @@ CanvasRenderingContext2D.prototype.fillText = function receiptDescriptionLinePat
   const next = String(text);
   const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
 
-  if (isReceiptPdfCanvas && x === 106 && y >= 414 && y <= 534) {
-    if (next.startsWith("Fast Mesaj Kodu")) {
-      const transactionNumber =
-        next.match(/Fast\s+Sorgu\s+No\s*:\s*([^\s]+)/i)?.[1]?.trim() || "";
-      const description = transactionNumber
-        ? getStoredDescription(transactionNumber)
-        : "";
+  if (isReceiptPdfCanvas && x === 106 && next.startsWith("Fast Mesaj Kodu")) {
+    this.save();
+    this.fillStyle = "#1f2326";
+    this.textAlign = "left";
+    this.textBaseline = "alphabetic";
+    this.font = '500 15.6px Arial, Helvetica, sans-serif';
 
-      if (description) {
-        receiptDescriptionCanvases.add(this.canvas);
-
-        if (typeof maxWidth === "number") {
-          receiptDescriptionFillText.call(this, description, x, 404, maxWidth);
-          return receiptDescriptionFillText.call(this, next, x, y + 10, maxWidth);
-        }
-
-        receiptDescriptionFillText.call(this, description, x, 404);
-        return receiptDescriptionFillText.call(this, next, x, y + 10);
-      }
-    } else if (receiptDescriptionCanvases.has(this.canvas)) {
-      if (typeof maxWidth === "number") {
-        return receiptDescriptionFillText.call(this, next, x, y + 10, maxWidth);
-      }
-      return receiptDescriptionFillText.call(this, next, x, y + 10);
+    if (typeof maxWidth === "number") {
+      receiptFastCodeFillText.call(this, "124587", x, y - 20, maxWidth);
+    } else {
+      receiptFastCodeFillText.call(this, "124587", x, y - 20);
     }
+
+    this.restore();
   }
 
   if (typeof maxWidth === "number") {
-    return receiptDescriptionFillText.call(this, next, x, y, maxWidth);
+    return receiptFastCodeFillText.call(this, next, x, y, maxWidth);
   }
-  return receiptDescriptionFillText.call(this, next, x, y);
+  return receiptFastCodeFillText.call(this, next, x, y);
 };
