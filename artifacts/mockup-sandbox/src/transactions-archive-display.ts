@@ -185,6 +185,99 @@ if (document.readyState === "loading") {
   installDemoBanner();
 }
 
+// Receipt PDFs are drawn using a 1240x1754 logical canvas. Keep every layout
+// coordinate unchanged, but give that canvas a 2x backing store so text and
+// borders are rasterized at roughly 300 DPI instead of roughly 150 DPI.
+const RECEIPT_LOGICAL_WIDTH = 1240;
+const RECEIPT_LOGICAL_HEIGHT = 1754;
+const RECEIPT_RENDER_SCALE = 2;
+const hiDpiReceiptCanvases = new WeakSet<HTMLCanvasElement>();
+const scaledReceiptContexts = new WeakSet<HTMLCanvasElement>();
+
+const nativeCreateElement = Document.prototype.createElement;
+Document.prototype.createElement = function createElement(
+  tagName: string,
+  options?: ElementCreationOptions,
+) {
+  const element = nativeCreateElement.call(this, tagName, options);
+  if (!(element instanceof HTMLCanvasElement) || tagName.toLowerCase() !== "canvas") {
+    return element;
+  }
+
+  const canvas = element;
+  const widthDescriptor = Object.getOwnPropertyDescriptor(
+    HTMLCanvasElement.prototype,
+    "width",
+  );
+  const heightDescriptor = Object.getOwnPropertyDescriptor(
+    HTMLCanvasElement.prototype,
+    "height",
+  );
+
+  if (
+    !widthDescriptor?.get ||
+    !widthDescriptor.set ||
+    !heightDescriptor?.get ||
+    !heightDescriptor.set
+  ) {
+    return canvas;
+  }
+
+  let receiptWidthRequested = false;
+  let receiptHeightRequested = false;
+
+  Object.defineProperty(canvas, "width", {
+    configurable: true,
+    get() {
+      return widthDescriptor.get!.call(canvas);
+    },
+    set(value: number) {
+      receiptWidthRequested = Number(value) === RECEIPT_LOGICAL_WIDTH;
+      widthDescriptor.set!.call(
+        canvas,
+        receiptWidthRequested ? RECEIPT_LOGICAL_WIDTH * RECEIPT_RENDER_SCALE : value,
+      );
+      if (receiptWidthRequested && receiptHeightRequested) {
+        hiDpiReceiptCanvases.add(canvas);
+      }
+    },
+  });
+
+  Object.defineProperty(canvas, "height", {
+    configurable: true,
+    get() {
+      return heightDescriptor.get!.call(canvas);
+    },
+    set(value: number) {
+      receiptHeightRequested = Number(value) === RECEIPT_LOGICAL_HEIGHT;
+      heightDescriptor.set!.call(
+        canvas,
+        receiptHeightRequested ? RECEIPT_LOGICAL_HEIGHT * RECEIPT_RENDER_SCALE : value,
+      );
+      if (receiptWidthRequested && receiptHeightRequested) {
+        hiDpiReceiptCanvases.add(canvas);
+      }
+    },
+  });
+
+  const nativeGetContext = canvas.getContext.bind(canvas);
+  canvas.getContext = ((contextId: string, contextAttributes?: any) => {
+    const context = nativeGetContext(contextId as any, contextAttributes as any) as any;
+    if (
+      contextId === "2d" &&
+      context &&
+      hiDpiReceiptCanvases.has(canvas) &&
+      !scaledReceiptContexts.has(canvas)
+    ) {
+      context.scale(RECEIPT_RENDER_SCALE, RECEIPT_RENDER_SCALE);
+      scaledReceiptContexts.add(canvas);
+    }
+    return context;
+  }) as typeof canvas.getContext;
+
+  return canvas;
+} as typeof Document.prototype.createElement;
+
 const stampedCanvases = new WeakSet<HTMLCanvasElement>();
 
 function stampDemoCanvas(canvas: HTMLCanvasElement) {
@@ -192,7 +285,10 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   const context = canvas.getContext("2d");
   if (!context) return;
 
+  // Stamping uses physical backing-store pixels. Resetting the transform keeps
+  // the DEMO markings the same visual size even on the 2x receipt canvas.
   context.save();
+  context.setTransform(1, 0, 0, 1, 0, 0);
   context.translate(canvas.width / 2, canvas.height / 2);
   context.rotate(-Math.PI / 7);
   context.textAlign = "center";
@@ -205,6 +301,7 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   context.restore();
 
   context.save();
+  context.setTransform(1, 0, 0, 1, 0, 0);
   const footerHeight = Math.max(58, Math.floor(canvas.height * 0.045));
   context.globalAlpha = 0.95;
   context.fillStyle = "#ffffff";
@@ -231,7 +328,9 @@ HTMLCanvasElement.prototype.toDataURL = function (
   quality?: any,
 ) {
   stampDemoCanvas(this);
-  return nativeToDataURL.call(this, type, quality);
+  const outputQuality =
+    type?.toLowerCase() === "image/jpeg" ? 1 : quality;
+  return nativeToDataURL.call(this, type, outputQuality);
 };
 
 const nativeToBlob = HTMLCanvasElement.prototype.toBlob;
@@ -241,5 +340,7 @@ HTMLCanvasElement.prototype.toBlob = function (
   quality?: any,
 ) {
   stampDemoCanvas(this);
-  return nativeToBlob.call(this, callback, type, quality);
+  const outputQuality =
+    type?.toLowerCase() === "image/jpeg" ? 1 : quality;
+  return nativeToBlob.call(this, callback, type, outputQuality);
 };
