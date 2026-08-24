@@ -147,16 +147,14 @@ document.addEventListener("DOMContentLoaded", scheduleApply);
 window.addEventListener("storage", scheduleApply);
 scheduleApply();
 
-const DEMO_BANNER_ID = "global-demo-test-banner";
-const DEMO_LABEL = "DEMO / TEST — GERÇEK BANKACILIK İŞLEMİ DEĞİLDİR";
 
-function installDemoBanner() {
-  if (!document.body || document.getElementById(DEMO_BANNER_ID)) return;
 
-  const banner = document.createElement("div");
-  banner.id = DEMO_BANNER_ID;
-  banner.textContent = DEMO_LABEL;
-  Object.assign(banner.style, {
+
+
+
+  
+
+ 
     position: "fixed",
     top: "0",
     left: "0",
@@ -179,11 +177,7 @@ function installDemoBanner() {
   document.body.style.paddingTop = "32px";
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", installDemoBanner, { once: true });
-} else {
-  installDemoBanner();
-}
+
 
 // Receipt PDFs are drawn using a 1240x1754 logical canvas. Keep every layout
 // coordinate unchanged, but give that canvas a 2x backing store so text and
@@ -312,7 +306,7 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   context.textBaseline = "middle";
   context.font = `800 ${Math.max(22, Math.floor(canvas.width * 0.022))}px Arial, Helvetica, sans-serif`;
   context.fillText(
-    "DEMO / TEST — GERÇEK BANKACILIK BELGESİ DEĞİLDİR",
+    
     canvas.width / 2,
     canvas.height - footerHeight / 2,
     canvas.width * 0.94,
