@@ -136,6 +136,20 @@ document.addEventListener(
 );
 
 const receiptFastCodeFillText = CanvasRenderingContext2D.prototype.fillText;
+const shiftedReceiptCanvases = new WeakSet<HTMLCanvasElement>();
+
+function drawReceiptText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth?: number,
+) {
+  if (typeof maxWidth === "number") {
+    return receiptFastCodeFillText.call(context, text, x, y, maxWidth);
+  }
+  return receiptFastCodeFillText.call(context, text, x, y);
+}
 
 CanvasRenderingContext2D.prototype.fillText = function receiptFastCodeLabelPatch(
   text: string,
@@ -147,23 +161,61 @@ CanvasRenderingContext2D.prototype.fillText = function receiptFastCodeLabelPatch
   const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
 
   if (isReceiptPdfCanvas && x === 106 && next.startsWith("Fast Mesaj Kodu")) {
+    shiftedReceiptCanvases.add(this.canvas);
+
     this.save();
     this.fillStyle = "#1f2326";
     this.textAlign = "left";
     this.textBaseline = "alphabetic";
     this.font = '500 15.6px Arial, Helvetica, sans-serif';
 
-    if (typeof maxWidth === "number") {
-      receiptFastCodeFillText.call(this, "124587", x, y - 20, maxWidth);
-    } else {
-      receiptFastCodeFillText.call(this, "124587", x, y - 20);
-    }
+    // Put 124587 on the exact row where FAST used to be, then move FAST down
+    // by one full line. This keeps the number clear of the upper box border.
+    drawReceiptText(this, "124587", x, y, maxWidth);
+    drawReceiptText(this, next, x, y + 20, maxWidth);
+
+    // Visible demo marker in the top-right corner of the generated receipt.
+    this.fillStyle = "#b00020";
+    this.textAlign = "right";
+    this.font = '700 24px Arial, Helvetica, sans-serif';
+    drawReceiptText(this, "DEMO", 1170, 68);
 
     this.restore();
+    return;
   }
 
-  if (typeof maxWidth === "number") {
-    return receiptFastCodeFillText.call(this, next, x, y, maxWidth);
+  if (isReceiptPdfCanvas && shiftedReceiptCanvases.has(this.canvas) && x === 106) {
+    const isDetailLine =
+      next.startsWith("Gönderen :") ||
+      next.startsWith("Alan Banka :") ||
+      next.startsWith("Alıcı Hesap :") ||
+      next.startsWith("İşlem Tutarı :") ||
+      next.startsWith("Komisyon :") ||
+      next.startsWith("Toplam Masraf :");
+
+    if (isDetailLine && y >= 430 && y <= 560) {
+      return drawReceiptText(this, next, x, y + 20, maxWidth);
+    }
+
+    const lower = next.trim().toLocaleLowerCase("tr-TR");
+
+    // receipt-fee-policy splits the request into two lines. Keep that block
+    // below the newly shifted detail rows.
+    if (
+      y >= 560 &&
+      y <= 610 &&
+      (lower.includes("tutarında fast işleminin yapılmasını") ||
+        lower.startsWith("tarafıma bildirilen"))
+    ) {
+      return drawReceiptText(this, next, x, y + 18, maxWidth);
+    }
+
+    // drawWrapped used to leave a third orphan continuation containing only
+    // "ederim.". Suppress that duplicate line completely.
+    if (y >= 590 && y <= 640 && (lower === "ederim." || lower === "ederim")) {
+      return;
+    }
   }
-  return receiptFastCodeFillText.call(this, next, x, y);
+
+  return drawReceiptText(this, next, x, y, maxWidth);
 };
