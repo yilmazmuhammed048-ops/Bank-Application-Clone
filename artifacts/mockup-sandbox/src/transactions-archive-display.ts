@@ -169,3 +169,100 @@ observer.observe(document.documentElement, {
 document.addEventListener("DOMContentLoaded", scheduleApply);
 window.addEventListener("storage", scheduleApply);
 scheduleApply();
+
+const DEMO_BANNER_ID = "global-demo-test-banner";
+const DEMO_LABEL = "DEMO / TEST — GERÇEK BANKACILIK İŞLEMİ DEĞİLDİR";
+
+function installDemoBanner() {
+  if (!document.body || document.getElementById(DEMO_BANNER_ID)) return;
+
+  const banner = document.createElement("div");
+  banner.id = DEMO_BANNER_ID;
+  banner.textContent = DEMO_LABEL;
+  Object.assign(banner.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    right: "0",
+    zIndex: "2147483647",
+    height: "32px",
+    lineHeight: "32px",
+    textAlign: "center",
+    background: "#8b0015",
+    color: "#ffffff",
+    fontFamily: "Arial, Helvetica, sans-serif",
+    fontSize: "13px",
+    fontWeight: "800",
+    letterSpacing: "0.6px",
+    boxShadow: "0 1px 6px rgba(0,0,0,0.28)",
+    pointerEvents: "none",
+  });
+
+  document.body.appendChild(banner);
+  document.body.style.paddingTop = "32px";
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", installDemoBanner, { once: true });
+} else {
+  installDemoBanner();
+}
+
+const stampedCanvases = new WeakSet<HTMLCanvasElement>();
+
+function stampDemoCanvas(canvas: HTMLCanvasElement) {
+  if (stampedCanvases.has(canvas)) return;
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  context.save();
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate(-Math.PI / 7);
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.globalAlpha = 0.17;
+  context.fillStyle = "#b00020";
+  const fontSize = Math.max(46, Math.floor(canvas.width * 0.09));
+  context.font = `800 ${fontSize}px Arial, Helvetica, sans-serif`;
+  context.fillText("DEMO / TEST", 0, 0, canvas.width * 0.92);
+  context.restore();
+
+  context.save();
+  const footerHeight = Math.max(58, Math.floor(canvas.height * 0.045));
+  context.globalAlpha = 0.95;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, canvas.height - footerHeight, canvas.width, footerHeight);
+  context.globalAlpha = 1;
+  context.fillStyle = "#8b0015";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = `800 ${Math.max(22, Math.floor(canvas.width * 0.022))}px Arial, Helvetica, sans-serif`;
+  context.fillText(
+    "DEMO / TEST — GERÇEK BANKACILIK BELGESİ DEĞİLDİR",
+    canvas.width / 2,
+    canvas.height - footerHeight / 2,
+    canvas.width * 0.94,
+  );
+  context.restore();
+
+  stampedCanvases.add(canvas);
+}
+
+const nativeToDataURL = HTMLCanvasElement.prototype.toDataURL;
+HTMLCanvasElement.prototype.toDataURL = function (
+  type?: string,
+  quality?: any,
+) {
+  stampDemoCanvas(this);
+  return nativeToDataURL.call(this, type, quality);
+};
+
+const nativeToBlob = HTMLCanvasElement.prototype.toBlob;
+HTMLCanvasElement.prototype.toBlob = function (
+  callback: BlobCallback,
+  type?: string,
+  quality?: any,
+) {
+  stampDemoCanvas(this);
+  return nativeToBlob.call(this, callback, type, quality);
+};
