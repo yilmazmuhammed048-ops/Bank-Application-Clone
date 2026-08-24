@@ -58,9 +58,7 @@ function rowsFromScreen(screen: HTMLElement): Row[] {
   if (!list) return [];
 
   return Array.from(list.children)
-    .filter((element): element is HTMLButtonElement =>
-      element instanceof HTMLButtonElement && element.dataset.messageFeeRow !== "true",
-    )
+    .filter((element): element is HTMLButtonElement => element instanceof HTMLButtonElement)
     .map((button, index) => {
       const divs = Array.from(button.children).filter(
         (element): element is HTMLDivElement => element instanceof HTMLDivElement,
