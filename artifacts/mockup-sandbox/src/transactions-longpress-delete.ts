@@ -83,10 +83,11 @@ function readTransactions(): StoredTransaction[] {
 function adjustStoredAccount(delta: number) {
   try {
     const raw = localStorage.getItem("demo_account");
-    if (!raw) return;
-
-    const account = JSON.parse(raw);
-    const currentBalance = parseAmount(account?.balance);
+    const account = raw ? JSON.parse(raw) : {};
+    const fallbackBalance = localStorage.getItem("demo_balance");
+    const currentBalance = raw
+      ? parseAmount(account?.balance)
+      : parseAmount(fallbackBalance ?? "0");
     const nextBalance = formatBalance(currentBalance + delta);
 
     account.balance = nextBalance;
@@ -164,8 +165,7 @@ function removeTransaction(transaction: StoredTransaction) {
   const key = transactionKey(transaction);
   if (!key) return;
 
-  const deletedKeys = readDeletedKeys();
-  writeDeletedKeys([...deletedKeys, key]);
+  writeDeletedKeys([...readDeletedKeys(), key]);
 
   const remaining = readTransactions().filter(
     (item) => transactionKey(item) !== key,
@@ -177,6 +177,7 @@ function removeTransaction(transaction: StoredTransaction) {
     JSON.stringify(remaining),
   );
 
+  // Reverse the deleted movement's effect on the current balance.
   adjustStoredAccount(-transactionEffect(transaction));
   window.dispatchEvent(new Event("storage"));
 }
@@ -215,22 +216,62 @@ function sortedTransactions() {
     });
 }
 
-function clearDeleteActions(except?: HTMLElement) {
-  document
-    .querySelectorAll<HTMLElement>("[data-longpress-delete-action='true']")
-    .forEach((action) => {
-      if (action === except) return;
-      const row = action.parentElement;
-      if (row instanceof HTMLElement) {
-        delete row.dataset.longPressDeleteArmed;
-      }
-      action.remove();
-    });
+function transactionForRow(row: HTMLButtonElement) {
+  const rows = movementRows();
+  const index = rows.indexOf(row);
+  if (index < 0) return null;
+  return sortedTransactions()[index] ?? null;
+}
+
+function rowFromTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) return null;
+  const row = target.closest("button");
+  if (!(row instanceof HTMLButtonElement)) return null;
+
+  const list = movementList();
+  if (!list || row.parentElement !== list) return null;
+  if (row.dataset.messageFeeRow === "true") return null;
+  return row;
+}
+
+let overlay: HTMLDivElement | null = null;
+let armedRow: HTMLButtonElement | null = null;
+let suppressClickUntil = 0;
+let pressTimer: number | null = null;
+let pressRow: HTMLButtonElement | null = null;
+let startX = 0;
+let startY = 0;
+
+function cancelPress() {
+  if (pressTimer !== null) {
+    window.clearTimeout(pressTimer);
+    pressTimer = null;
+  }
+  pressRow = null;
+}
+
+function clearOverlay() {
+  overlay?.remove();
+  overlay = null;
+  armedRow = null;
+}
+
+function positionOverlay(row: HTMLButtonElement, action: HTMLDivElement) {
+  const rect = row.getBoundingClientRect();
+  const width = Math.min(86, Math.max(72, rect.width * 0.22));
+
+  Object.assign(action.style, {
+    position: "fixed",
+    left: `${Math.max(0, rect.right - width)}px`,
+    top: `${rect.top}px`,
+    width: `${width}px`,
+    height: `${rect.height}px`,
+  });
 }
 
 function deleteIconMarkup() {
   return `
-    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span style="font-size:11px;font-weight:800;line-height:1">Sil</span>
@@ -238,23 +279,19 @@ function deleteIconMarkup() {
 }
 
 function showDeleteAction(row: HTMLButtonElement) {
-  clearDeleteActions();
+  clearOverlay();
+  armedRow = row;
+  suppressClickUntil = Date.now() + 1200;
 
   const action = document.createElement("div");
-  action.dataset.longpressDeleteAction = "true";
-  action.setAttribute("data-longpress-delete-action", "true");
+  action.setAttribute("data-demo-longpress-delete", "true");
   action.setAttribute("role", "button");
   action.setAttribute("tabindex", "0");
   action.setAttribute("aria-label", "Hareketi sil");
   action.innerHTML = deleteIconMarkup();
 
   Object.assign(action.style, {
-    position: "absolute",
-    top: "0",
-    right: "0",
-    bottom: "0",
-    width: "78px",
-    zIndex: "30",
+    zIndex: "2147483646",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -266,151 +303,160 @@ function showDeleteAction(row: HTMLButtonElement) {
     userSelect: "none",
     WebkitUserSelect: "none",
     touchAction: "manipulation",
+    borderRadius: "0 9px 9px 0",
+    boxShadow: "-2px 0 5px rgba(0,0,0,0.08)",
   });
+
+  positionOverlay(row, action);
 
   const runDelete = (event: Event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const key = row.dataset.transactionKey || "";
-    const transaction = readTransactions().find(
-      (item) => transactionKey(item) === key,
-    );
-
+    const transaction = transactionForRow(row);
     if (!transaction) {
-      clearDeleteActions();
+      clearOverlay();
       return;
     }
 
     removeTransaction(transaction);
-    clearDeleteActions();
+    clearOverlay();
   };
 
-  action.addEventListener("pointerdown", (event) => {
-    event.stopPropagation();
-  });
   action.addEventListener("click", runDelete);
+  action.addEventListener("touchend", (event) => {
+    event.preventDefault();
+    runDelete(event);
+  });
   action.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      runDelete(event);
-    }
+    if (event.key === "Enter" || event.key === " ") runDelete(event);
   });
 
-  row.dataset.longPressDeleteArmed = "true";
-  row.dataset.longPressSuppressUntil = String(Date.now() + 900);
-  row.appendChild(action);
+  document.body.appendChild(action);
+  overlay = action;
 
   try {
     navigator.vibrate?.(18);
   } catch {}
 }
 
-function bindLongPress(row: HTMLButtonElement) {
-  if (row.dataset.longPressDeleteBound === "true") return;
-  row.dataset.longPressDeleteBound = "true";
+function armAfterDelay(row: HTMLButtonElement, x: number, y: number) {
+  clearOverlay();
+  cancelPress();
+  pressRow = row;
+  startX = x;
+  startY = y;
+  pressTimer = window.setTimeout(() => {
+    pressTimer = null;
+    pressRow = null;
+    showDeleteAction(row);
+  }, 560);
+}
 
-  let timer: number | null = null;
-  let startX = 0;
-  let startY = 0;
-
-  const cancelTimer = () => {
-    if (timer !== null) {
-      window.clearTimeout(timer);
-      timer = null;
-    }
-  };
-
-  row.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0) return;
-
-    clearDeleteActions();
-    startX = event.clientX;
-    startY = event.clientY;
-    cancelTimer();
-
-    timer = window.setTimeout(() => {
-      timer = null;
-      showDeleteAction(row);
-    }, 620);
-  });
-
-  row.addEventListener("pointermove", (event) => {
-    if (timer === null) return;
-
-    if (
-      Math.abs(event.clientX - startX) > 12 ||
-      Math.abs(event.clientY - startY) > 12
-    ) {
-      cancelTimer();
-    }
-  });
-
-  row.addEventListener("pointerup", cancelTimer);
-  row.addEventListener("pointercancel", cancelTimer);
-  row.addEventListener("pointerleave", cancelTimer);
-
-  row.addEventListener("contextmenu", (event) => {
-    event.preventDefault();
-  });
-
-  row.addEventListener(
-    "click",
+if (!isAdminRoute) {
+  // Touch path: reliable on iOS/Android browsers even when pointer events are quirky.
+  document.addEventListener(
+    "touchstart",
     (event) => {
-      const target = event.target as Element | null;
-      if (target?.closest("[data-longpress-delete-action='true']")) return;
+      if (event.touches.length !== 1) return;
+      const row = rowFromTarget(event.target);
+      if (!row) {
+        clearOverlay();
+        return;
+      }
+      const touch = event.touches[0];
+      armAfterDelay(row, touch.clientX, touch.clientY);
+    },
+    { passive: true, capture: true },
+  );
 
-      const suppressUntil = Number(
-        row.dataset.longPressSuppressUntil || "0",
-      );
-
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      if (pressTimer === null || !pressRow || event.touches.length !== 1) return;
+      const touch = event.touches[0];
       if (
-        row.dataset.longPressDeleteArmed === "true" ||
-        Date.now() < suppressUntil
+        Math.abs(touch.clientX - startX) > 14 ||
+        Math.abs(touch.clientY - startY) > 14
       ) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        clearDeleteActions();
+        cancelPress();
+      }
+    },
+    { passive: true, capture: true },
+  );
+
+  document.addEventListener("touchend", () => cancelPress(), true);
+  document.addEventListener("touchcancel", () => cancelPress(), true);
+
+  // Mouse/pen path for desktop testing and stylus use.
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (event.pointerType === "touch" || event.button !== 0) return;
+      const row = rowFromTarget(event.target);
+      if (!row) {
+        clearOverlay();
+        return;
+      }
+      armAfterDelay(row, event.clientX, event.clientY);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (event.pointerType === "touch" || pressTimer === null || !pressRow) return;
+      if (
+        Math.abs(event.clientX - startX) > 14 ||
+        Math.abs(event.clientY - startY) > 14
+      ) {
+        cancelPress();
       }
     },
     true,
   );
-}
 
-function applyLongPressDelete() {
-  if (isAdminRoute) return;
+  document.addEventListener("pointerup", (event) => {
+    if (event.pointerType !== "touch") cancelPress();
+  }, true);
+  document.addEventListener("pointercancel", cancelPress, true);
 
-  const rows = movementRows();
-  const transactions = sortedTransactions();
+  // Prevent the release click after a successful long press from opening the receipt.
+  document.addEventListener(
+    "click",
+    (event) => {
+      if (Date.now() >= suppressClickUntil || !armedRow) return;
+      const row = rowFromTarget(event.target);
+      if (row !== armedRow) return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    },
+    true,
+  );
 
-  rows.forEach((row, index) => {
-    const transaction = transactions[index];
-    if (!transaction) return;
+  document.addEventListener(
+    "contextmenu",
+    (event) => {
+      const row = rowFromTarget(event.target);
+      if (row) event.preventDefault();
+    },
+    true,
+  );
 
-    row.dataset.transactionKey = transactionKey(transaction);
-    bindLongPress(row);
+  window.addEventListener("scroll", () => {
+    if (overlay && armedRow) positionOverlay(armedRow, overlay);
+  }, true);
+
+  window.addEventListener("resize", () => {
+    if (overlay && armedRow) positionOverlay(armedRow, overlay);
   });
-}
 
-let scheduled = false;
-function scheduleApply() {
-  if (scheduled || isAdminRoute) return;
-  scheduled = true;
-
-  requestAnimationFrame(() => {
-    scheduled = false;
-    applyLongPressDelete();
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      cancelPress();
+      clearOverlay();
+    }
   });
-}
-
-if (!isAdminRoute) {
-  const observer = new MutationObserver(scheduleApply);
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  document.addEventListener("DOMContentLoaded", scheduleApply);
-  window.addEventListener("storage", scheduleApply);
-  scheduleApply();
 }
