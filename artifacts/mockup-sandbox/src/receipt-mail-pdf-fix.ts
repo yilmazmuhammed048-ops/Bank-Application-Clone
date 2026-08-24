@@ -6,6 +6,7 @@ export {};
 type StoredTransaction = {
   id: string;
   title: string;
+  description: string;
   amount: number;
   date: string;
   time: string;
@@ -30,6 +31,22 @@ function pick(text: string, pattern: RegExp) {
   return text.match(pattern)?.[1]?.trim() || "";
 }
 
+function getStoredDescription(transactionNumber: string) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem("demo_transactions") || "[]");
+    if (!Array.isArray(parsed)) return "";
+
+    const transaction = parsed.find(
+      (item) =>
+        String(item?.transactionNumber ?? item?.id ?? "") === transactionNumber,
+    );
+
+    return String(transaction?.description ?? "").trim();
+  } catch {
+    return "";
+  }
+}
+
 function syncOpenReceiptToStorage(screen: HTMLElement) {
   const text = screen.innerText || screen.textContent || "";
 
@@ -50,6 +67,9 @@ function syncOpenReceiptToStorage(screen: HTMLElement) {
   const tx: StoredTransaction = {
     id: transactionNumber,
     title: incoming ? "FAST Gelen" : "FAST Giden",
+    description:
+      getStoredDescription(transactionNumber) ||
+      pick(text, /Açıklama\s*:?\s*([^\n]+)/i),
     amount,
     date: dateTime?.[1]?.trim() || pick(text, /VALÖR\s*:?\s*([^\n]+)/i),
     time: dateTime?.[2]?.trim() || "00:00",
@@ -114,3 +134,48 @@ document.addEventListener(
   },
   true,
 );
+
+const receiptDescriptionCanvases = new WeakSet<HTMLCanvasElement>();
+const receiptDescriptionFillText = CanvasRenderingContext2D.prototype.fillText;
+
+CanvasRenderingContext2D.prototype.fillText = function receiptDescriptionLinePatch(
+  text: string,
+  x: number,
+  y: number,
+  maxWidth?: number,
+) {
+  const next = String(text);
+  const isReceiptPdfCanvas = this.canvas?.width === 1240 && this.canvas?.height === 1754;
+
+  if (isReceiptPdfCanvas && x === 106 && y >= 414 && y <= 534) {
+    if (next.startsWith("Fast Mesaj Kodu")) {
+      const transactionNumber =
+        next.match(/Fast\s+Sorgu\s+No\s*:\s*([^\s]+)/i)?.[1]?.trim() || "";
+      const description = transactionNumber
+        ? getStoredDescription(transactionNumber)
+        : "";
+
+      if (description) {
+        receiptDescriptionCanvases.add(this.canvas);
+
+        if (typeof maxWidth === "number") {
+          receiptDescriptionFillText.call(this, description, x, 404, maxWidth);
+          return receiptDescriptionFillText.call(this, next, x, y + 10, maxWidth);
+        }
+
+        receiptDescriptionFillText.call(this, description, x, 404);
+        return receiptDescriptionFillText.call(this, next, x, y + 10);
+      }
+    } else if (receiptDescriptionCanvases.has(this.canvas)) {
+      if (typeof maxWidth === "number") {
+        return receiptDescriptionFillText.call(this, next, x, y + 10, maxWidth);
+      }
+      return receiptDescriptionFillText.call(this, next, x, y + 10);
+    }
+  }
+
+  if (typeof maxWidth === "number") {
+    return receiptDescriptionFillText.call(this, next, x, y, maxWidth);
+  }
+  return receiptDescriptionFillText.call(this, next, x, y);
+};
