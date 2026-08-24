@@ -322,7 +322,7 @@ async function canvasFor(transaction: ReceiptTx) {
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.font = `700 25px ${FONT}`;
-  CORE_FILL_TEXT.call(context, "DEMO", 1117, 66);
+  
   context.restore();
 
   context.fillStyle = C_TEXT;
