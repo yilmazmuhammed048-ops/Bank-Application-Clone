@@ -1,20 +1,425 @@
 export {};
 
-type Row={date:string;time:string;description:string;amount:string;balance:string;receiptNo:string};
-const PTW=595.28,PTH=841.89,CW=1240,CH=1754;
-const LOGO="data:image/jpeg;base64,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";
-const M:Record<string,string>={OCA:"01",ŞUB:"02",SUB:"02",MAR:"03",NİS:"04",NIS:"04",MAY:"05",HAZ:"06",TEM:"07",AĞU:"08",AGU:"08",EYL:"09",EKİ:"10",EKI:"10",KAS:"11",ARA:"12"};
-const font='"Times New Roman", Times, serif';
-function dateOf(d:string,m:string){return `${String(d).padStart(2,"0")}.${M[m.toLocaleUpperCase("tr-TR")]||"01"}.${new Date().getFullYear()}`}
-function num(v:string){const n=Number(v.replace(/TL/gi,"").replace(/\s/g,"").replace(/\./g,"").replace(",",".").replace(/[^\d+-.]/g,""));return Number.isFinite(n)?n:0}
-function fmt(n:number){return n.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function rows(screen:HTMLElement):Row[]{const f=screen.querySelector<HTMLButtonElement>('button[aria-label="Filtre"]'),list=f?.parentElement?.nextElementSibling as HTMLElement|null;if(!list)return[];return Array.from(list.children).filter((e):e is HTMLButtonElement=>e instanceof HTMLButtonElement).map((b,i)=>{const ds=Array.from(b.children).filter((e):e is HTMLDivElement=>e instanceof HTMLDivElement),db=ds[0],tb=ds.find(d=>d.querySelector("p")),ab=ds.find(d=>/[+-]?\s*[\d.]+,\d{2}\s*TL/i.test(d.textContent||"")&&!/Kalan Bakiye/i.test(d.textContent||"")),bb=ds.find(d=>/Kalan Bakiye/i.test(d.textContent||""));if(!db||!tb||!ab||!bb)return null;const s=Array.from(db.querySelectorAll("span")),ps=Array.from(tb.querySelectorAll("p")),amt=(ab.textContent||"").match(/[+-]?\s*[\d.]+,\d{2}/)?.[0]?.replace(/\s/g,"")||"0,00",bs=Array.from(bb.querySelectorAll("span")),bal=(bs.length?bs[bs.length-1].textContent:bb.textContent)||"";return{date:dateOf(s[0]?.textContent?.trim()||"",s[1]?.textContent?.trim()||""),time:s[2]?.textContent?.trim()||"",description:ps.map(p=>p.textContent?.trim()||"").filter(Boolean).join(" "),amount:amt,balance:bal.replace(/Kalan Bakiye|TL/gi,"").trim(),receiptNo:`F${41071+i*221}`}}).filter((r):r is Row=>!!r)}
-function wrap(c:CanvasRenderingContext2D,t:string,w:number){const out:string[]=[],a=t.split(/\s+/);let l="";for(const x of a){const n=l?`${l} ${x}`:x;if(c.measureText(n).width<=w)l=n;else{if(l)out.push(l);l=x;if(out.length===1)break}}if(out.length<2&&l)out.push(l);return out.slice(0,2)}
-function logo(){return new Promise<HTMLImageElement|null>(r=>{const i=new Image();let d=false,f=(v:HTMLImageElement|null)=>{if(!d){d=true;r(v)}};i.onload=()=>f(i);i.onerror=()=>f(null);i.src=LOGO;setTimeout(()=>f(null),1200)})}
-async function page(rs:Row[],period:string,tot:{debit:number;credit:number},p:number,pc:number){const x=document.createElement("canvas");x.width=CW;x.height=CH;const c=x.getContext("2d");if(!c)throw Error("canvas");c.fillStyle="#fff";c.fillRect(0,0,CW,CH);const im=await logo();if(im)c.drawImage(im,48,42,290,76);else{c.fillStyle="#d4001d";c.fillRect(50,55,12,48);c.fillStyle="#111";c.font=`700 28px ${font}`;c.fillText("Ziraat Bankası",72,88)}c.fillStyle="#c6001d";c.textAlign="right";c.font="700 14px Arial";c.textAlign="left";c.strokeStyle="#444";c.lineWidth=1.4;c.strokeRect(46,132,1148,150);c.fillStyle="#111";c.font=`700 16px ${font}`;[["Sayın",52,158],["Adres",52,217],["Şube Kodu",700,158],["Müşteri/Hesap No",700,184],["IBAN",700,210],["Döviz Cinsi",700,236],["Dönem",700,262]].forEach(v=>c.fillText(String(v[0]),Number(v[1]),Number(v[2])));c.font=`400 16px ${font}`;[[":  MUHAMMED YILMAZ",125,158],[":  FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 /3 ÜRGÜP",125,217],["   NEVŞEHİR",125,241],[":  ZİRAAT SÜPER ŞUBE",865,158],[":  104120627-5001",865,184],[":  TR31000110412062705001",865,210],[":  TRY",865,236],[`:  ${period}`,865,262]].forEach(v=>c.fillText(String(v[0]),Number(v[1]),Number(v[2])));const ty=305;c.fillStyle="#d8d8d8";c.fillRect(46,ty,1148,31);c.strokeStyle="#444";c.strokeRect(46,ty,1148,31);c.fillStyle="#111";c.font=`700 16px ${font}`;[["Tarih",52],["Fiş No",165],["Açıklama",300],["Tutar",1000],["Bakiye",1110]].forEach(v=>c.fillText(String(v[0]),Number(v[1]),ty+22));let y=ty+31;for(const r of rs){c.font=`400 15px ${font}`;const ls=wrap(c,`${r.description}${r.time?` / ${r.time}`:""}`,650),h=ls.length>1?39:29,b=y+19;c.fillText(r.date,52,b);c.fillText(r.receiptNo,165,b);ls.forEach((q,j)=>c.fillText(q,300,b+j*17));c.textAlign="right";c.fillText(r.amount,1082,b);c.fillText(r.balance,1180,b);c.textAlign="left";y+=h}const z=y+4;c.font=`700 16px ${font}`;c.fillText("Borç:",165,z+18);c.fillText("Alacak:",165,z+41);c.textAlign="right";c.fillText(`-${fmt(tot.debit)}`,1082,z+18);c.fillText(fmt(tot.credit),1082,z+41);c.textAlign="left";const bottom=z+51;c.strokeRect(46,ty,1148,bottom-ty);c.font=`400 9px ${font}`;c.fillText("Hesap hareketleri uygulamadaki mevcut hareket listesini baz alır.",48,bottom+51);c.textAlign="center";c.fillStyle="#777";c.font=`400 10px ${font}`;c.fillText(`${p} / ${pc}`,CW/2,CH-34);return x}
-function jpg(c:HTMLCanvasElement){const d=c.toDataURL("image/jpeg",.94).split(",")[1],b=atob(d),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
-function join(a:Uint8Array[]){const n=a.reduce((s,v)=>s+v.length,0),o=new Uint8Array(n);let p=0;for(const v of a){o.set(v,p);p+=v.length}return o}
-function pdf(cs:HTMLCanvasElement[]){const e=new TextEncoder(),a:Uint8Array[]=[],off:number[]=[],obj=2+cs.length*3;let n=0;const t=(s:string)=>{const b=e.encode(s);a.push(b);n+=b.length},u=(b:Uint8Array)=>{a.push(b);n+=b.length};t("%PDF-1.4\n%âãÏÓ\n");off[1]=n;t("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");off[2]=n;t(`2 0 obj\n<< /Type /Pages /Count ${cs.length} /Kids [${cs.map((_,i)=>`${3+i*3} 0 R`).join(" ")}] >>\nendobj\n`);cs.forEach((c,i)=>{const p=3+i*3,img=p+1,con=p+2,name=`Im${i+1}`,j=jpg(c);off[p]=n;t(`${p} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PTW} ${PTH}] /Resources << /XObject << /${name} ${img} 0 R >> >> /Contents ${con} 0 R >>\nendobj\n`);off[img]=n;t(`${img} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${CW} /Height ${CH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${j.length} >>\nstream\n`);u(j);t("\nendstream\nendobj\n");const s=`q\n${PTW} 0 0 ${PTH} 0 0 cm\n/${name} Do\nQ\n`,b=e.encode(s);off[con]=n;t(`${con} 0 obj\n<< /Length ${b.length} >>\nstream\n`);u(b);t("endstream\nendobj\n")});const xr=n;t(`xref\n0 ${obj+1}\n0000000000 65535 f \n`);for(let i=1;i<=obj;i++)t(`${String(off[i]||0).padStart(10,"0")} 00000 n \n`);t(`trailer\n<< /Size ${obj+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`);return new Blob([join(a)],{type:"application/pdf"})}
-function open(b:Blob){const d=new Date(),s=`${String(d.getDate()).padStart(2,"0")}${String(d.getMonth()+1).padStart(2,"0")}${d.getFullYear()}`,url=URL.createObjectURL(b),a=document.createElement("a");a.href=url;a.download=`Hesap_Hareketleri_${s}.pdf`;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000)}
-let busy=false;async function run(screen:HTMLElement){if(busy)return;busy=true;try{const r=rows(screen);if(!r.length)throw Error("rows");const dates=r.map(x=>x.date),period=`${dates[dates.length-1]}-${dates[0]}`,debit=r.reduce((s,x)=>s+(num(x.amount)<0?Math.abs(num(x.amount)):0),0),credit=r.reduce((s,x)=>s+(num(x.amount)>0?num(x.amount):0),0),per=13,pc=Math.ceil(r.length/per),cs:HTMLCanvasElement[]=[];for(let i=0;i<pc;i++)cs.push(await page(r.slice(i*per,(i+1)*per),period,{debit,credit},i+1,pc));open(pdf(cs))}catch(e){console.error("PDF export failed",e);window.alert("Hesap hareketleri PDF'i oluşturulamadı. Lütfen tekrar deneyin.")}finally{busy=false}}
-document.addEventListener("click",e=>{const t=e.target;if(!(t instanceof Element))return;const b=t.closest<HTMLButtonElement>('button[aria-label="Mesajlar"]');if(!b)return;const s=b.closest<HTMLElement>(".min-h-screen");if(!s?.querySelector('button[aria-label="Filtre"]'))return;e.preventDefault();e.stopImmediatePropagation();void run(s)},true);
+type Row = {
+  date: string;
+  time: string;
+  description: string;
+  amount: string;
+  balance: string;
+  receiptNo: string;
+};
+
+const PTW = 595.28;
+const PTH = 841.89;
+const DPI = 300;
+const PX = DPI / 72;
+const CW = Math.round(PTW * PX);
+const CH = Math.round(PTH * PX);
+const FONT = '"Times New Roman", Times, serif';
+const UI_FONT = 'Arial, Helvetica, sans-serif';
+const DEMO_LABEL = "DEMO / ÖRNEK - GERÇEK BANKA BELGESİ DEĞİLDİR";
+
+const MONTHS: Record<string, string> = {
+  OCA: "01", OCAK: "01", ŞUB: "02", ŞUBAT: "02", SUB: "02", SUBAT: "02",
+  MAR: "03", MART: "03", NİS: "04", NİSAN: "04", NIS: "04", NISAN: "04",
+  MAY: "05", MAYIS: "05", HAZ: "06", HAZİRAN: "06", HAZIRAN: "06",
+  TEM: "07", TEMMUZ: "07", AĞU: "08", AĞUSTOS: "08", AGU: "08", AGUSTOS: "08",
+  EYL: "09", EYLÜL: "09", EYLUL: "09", EKİ: "10", EKİM: "10", EKI: "10", EKIM: "10",
+  KAS: "11", KASIM: "11", ARA: "12", ARALIK: "12",
+};
+
+function dateOf(day: string, month: string) {
+  const key = month.toLocaleUpperCase("tr-TR");
+  return `${String(day).padStart(2, "0")}.${MONTHS[key] || "01"}.${new Date().getFullYear()}`;
+}
+
+function numberOf(value: string) {
+  const number = Number(
+    value
+      .replace(/TL|TRY/gi, "")
+      .replace(/\s/g, "")
+      .replace(/\./g, "")
+      .replace(",", ".")
+      .replace(/[^\d+-.]/g, ""),
+  );
+  return Number.isFinite(number) ? number : 0;
+}
+
+function money(value: number) {
+  return value.toLocaleString("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function rowsFromScreen(screen: HTMLElement): Row[] {
+  const filter = screen.querySelector<HTMLButtonElement>('button[aria-label="Filtre"]');
+  const list = filter?.parentElement?.nextElementSibling as HTMLElement | null;
+  if (!list) return [];
+
+  return Array.from(list.children)
+    .filter((element): element is HTMLButtonElement =>
+      element instanceof HTMLButtonElement && element.dataset.messageFeeRow !== "true",
+    )
+    .map((button, index) => {
+      const divs = Array.from(button.children).filter(
+        (element): element is HTMLDivElement => element instanceof HTMLDivElement,
+      );
+      const dateBox = divs[0];
+      const textBox = divs.find((div) => div.querySelector("p"));
+      const amountBox = divs.find(
+        (div) => /[+-]?\s*[\d.]+,\d{2}\s*TL/i.test(div.textContent || "") &&
+          !/Kalan Bakiye/i.test(div.textContent || ""),
+      );
+      const balanceBox = divs.find((div) => /Kalan Bakiye/i.test(div.textContent || ""));
+      if (!dateBox || !textBox || !amountBox || !balanceBox) return null;
+
+      const spans = Array.from(dateBox.querySelectorAll("span"));
+      const paragraphs = Array.from(textBox.querySelectorAll("p"));
+      const amount = (amountBox.textContent || "").match(/[+-]?\s*[\d.]+,\d{2}/)?.[0]?.replace(/\s/g, "") || "0,00";
+      const balanceSpans = Array.from(balanceBox.querySelectorAll("span"));
+      const balanceText = (balanceSpans.length
+        ? balanceSpans[balanceSpans.length - 1].textContent
+        : balanceBox.textContent) || "";
+
+      return {
+        date: dateOf(spans[0]?.textContent?.trim() || "", spans[1]?.textContent?.trim() || ""),
+        time: spans[2]?.textContent?.trim() || "",
+        description: paragraphs.map((p) => p.textContent?.trim() || "").filter(Boolean).join(" "),
+        amount,
+        balance: balanceText.replace(/Kalan Bakiye|TL/gi, "").trim(),
+        receiptNo: `F${41071 + index * 221}`,
+      } satisfies Row;
+    })
+    .filter((row): row is Row => !!row);
+}
+
+function image(src: string) {
+  return new Promise<HTMLImageElement | null>((resolve) => {
+    const img = new Image();
+    let done = false;
+    const finish = (value: HTMLImageElement | null) => {
+      if (done) return;
+      done = true;
+      resolve(value);
+    };
+    img.onload = () => finish(img);
+    img.onerror = () => finish(null);
+    img.src = src;
+    window.setTimeout(() => finish(null), 1200);
+  });
+}
+
+function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function wrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
+  const output: string[] = [];
+  const words = text.split(/\s+/).filter(Boolean);
+  let line = "";
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (ctx.measureText(candidate).width <= width) {
+      line = candidate;
+    } else {
+      if (line) output.push(line);
+      line = word;
+      if (output.length === 1) break;
+    }
+  }
+  if (output.length < 2 && line) output.push(line);
+  return output.slice(0, 2);
+}
+
+function rowHeight(ctx: CanvasRenderingContext2D, row: Row) {
+  ctx.font = `400 7.2px ${FONT}`;
+  return wrap(ctx, `${row.description}${row.time ? ` / ${row.time}` : ""}`, 313).length > 1 ? 18.7 : 13.9;
+}
+
+function paginate(all: Row[]) {
+  const scratch = document.createElement("canvas").getContext("2d")!;
+  const pages: Row[][] = [];
+  let current: Row[] = [];
+  let used = 0;
+  const maxBody = 425;
+
+  for (const row of all) {
+    const height = rowHeight(scratch, row);
+    if (current.length && used + height > maxBody) {
+      pages.push(current);
+      current = [];
+      used = 0;
+    }
+    current.push(row);
+    used += height;
+  }
+  if (current.length) pages.push(current);
+  return pages;
+}
+
+async function renderPage(
+  pageRows: Row[],
+  period: string,
+  totals: { debit: number; credit: number },
+  isLast: boolean,
+) {
+  const canvas = document.createElement("canvas");
+  canvas.width = CW;
+  canvas.height = CH;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas");
+  ctx.scale(PX, PX);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, PTW, PTH);
+
+  const logo = await image("/ziraat-amblem.jpg");
+  if (logo && logo.naturalWidth > 0 && logo.naturalHeight > 0) {
+    const h = 25;
+    const w = h * (logo.naturalWidth / logo.naturalHeight);
+    ctx.drawImage(logo, 23, 14, w, h);
+    ctx.fillStyle = "#111";
+    ctx.font = `700 15.2px ${UI_FONT}`;
+    ctx.fillText("Ziraat Bankası", 24 + w + 2.5, 31.5);
+  } else {
+    ctx.fillStyle = "#d4001d";
+    ctx.fillRect(23, 16, 6, 23);
+    ctx.fillStyle = "#111";
+    ctx.font = `700 15.2px ${UI_FONT}`;
+    ctx.fillText("Ziraat Bankası", 32, 31.5);
+  }
+
+  ctx.strokeStyle = "#4b4b4b";
+  ctx.lineWidth = 0.75;
+  ctx.strokeRect(22, 59.2, 551.5, 73.2);
+
+  ctx.fillStyle = "#111";
+  ctx.font = `700 7.7px ${FONT}`;
+  const bold: Array<[string, number, number]> = [
+    ["Sayın", 24.8, 71.8], ["Adres", 24.8, 96.4],
+    ["Şube Kodu", 341, 71.8], ["Müşteri/Hesap No", 341, 84.3],
+    ["IBAN", 341, 96.8], ["Döviz Cinsi", 341, 109.3], ["Dönem", 341, 121.8],
+  ];
+  bold.forEach(([text, x, y]) => ctx.fillText(text, x, y));
+
+  ctx.font = `400 7.7px ${FONT}`;
+  const normal: Array<[string, number, number]> = [
+    [":  MUHAMMED YILMAZ", 60.3, 71.8],
+    [":  FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 /3 ÜRGÜP", 60.3, 96.4],
+    ["   NEVŞEHİR", 60.3, 108.5],
+    [":  ZİRAAT SÜPER ŞUBE", 421, 71.8],
+    [":  104120627-5001", 421, 84.3],
+    [":  TR31000110412062705001", 421, 96.8],
+    [":  TRY", 421, 109.3],
+    [`:  ${period}`, 421, 121.8],
+  ];
+  normal.forEach(([text, x, y]) => ctx.fillText(text, x, y));
+
+  const tableX = 22;
+  const tableY = 144;
+  const tableW = 551.5;
+  const headerH = 15;
+  ctx.fillStyle = "#d7d7d7";
+  ctx.fillRect(tableX, tableY, tableW, headerH);
+  ctx.strokeStyle = "#4b4b4b";
+  ctx.strokeRect(tableX, tableY, tableW, headerH);
+  ctx.fillStyle = "#111";
+  ctx.font = `700 7.7px ${FONT}`;
+  [["Tarih", 24.8], ["Fiş No", 79.5], ["Açıklama", 144], ["Tutar", 492], ["Bakiye", 542]].forEach(([t, x]) => {
+    ctx.fillText(String(t), Number(x), tableY + 10.7);
+  });
+
+  let y = tableY + headerH;
+  for (const row of pageRows) {
+    ctx.font = `400 7.2px ${FONT}`;
+    const lines = wrap(ctx, `${row.description}${row.time ? ` / ${row.time}` : ""}`, 313);
+    const height = lines.length > 1 ? 18.7 : 13.9;
+    const baseline = y + 9.2;
+    ctx.fillText(row.date, 24.8, baseline);
+    ctx.fillText(row.receiptNo, 79.5, baseline);
+    lines.forEach((line, index) => ctx.fillText(line, 144, baseline + index * 8.2));
+    ctx.textAlign = "right";
+    ctx.fillText(row.amount, 527, baseline);
+    ctx.fillText(row.balance, 567, baseline);
+    ctx.textAlign = "left";
+    y += height;
+  }
+
+  if (isLast) {
+    y += 2;
+    ctx.font = `700 7.7px ${FONT}`;
+    ctx.fillText("Borç:", 79.5, y + 10);
+    ctx.fillText("Alacak:", 79.5, y + 21.5);
+    ctx.textAlign = "right";
+    ctx.fillText(`-${money(totals.debit)}`, 527, y + 10);
+    ctx.fillText(money(totals.credit), 527, y + 21.5);
+    ctx.textAlign = "left";
+    y += 26;
+  }
+
+  ctx.strokeStyle = "#4b4b4b";
+  ctx.strokeRect(tableX, tableY, tableW, Math.max(16, y - tableY));
+
+  const footerY = Math.min(745, y + 20);
+  ctx.fillStyle = "#171717";
+  ctx.font = `400 4.4px ${FONT}`;
+  ctx.fillText(
+    "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri, müstenitli olsun olmasın, kesin ve aksi ileri sürülemez delil niteliğindedir.",
+    22,
+    footerY,
+    552,
+  );
+  ctx.fillText("Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye İstanbul", 22, footerY + 7);
+  ctx.fillText("Ticaret Sicil No: 475225-5", 22, footerY + 14);
+  ctx.fillText("www.ziraatbank.com.tr", 22, footerY + 21);
+
+  ctx.save();
+  roundedRect(ctx, 150, 795, 295, 25, 4);
+  ctx.fillStyle = "rgba(255,255,255,.96)";
+  ctx.fill();
+  ctx.strokeStyle = "#b00020";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = "#b00020";
+  ctx.textAlign = "center";
+  ctx.font = `700 8.5px ${UI_FONT}`;
+  ctx.fillText(DEMO_LABEL, PTW / 2, 811.5);
+  ctx.restore();
+
+  return canvas;
+}
+
+function jpegBytes(canvas: HTMLCanvasElement) {
+  const encoded = canvas.toDataURL("image/jpeg", 0.98).split(",")[1] || "";
+  const raw = atob(encoded);
+  const bytes = new Uint8Array(raw.length);
+  for (let index = 0; index < raw.length; index += 1) bytes[index] = raw.charCodeAt(index);
+  return bytes;
+}
+
+function concat(parts: Uint8Array[]) {
+  const size = parts.reduce((sum, part) => sum + part.length, 0);
+  const output = new Uint8Array(size);
+  let offset = 0;
+  for (const part of parts) {
+    output.set(part, offset);
+    offset += part.length;
+  }
+  return output;
+}
+
+function pdf(canvases: HTMLCanvasElement[]) {
+  const encoder = new TextEncoder();
+  const parts: Uint8Array[] = [];
+  const offsets: number[] = [];
+  const objectCount = 2 + canvases.length * 3;
+  let length = 0;
+  const text = (value: string) => {
+    const bytes = encoder.encode(value);
+    parts.push(bytes);
+    length += bytes.length;
+  };
+  const raw = (bytes: Uint8Array) => {
+    parts.push(bytes);
+    length += bytes.length;
+  };
+
+  text("%PDF-1.4\n%âãÏÓ\n");
+  offsets[1] = length;
+  text("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+  offsets[2] = length;
+  text(`2 0 obj\n<< /Type /Pages /Count ${canvases.length} /Kids [${canvases.map((_, i) => `${3 + i * 3} 0 R`).join(" ")}] >>\nendobj\n`);
+
+  canvases.forEach((canvas, index) => {
+    const page = 3 + index * 3;
+    const image = page + 1;
+    const content = page + 2;
+    const name = `Im${index + 1}`;
+    const jpeg = jpegBytes(canvas);
+
+    offsets[page] = length;
+    text(`${page} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PTW} ${PTH}] /Resources << /XObject << /${name} ${image} 0 R >> >> /Contents ${content} 0 R >>\nendobj\n`);
+    offsets[image] = length;
+    text(`${image} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${canvas.width} /Height ${canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+    raw(jpeg);
+    text("\nendstream\nendobj\n");
+
+    const stream = `q\n${PTW} 0 0 ${PTH} 0 0 cm\n/${name} Do\nQ\n`;
+    const streamBytes = encoder.encode(stream);
+    offsets[content] = length;
+    text(`${content} 0 obj\n<< /Length ${streamBytes.length} >>\nstream\n`);
+    raw(streamBytes);
+    text("endstream\nendobj\n");
+  });
+
+  const xref = length;
+  text(`xref\n0 ${objectCount + 1}\n0000000000 65535 f \n`);
+  for (let index = 1; index <= objectCount; index += 1) {
+    text(`${String(offsets[index] || 0).padStart(10, "0")} 00000 n \n`);
+  }
+  text(`trailer\n<< /Size ${objectCount + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob([concat(parts)], { type: "application/pdf" });
+}
+
+function download(blob: Blob) {
+  const now = new Date();
+  const stamp = `${String(now.getDate()).padStart(2, "0")}${String(now.getMonth() + 1).padStart(2, "0")}${now.getFullYear()}`;
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `Hesap_Hareketleri_${stamp}.pdf`;
+  anchor.rel = "noopener";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+let busy = false;
+async function run(screen: HTMLElement) {
+  if (busy) return;
+  busy = true;
+  try {
+    const allRows = rowsFromScreen(screen);
+    if (!allRows.length) throw new Error("rows");
+    const dates = allRows.map((row) => row.date);
+    const period = `${dates[dates.length - 1]}-${dates[0]}`;
+    const totals = {
+      debit: allRows.reduce((sum, row) => sum + (numberOf(row.amount) < 0 ? Math.abs(numberOf(row.amount)) : 0), 0),
+      credit: allRows.reduce((sum, row) => sum + (numberOf(row.amount) > 0 ? numberOf(row.amount) : 0), 0),
+    };
+    const pages = paginate(allRows);
+    const canvases: HTMLCanvasElement[] = [];
+    for (let index = 0; index < pages.length; index += 1) {
+      canvases.push(await renderPage(pages[index], period, totals, index === pages.length - 1));
+    }
+    download(pdf(canvases));
+  } catch (error) {
+    console.error("PDF export failed", error);
+    window.alert("Hesap hareketleri PDF'i oluşturulamadı. Lütfen tekrar deneyin.");
+  } finally {
+    busy = false;
+  }
+}
+
+document.addEventListener(
+  "click",
+  (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const button = target?.closest<HTMLButtonElement>('button[aria-label="Mesajlar"]');
+    if (!button) return;
+    const screen = button.closest<HTMLElement>(".min-h-screen");
+    if (!screen?.querySelector('button[aria-label="Filtre"]')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    void run(screen);
+  },
+  true,
+);
