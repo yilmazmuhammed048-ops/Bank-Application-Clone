@@ -3,6 +3,8 @@ export {};
 type StoredTransaction = {
   id?: string | number;
   transactionNumber?: string;
+  date?: string;
+  time?: string;
   amount?: string | number;
   type?: "income" | "expense";
 };
@@ -18,8 +20,7 @@ const isAdminRoute = isAdminHost || isAdminPath;
 function transactionKey(transaction: StoredTransaction) {
   return String(
     transaction?.transactionNumber ??
-      transaction?.id ??
-      "",
+      `${transaction?.id ?? ""}|${transaction?.date ?? ""}|${transaction?.time ?? ""}|${transaction?.amount ?? ""}`,
   );
 }
 
@@ -59,11 +60,8 @@ function readDeletedKeys() {
   }
 }
 
-const nativeSetItem = Storage.prototype.setItem;
-
 function writeDeletedKeys(keys: string[]) {
-  nativeSetItem.call(
-    localStorage,
+  localStorage.setItem(
     DELETED_KEYS_STORAGE,
     JSON.stringify(Array.from(new Set(keys))),
   );
@@ -91,77 +89,11 @@ function adjustStoredAccount(delta: number) {
     const nextBalance = formatBalance(currentBalance + delta);
 
     account.balance = nextBalance;
-    nativeSetItem.call(
-      localStorage,
-      "demo_account",
-      JSON.stringify(account),
-    );
-    nativeSetItem.call(localStorage, "demo_balance", nextBalance);
+    localStorage.setItem("demo_account", JSON.stringify(account));
+    localStorage.setItem("demo_balance", nextBalance);
   } catch {
     // Keep the last valid demo account state.
   }
-}
-
-function applyDeletedTransactionFilter(value: string) {
-  try {
-    const incoming = JSON.parse(value);
-    if (!Array.isArray(incoming)) return false;
-
-    const byKey = new Map<string, StoredTransaction>();
-    for (const transaction of incoming) {
-      const key = transactionKey(transaction);
-      if (key) byKey.set(key, transaction);
-    }
-
-    const deletedKeys = readDeletedKeys();
-    const activeDeletedKeys = deletedKeys.filter((key) => byKey.has(key));
-
-    if (activeDeletedKeys.length !== deletedKeys.length) {
-      writeDeletedKeys(activeDeletedKeys);
-    }
-
-    const deletedSet = new Set(activeDeletedKeys);
-    const filtered = incoming.filter(
-      (transaction) => !deletedSet.has(transactionKey(transaction)),
-    );
-
-    nativeSetItem.call(
-      localStorage,
-      "demo_transactions",
-      JSON.stringify(filtered),
-    );
-
-    // The remote sync writes the original demo account first. Re-apply the
-    // effect of locally deleted movements so the displayed balance stays
-    // consistent with the filtered movement list.
-    let adjustment = 0;
-    for (const key of activeDeletedKeys) {
-      const transaction = byKey.get(key);
-      if (transaction) adjustment -= transactionEffect(transaction);
-    }
-
-    if (adjustment !== 0) {
-      adjustStoredAccount(adjustment);
-    }
-
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-if (!isAdminRoute) {
-  Storage.prototype.setItem = function (key: string, value: string) {
-    if (
-      this === localStorage &&
-      key === "demo_transactions" &&
-      applyDeletedTransactionFilter(value)
-    ) {
-      return;
-    }
-
-    return nativeSetItem.call(this, key, value);
-  };
 }
 
 function removeTransaction(transaction: StoredTransaction) {
@@ -174,13 +106,10 @@ function removeTransaction(transaction: StoredTransaction) {
     (item) => transactionKey(item) !== key,
   );
 
-  nativeSetItem.call(
-    localStorage,
-    "demo_transactions",
-    JSON.stringify(remaining),
-  );
+  localStorage.setItem("demo_transactions", JSON.stringify(remaining));
 
-  // Reverse the deleted movement's effect on the current balance immediately.
+  // Reverse the deleted movement immediately. The shared-state sync in
+  // main.tsx deterministically applies the same adjustment on later polls.
   adjustStoredAccount(-transactionEffect(transaction));
   window.dispatchEvent(new Event("storage"));
 }
@@ -219,7 +148,34 @@ function sortedTransactions() {
     });
 }
 
+function syncMovementRows() {
+  const rows = movementRows();
+  const transactions = sortedTransactions();
+
+  rows.forEach((row, index) => {
+    const transaction = transactions[index];
+    if (!transaction) {
+      delete row.dataset.demoTransactionKey;
+      return;
+    }
+
+    row.dataset.demoTransactionKey = transactionKey(transaction);
+    row.style.webkitTouchCallout = "none";
+    row.style.webkitUserSelect = "none";
+    row.style.userSelect = "none";
+    row.style.touchAction = "pan-y";
+  });
+}
+
 function transactionForRow(row: HTMLButtonElement) {
+  const key = row.dataset.demoTransactionKey;
+  if (key) {
+    const matched = readTransactions().find(
+      (transaction) => transactionKey(transaction) === key,
+    );
+    if (matched) return matched;
+  }
+
   const rows = movementRows();
   const index = rows.indexOf(row);
   if (index < 0) return null;
@@ -261,12 +217,12 @@ function clearOverlay() {
 
 function positionOverlay(row: HTMLButtonElement, action: HTMLDivElement) {
   const rect = row.getBoundingClientRect();
-  const width = Math.min(86, Math.max(72, rect.width * 0.22));
+  const width = Math.min(88, Math.max(74, rect.width * 0.22));
 
   Object.assign(action.style, {
     position: "fixed",
     left: `${Math.max(0, rect.right - width)}px`,
-    top: `${rect.top}px`,
+    top: `${Math.max(0, rect.top)}px`,
     width: `${width}px`,
     height: `${rect.height}px`,
   });
@@ -282,6 +238,7 @@ function deleteIconMarkup() {
 }
 
 function showDeleteAction(row: HTMLButtonElement) {
+  syncMovementRows();
   const selected = transactionForRow(row);
   if (!selected) return;
   const selectedKey = transactionKey(selected);
@@ -289,7 +246,7 @@ function showDeleteAction(row: HTMLButtonElement) {
 
   clearOverlay();
   armedRow = row;
-  suppressClickUntil = Date.now() + 1200;
+  suppressClickUntil = Date.now() + 1400;
 
   const action = document.createElement("div");
   action.setAttribute("data-demo-longpress-delete", "true");
@@ -310,6 +267,7 @@ function showDeleteAction(row: HTMLButtonElement) {
     cursor: "pointer",
     userSelect: "none",
     WebkitUserSelect: "none",
+    WebkitTouchCallout: "none",
     touchAction: "manipulation",
     borderRadius: "0 9px 9px 0",
     boxShadow: "-2px 0 5px rgba(0,0,0,0.08)",
@@ -324,9 +282,6 @@ function showDeleteAction(row: HTMLButtonElement) {
     if (didDelete) return;
     didDelete = true;
 
-    // The React row may be replaced between long-press and the tap on "Sil".
-    // Resolve the transaction by the key captured at long-press time instead
-    // of relying on the old DOM node still being present.
     const transaction = readTransactions().find(
       (item) => transactionKey(item) === selectedKey,
     );
@@ -338,6 +293,7 @@ function showDeleteAction(row: HTMLButtonElement) {
 
     removeTransaction(transaction);
     clearOverlay();
+    window.setTimeout(syncMovementRows, 0);
   };
 
   action.addEventListener("click", runDelete);
@@ -360,6 +316,7 @@ function showDeleteAction(row: HTMLButtonElement) {
 function armAfterDelay(row: HTMLButtonElement, x: number, y: number) {
   clearOverlay();
   cancelPress();
+  syncMovementRows();
   pressRow = row;
   startX = x;
   startY = y;
@@ -367,10 +324,30 @@ function armAfterDelay(row: HTMLButtonElement, x: number, y: number) {
     pressTimer = null;
     pressRow = null;
     showDeleteAction(row);
-  }, 560);
+  }, 480);
+}
+
+let syncScheduled = false;
+function scheduleRowSync() {
+  if (syncScheduled || isAdminRoute) return;
+  syncScheduled = true;
+  requestAnimationFrame(() => {
+    syncScheduled = false;
+    syncMovementRows();
+  });
 }
 
 if (!isAdminRoute) {
+  const observer = new MutationObserver(scheduleRowSync);
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  document.addEventListener("DOMContentLoaded", scheduleRowSync);
+  window.addEventListener("storage", scheduleRowSync);
+  scheduleRowSync();
+
   document.addEventListener(
     "touchstart",
     (event) => {
@@ -392,8 +369,8 @@ if (!isAdminRoute) {
       if (pressTimer === null || !pressRow || event.touches.length !== 1) return;
       const touch = event.touches[0];
       if (
-        Math.abs(touch.clientX - startX) > 14 ||
-        Math.abs(touch.clientY - startY) > 14
+        Math.abs(touch.clientX - startX) > 24 ||
+        Math.abs(touch.clientY - startY) > 24
       ) {
         cancelPress();
       }
@@ -423,8 +400,8 @@ if (!isAdminRoute) {
     (event) => {
       if (event.pointerType === "touch" || pressTimer === null || !pressRow) return;
       if (
-        Math.abs(event.clientX - startX) > 14 ||
-        Math.abs(event.clientY - startY) > 14
+        Math.abs(event.clientX - startX) > 24 ||
+        Math.abs(event.clientY - startY) > 24
       ) {
         cancelPress();
       }
@@ -437,6 +414,28 @@ if (!isAdminRoute) {
   }, true);
   document.addEventListener("pointercancel", cancelPress, true);
 
+  // Mobile Safari/Android may turn a long press into contextmenu before the
+  // timer callback is visible. Use that event as a second long-press path.
+  document.addEventListener(
+    "contextmenu",
+    (event) => {
+      const row = rowFromTarget(event.target);
+      if (!row) return;
+      event.preventDefault();
+      cancelPress();
+      showDeleteAction(row);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "selectstart",
+    (event) => {
+      if (rowFromTarget(event.target)) event.preventDefault();
+    },
+    true,
+  );
+
   document.addEventListener(
     "click",
     (event) => {
@@ -446,15 +445,6 @@ if (!isAdminRoute) {
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "contextmenu",
-    (event) => {
-      const row = rowFromTarget(event.target);
-      if (row) event.preventDefault();
     },
     true,
   );
