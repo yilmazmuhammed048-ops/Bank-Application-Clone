@@ -147,44 +147,6 @@ document.addEventListener("DOMContentLoaded", scheduleApply);
 window.addEventListener("storage", scheduleApply);
 scheduleApply();
 
-const DEMO_BANNER_ID = "global-demo-test-banner";
-const DEMO_LABEL = "DEMO / TEST UYGULAMASI";
-
-function installDemoBanner() {
-  if (!document.body || document.getElementById(DEMO_BANNER_ID)) return;
-
-  const banner = document.createElement("div");
-  banner.id = DEMO_BANNER_ID;
-  banner.textContent = DEMO_LABEL;
-  Object.assign(banner.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    right: "0",
-    zIndex: "2147483647",
-    height: "32px",
-    lineHeight: "32px",
-    textAlign: "center",
-    background: "#8b0015",
-    color: "#ffffff",
-    fontFamily: "Arial, Helvetica, sans-serif",
-    fontSize: "13px",
-    fontWeight: "800",
-    letterSpacing: "0.6px",
-    boxShadow: "0 1px 6px rgba(0,0,0,0.28)",
-    pointerEvents: "none",
-  });
-
-  document.body.appendChild(banner);
-  document.body.style.paddingTop = "32px";
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", installDemoBanner, { once: true });
-} else {
-  installDemoBanner();
-}
-
 // Receipt PDFs are drawn using a 1240x1754 logical canvas. Keep every layout
 // coordinate unchanged, but give that canvas a 2x backing store so text and
 // borders are rasterized at roughly 300 DPI instead of roughly 150 DPI.
@@ -285,8 +247,6 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   const context = canvas.getContext("2d");
   if (!context) return;
 
-  // Stamping uses physical backing-store pixels. Resetting the transform keeps
-  // the DEMO markings the same visual size even on the 2x receipt canvas.
   context.save();
   context.setTransform(1, 0, 0, 1, 0, 0);
   context.translate(canvas.width / 2, canvas.height / 2);
@@ -297,7 +257,6 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   context.fillStyle = "#b00020";
   const fontSize = Math.max(46, Math.floor(canvas.width * 0.09));
   context.font = `800 ${fontSize}px Arial, Helvetica, sans-serif`;
-  
   context.restore();
 
   context.save();
@@ -307,7 +266,6 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   context.fillStyle = "#ffffff";
   context.fillRect(0, canvas.height - footerHeight, canvas.width, footerHeight);
   context.globalAlpha = 1;
- 
 }
 
 const nativeToDataURL = HTMLCanvasElement.prototype.toDataURL;
