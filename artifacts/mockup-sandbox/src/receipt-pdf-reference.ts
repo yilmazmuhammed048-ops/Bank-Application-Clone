@@ -328,7 +328,7 @@ async function canvasFor(transaction: ReceiptTx) {
   context.fillStyle = C_TEXT;
   context.textAlign = "center";
   context.font = `700 24px ${FONT}`;
-  context.fillText(
+ 
     transaction.incoming ? "HESABA GELEN FAST" : "HESAPTAN FAST",
     W / 2,
     99,
