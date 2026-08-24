@@ -25,6 +25,7 @@ const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
 const isAdminPath = window.location.pathname === "/admin" || window.location.pathname === "/admin/";
 const isAdminRoute = isAdminHost || isAdminPath;
 const SHARED_API = "https://banka-yonetim-paneli.vercel.app/api/state";
+const DELETED_KEYS_STORAGE = "demo_deleted_transaction_keys";
 
 const ARCHIVE_TRANSACTIONS = [
   {
@@ -132,6 +133,47 @@ function transactionKey(transaction: any) {
   );
 }
 
+function parseStateAmount(value: unknown) {
+  if (typeof value === "number") return Math.abs(value);
+
+  const cleaned = String(value ?? "0")
+    .replace(/TL|TRY/gi, "")
+    .replace(/\s/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .replace(/[^\d.-]/g, "");
+
+  const number = Number(cleaned);
+  return Number.isFinite(number) ? Math.abs(number) : 0;
+}
+
+function formatStateBalance(value: number) {
+  return value.toFixed(2).replace(".", ",");
+}
+
+function readDeletedKeys() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(DELETED_KEYS_STORAGE) || "[]");
+    if (!Array.isArray(parsed)) return [] as string[];
+    return parsed.map((value) => String(value)).filter(Boolean);
+  } catch {
+    return [] as string[];
+  }
+}
+
+function deletedMovementAdjustment(transactions: any[], deletedSet: Set<string>) {
+  let adjustment = 0;
+
+  for (const transaction of transactions) {
+    if (!deletedSet.has(transactionKey(transaction))) continue;
+
+    const amount = parseStateAmount(transaction?.amount);
+    adjustment += transaction?.type === "income" ? -amount : amount;
+  }
+
+  return adjustment;
+}
+
 function withArchiveTransactions(remoteTransactions: any[]) {
   const merged = new Map<string, any>();
 
@@ -155,22 +197,45 @@ async function loadSharedState() {
     if (!response.ok) return;
 
     const data = await response.json();
+    const sourceTransactions = Array.isArray(data.transactions)
+      ? isAdminRoute
+        ? data.transactions
+        : withArchiveTransactions(data.transactions)
+      : [];
+
+    const deletedSet = isAdminRoute
+      ? new Set<string>()
+      : new Set(readDeletedKeys());
+
+    const visibleTransactions = isAdminRoute
+      ? sourceTransactions
+      : sourceTransactions.filter(
+          (transaction) => !deletedSet.has(transactionKey(transaction)),
+        );
 
     if (data.account) {
-      localStorage.setItem("demo_account", JSON.stringify(data.account));
-      if (data.account.balance !== undefined && data.account.balance !== null) {
-        localStorage.setItem("demo_balance", String(data.account.balance));
+      const account = { ...data.account };
+
+      if (!isAdminRoute && deletedSet.size > 0) {
+        const adjustment = deletedMovementAdjustment(
+          sourceTransactions,
+          deletedSet,
+        );
+        account.balance = formatStateBalance(
+          parseStateAmount(data.account.balance) + adjustment,
+        );
+      }
+
+      localStorage.setItem("demo_account", JSON.stringify(account));
+      if (account.balance !== undefined && account.balance !== null) {
+        localStorage.setItem("demo_balance", String(account.balance));
       }
     }
 
     if (Array.isArray(data.transactions)) {
-      const transactions = isAdminRoute
-        ? data.transactions
-        : withArchiveTransactions(data.transactions);
-
       localStorage.setItem(
         "demo_transactions",
-        JSON.stringify(transactions),
+        JSON.stringify(visibleTransactions),
       );
     }
   } catch {
