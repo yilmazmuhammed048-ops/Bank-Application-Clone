@@ -307,18 +307,7 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   context.fillStyle = "#ffffff";
   context.fillRect(0, canvas.height - footerHeight, canvas.width, footerHeight);
   context.globalAlpha = 1;
-  context.fillStyle = "#8b0015";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.font = `800 ${Math.max(22, Math.floor(canvas.width * 0.022))}px Arial, Helvetica, sans-serif`;
-
-    canvas.width / 2,
-    canvas.height - footerHeight / 2,
-    canvas.width * 0.94,
-  );
-  context.restore();
-
-  stampedCanvases.add(canvas);
+ 
 }
 
 const nativeToDataURL = HTMLCanvasElement.prototype.toDataURL;
