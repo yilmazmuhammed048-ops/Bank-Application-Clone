@@ -65,6 +65,15 @@ HTMLCanvasElement.prototype.toDataURL = function receiptFinalTextToDataURL(
       context.fillStyle = "#ffffff";
       context.fillRect(90, 392, 1020, 230);
 
+      // Persistent demo marker in the upper-left corner of the generated PDF.
+      context.fillStyle = "#b00020";
+      context.fillRect(82, 44, 138, 46);
+      context.fillStyle = "#ffffff";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.font = '700 26px Arial, Helvetica, sans-serif';
+      previousFillText.call(context, "DEMO", 151, 67);
+
       context.fillStyle = "#1f2326";
       context.textAlign = "left";
       context.textBaseline = "alphabetic";
