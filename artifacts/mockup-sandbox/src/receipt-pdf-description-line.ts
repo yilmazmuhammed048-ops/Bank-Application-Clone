@@ -48,10 +48,11 @@ if (!prototype[patchFlag]) {
       const description = number ? readDescription(number) : "";
 
       if (description) {
+        const descriptionY = y - 7;
         if (typeof maxWidth === "number") {
-          nativeFillText.call(this, description, x, y - 10.4, maxWidth);
+          nativeFillText.call(this, description, x, descriptionY, maxWidth);
         } else {
-          nativeFillText.call(this, description, x, y - 10.4);
+          nativeFillText.call(this, description, x, descriptionY);
         }
       }
     }
