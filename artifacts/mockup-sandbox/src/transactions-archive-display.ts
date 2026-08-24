@@ -147,8 +147,8 @@ document.addEventListener("DOMContentLoaded", scheduleApply);
 window.addEventListener("storage", scheduleApply);
 scheduleApply();
 
-const DEMO_BANNER_ID = "global-demo-test-banner"
-
+const DEMO_BANNER_ID = "global-demo-test-banner";
+const DEMO_LABEL = "DEMO / TEST UYGULAMASI";
 
 function installDemoBanner() {
   if (!document.body || document.getElementById(DEMO_BANNER_ID)) return;
