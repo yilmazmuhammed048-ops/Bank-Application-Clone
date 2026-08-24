@@ -297,7 +297,7 @@ function stampDemoCanvas(canvas: HTMLCanvasElement) {
   context.fillStyle = "#b00020";
   const fontSize = Math.max(46, Math.floor(canvas.width * 0.09));
   context.font = `800 ${fontSize}px Arial, Helvetica, sans-serif`;
-  context.fillText("DEMO / TEST", 0, 0, canvas.width * 0.92);
+  
   context.restore();
 
   context.save();
