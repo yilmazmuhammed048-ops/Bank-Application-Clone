@@ -313,22 +313,10 @@ async function canvasFor(transaction: ReceiptTx) {
     context.drawImage(base, 48, 42, 290, 76);
   } catch {}
 
-  // Permanent demo marker. This is drawn by the core renderer so it remains
-  // present in every generated receipt PDF.
-  context.save();
-  context.fillStyle = "#b00020";
-  context.fillRect(1046, 42, 142, 48);
-  context.fillStyle = "#ffffff";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.font = `700 25px ${FONT}`;
-  
-  context.restore();
-
   context.fillStyle = C_TEXT;
   context.textAlign = "center";
   context.font = `700 24px ${FONT}`;
- 
+  context.fillText(
     transaction.incoming ? "HESABA GELEN FAST" : "HESAPTAN FAST",
     W / 2,
     99,
