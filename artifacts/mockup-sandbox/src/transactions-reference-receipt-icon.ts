@@ -38,15 +38,22 @@ function applyReferenceLayout() {
       if (oldIcon) {
         icon = document.createElement("img");
         icon.dataset.referenceReceiptIcon = "true";
-        icon.alt = "";
+        icon.alt = "Dekontu aç";
         icon.src = REFERENCE_RECEIPT_ICON;
         icon.style.position = "absolute";
-        icon.style.width = "20px";
-        icon.style.height = "20px";
-        icon.style.right = "29px";
-        icon.style.top = "39px";
+        icon.style.width = "24px";
+        icon.style.height = "24px";
+        icon.style.right = "27px";
+        icon.style.top = "37px";
         icon.style.objectFit = "contain";
-        icon.style.pointerEvents = "none";
+        icon.style.pointerEvents = "auto";
+        icon.style.cursor = "pointer";
+        icon.style.zIndex = "5";
+        icon.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          row.click();
+        });
         oldIcon.replaceWith(icon);
       }
     }
