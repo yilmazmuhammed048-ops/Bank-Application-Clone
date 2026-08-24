@@ -10,6 +10,8 @@ type StoredTransaction = {
 };
 
 const DELETED_KEYS_STORAGE = "demo_deleted_transaction_keys";
+const LONG_PRESS_MS = 520;
+const MOVE_TOLERANCE_PX = 28;
 const hostname = window.location.hostname.toLowerCase();
 const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
 const isAdminPath =
@@ -52,7 +54,6 @@ function readDeletedKeys() {
     const parsed = JSON.parse(
       localStorage.getItem(DELETED_KEYS_STORAGE) || "[]",
     );
-
     if (!Array.isArray(parsed)) return [] as string[];
     return parsed.map((value) => String(value)).filter(Boolean);
   } catch {
@@ -92,7 +93,7 @@ function adjustStoredAccount(delta: number) {
     localStorage.setItem("demo_account", JSON.stringify(account));
     localStorage.setItem("demo_balance", nextBalance);
   } catch {
-    // Keep the last valid demo account state.
+    // Keep the last valid account state.
   }
 }
 
@@ -105,12 +106,14 @@ function removeTransaction(transaction: StoredTransaction) {
   const remaining = readTransactions().filter(
     (item) => transactionKey(item) !== key,
   );
-
   localStorage.setItem("demo_transactions", JSON.stringify(remaining));
 
-  // Reverse the deleted movement immediately. The shared-state sync in
-  // main.tsx deterministically applies the same adjustment on later polls.
+  // Deleting an expense adds it back to the current balance.
+  // Deleting an income removes it from the current balance.
   adjustStoredAccount(-transactionEffect(transaction));
+
+  // The React app listens to this event and immediately recomputes every
+  // running/Kalan Bakiye value from the updated current balance and rows.
   window.dispatchEvent(new Event("storage"));
 }
 
@@ -139,11 +142,7 @@ function sortedTransactions() {
     .sort((a, b) => {
       const aId = Number(a.id);
       const bId = Number(b.id);
-
-      if (Number.isFinite(aId) && Number.isFinite(bId)) {
-        return bId - aId;
-      }
-
+      if (Number.isFinite(aId) && Number.isFinite(bId)) return bId - aId;
       return transactionKey(b).localeCompare(transactionKey(a));
     });
 }
@@ -178,8 +177,7 @@ function transactionForRow(row: HTMLButtonElement) {
 
   const rows = movementRows();
   const index = rows.indexOf(row);
-  if (index < 0) return null;
-  return sortedTransactions()[index] ?? null;
+  return index >= 0 ? sortedTransactions()[index] ?? null : null;
 }
 
 function rowFromTarget(target: EventTarget | null) {
@@ -193,13 +191,14 @@ function rowFromTarget(target: EventTarget | null) {
   return row;
 }
 
-let overlay: HTMLDivElement | null = null;
+let overlay: HTMLButtonElement | null = null;
 let armedRow: HTMLButtonElement | null = null;
 let suppressClickUntil = 0;
 let pressTimer: number | null = null;
 let pressRow: HTMLButtonElement | null = null;
 let startX = 0;
 let startY = 0;
+let activePointerId: number | null = null;
 
 function cancelPress() {
   if (pressTimer !== null) {
@@ -207,6 +206,7 @@ function cancelPress() {
     pressTimer = null;
   }
   pressRow = null;
+  activePointerId = null;
 }
 
 function clearOverlay() {
@@ -215,9 +215,9 @@ function clearOverlay() {
   armedRow = null;
 }
 
-function positionOverlay(row: HTMLButtonElement, action: HTMLDivElement) {
+function positionOverlay(row: HTMLButtonElement, action: HTMLButtonElement) {
   const rect = row.getBoundingClientRect();
-  const width = Math.min(88, Math.max(74, rect.width * 0.22));
+  const width = Math.min(90, Math.max(76, rect.width * 0.23));
 
   Object.assign(action.style, {
     position: "fixed",
@@ -228,15 +228,6 @@ function positionOverlay(row: HTMLButtonElement, action: HTMLDivElement) {
   });
 }
 
-function deleteIconMarkup() {
-  return `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span style="font-size:11px;font-weight:800;line-height:1">Sil</span>
-  `;
-}
-
 function showDeleteAction(row: HTMLButtonElement) {
   syncMovementRows();
   const selected = transactionForRow(row);
@@ -244,19 +235,26 @@ function showDeleteAction(row: HTMLButtonElement) {
   const selectedKey = transactionKey(selected);
   if (!selectedKey) return;
 
+  cancelPress();
   clearOverlay();
   armedRow = row;
-  suppressClickUntil = Date.now() + 1400;
+  suppressClickUntil = Date.now() + 1800;
 
-  const action = document.createElement("div");
-  action.setAttribute("data-demo-longpress-delete", "true");
-  action.setAttribute("role", "button");
-  action.setAttribute("tabindex", "0");
+  const action = document.createElement("button");
+  action.type = "button";
+  action.dataset.demoLongpressDelete = "true";
   action.setAttribute("aria-label", "Hareketi sil");
-  action.innerHTML = deleteIconMarkup();
+  action.innerHTML = `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 11v5m4-5v5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span style="font-size:11px;font-weight:800;line-height:1">Sil</span>
+  `;
 
   Object.assign(action.style, {
     zIndex: "2147483646",
+    border: "0",
+    padding: "0",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -274,18 +272,14 @@ function showDeleteAction(row: HTMLButtonElement) {
   });
 
   positionOverlay(row, action);
-  let didDelete = false;
 
   const runDelete = (event: Event) => {
     event.preventDefault();
     event.stopPropagation();
-    if (didDelete) return;
-    didDelete = true;
 
     const transaction = readTransactions().find(
       (item) => transactionKey(item) === selectedKey,
     );
-
     if (!transaction) {
       clearOverlay();
       return;
@@ -293,38 +287,43 @@ function showDeleteAction(row: HTMLButtonElement) {
 
     removeTransaction(transaction);
     clearOverlay();
-    window.setTimeout(syncMovementRows, 0);
+    requestAnimationFrame(syncMovementRows);
   };
 
-  action.addEventListener("click", runDelete);
-  action.addEventListener("touchend", (event) => {
-    event.preventDefault();
-    runDelete(event);
-  });
-  action.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") runDelete(event);
-  });
-
+  action.addEventListener("click", runDelete, { once: true });
   document.body.appendChild(action);
   overlay = action;
 
   try {
-    navigator.vibrate?.(18);
+    navigator.vibrate?.(20);
   } catch {}
 }
 
-function armAfterDelay(row: HTMLButtonElement, x: number, y: number) {
+function armAfterDelay(
+  row: HTMLButtonElement,
+  x: number,
+  y: number,
+  pointerId: number | null = null,
+) {
   clearOverlay();
   cancelPress();
   syncMovementRows();
+
   pressRow = row;
   startX = x;
   startY = y;
+  activePointerId = pointerId;
   pressTimer = window.setTimeout(() => {
     pressTimer = null;
-    pressRow = null;
     showDeleteAction(row);
-  }, 480);
+  }, LONG_PRESS_MS);
+}
+
+function movedTooFar(x: number, y: number) {
+  return (
+    Math.abs(x - startX) > MOVE_TOLERANCE_PX ||
+    Math.abs(y - startY) > MOVE_TOLERANCE_PX
+  );
 }
 
 let syncScheduled = false;
@@ -348,81 +347,83 @@ if (!isAdminRoute) {
   window.addEventListener("storage", scheduleRowSync);
   scheduleRowSync();
 
-  document.addEventListener(
-    "touchstart",
-    (event) => {
-      if (event.touches.length !== 1) return;
-      const row = rowFromTarget(event.target);
-      if (!row) {
-        clearOverlay();
-        return;
-      }
-      const touch = event.touches[0];
-      armAfterDelay(row, touch.clientX, touch.clientY);
-    },
-    { passive: true, capture: true },
-  );
+  if ("PointerEvent" in window) {
+    document.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+        const row = rowFromTarget(event.target);
+        if (!row) {
+          clearOverlay();
+          return;
+        }
+        armAfterDelay(row, event.clientX, event.clientY, event.pointerId);
+      },
+      true,
+    );
 
-  document.addEventListener(
-    "touchmove",
-    (event) => {
-      if (pressTimer === null || !pressRow || event.touches.length !== 1) return;
-      const touch = event.touches[0];
-      if (
-        Math.abs(touch.clientX - startX) > 24 ||
-        Math.abs(touch.clientY - startY) > 24
-      ) {
-        cancelPress();
-      }
-    },
-    { passive: true, capture: true },
-  );
+    document.addEventListener(
+      "pointermove",
+      (event) => {
+        if (
+          pressTimer === null ||
+          !pressRow ||
+          (activePointerId !== null && event.pointerId !== activePointerId)
+        ) {
+          return;
+        }
+        if (movedTooFar(event.clientX, event.clientY)) cancelPress();
+      },
+      true,
+    );
 
-  document.addEventListener("touchend", () => cancelPress(), true);
-  document.addEventListener("touchcancel", () => cancelPress(), true);
+    document.addEventListener(
+      "pointerup",
+      (event) => {
+        if (activePointerId === null || event.pointerId === activePointerId) {
+          cancelPress();
+        }
+      },
+      true,
+    );
+    document.addEventListener("pointercancel", cancelPress, true);
+  } else {
+    // Older Safari fallback where Pointer Events are unavailable.
+    document.addEventListener(
+      "touchstart",
+      (event) => {
+        if (event.touches.length !== 1) return;
+        const row = rowFromTarget(event.target);
+        if (!row) {
+          clearOverlay();
+          return;
+        }
+        const touch = event.touches[0];
+        armAfterDelay(row, touch.clientX, touch.clientY);
+      },
+      { passive: true, capture: true },
+    );
 
-  document.addEventListener(
-    "pointerdown",
-    (event) => {
-      if (event.pointerType === "touch" || event.button !== 0) return;
-      const row = rowFromTarget(event.target);
-      if (!row) {
-        clearOverlay();
-        return;
-      }
-      armAfterDelay(row, event.clientX, event.clientY);
-    },
-    true,
-  );
+    document.addEventListener(
+      "touchmove",
+      (event) => {
+        if (pressTimer === null || !pressRow || event.touches.length !== 1) return;
+        const touch = event.touches[0];
+        if (movedTooFar(touch.clientX, touch.clientY)) cancelPress();
+      },
+      { passive: true, capture: true },
+    );
+    document.addEventListener("touchend", cancelPress, true);
+    document.addEventListener("touchcancel", cancelPress, true);
+  }
 
-  document.addEventListener(
-    "pointermove",
-    (event) => {
-      if (event.pointerType === "touch" || pressTimer === null || !pressRow) return;
-      if (
-        Math.abs(event.clientX - startX) > 24 ||
-        Math.abs(event.clientY - startY) > 24
-      ) {
-        cancelPress();
-      }
-    },
-    true,
-  );
-
-  document.addEventListener("pointerup", (event) => {
-    if (event.pointerType !== "touch") cancelPress();
-  }, true);
-  document.addEventListener("pointercancel", cancelPress, true);
-
-  // Mobile Safari/Android may turn a long press into contextmenu before the
-  // timer callback is visible. Use that event as a second long-press path.
+  // Native long-press menus are a useful final fallback on mobile Safari.
   document.addEventListener(
     "contextmenu",
     (event) => {
       const row = rowFromTarget(event.target);
       if (!row) return;
       event.preventDefault();
-      cancelPress();
       showDeleteAction(row);
     },
     true,
@@ -449,11 +450,15 @@ if (!isAdminRoute) {
     true,
   );
 
-  window.addEventListener("scroll", () => {
-    if (overlay && armedRow && armedRow.isConnected) {
-      positionOverlay(armedRow, overlay);
-    }
-  }, true);
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (overlay && armedRow && armedRow.isConnected) {
+        positionOverlay(armedRow, overlay);
+      }
+    },
+    true,
+  );
 
   window.addEventListener("resize", () => {
     if (overlay && armedRow && armedRow.isConnected) {
