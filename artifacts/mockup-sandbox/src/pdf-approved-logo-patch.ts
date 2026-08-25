@@ -9,6 +9,7 @@ const LOGO_Y = 49;
 const LOGO_HEIGHT = 56;
 const LOGO_TEXT_GAP = 5;
 const LOGO_TEXT_Y = 86;
+const RECEIPT_LOGO_ALIGNED_Y = 11.5;
 
 const customLogo = new Image();
 customLogo.decoding = "sync";
@@ -42,6 +43,18 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
   const y = Number(args[2]);
   const w = Number(args[3]);
   const h = Number(args[4]);
+
+  if (
+    canvas?.width === 2550 &&
+    canvas?.height === 3300 &&
+    x === 21.6 &&
+    y === 7.2 &&
+    h === 24
+  ) {
+    const alignedArgs = [...args];
+    alignedArgs[2] = RECEIPT_LOGO_ALIGNED_Y;
+    return originalDrawImage.apply(this, alignedArgs as any);
+  }
 
   if (
     canvas?.width === 1240 &&
@@ -83,6 +96,17 @@ CanvasRenderingContext2D.prototype.fillRect = function (...args: any[]) {
   const y = Number(args[1]);
   const w = Number(args[2]);
   const h = Number(args[3]);
+
+  if (
+    canvas?.width === 2550 &&
+    canvas?.height === 3300 &&
+    x === 21.6 &&
+    y === 8 &&
+    w === 10 &&
+    h === 23
+  ) {
+    return originalFillRect.call(this, x, RECEIPT_LOGO_ALIGNED_Y, w, h);
+  }
 
   if (
     canvas?.width === 1240 &&
