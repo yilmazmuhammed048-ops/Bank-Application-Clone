@@ -1,9 +1,9 @@
 export {};
 
 const SHARED_API = "https://banka-yonetim-paneli.vercel.app/api/state";
-const DELETED_KEYS_STORAGE = "demo_deleted_transaction_keys";
 const PANEL_REVISION_STORAGE = "demo_panel_revision";
 const PANEL_SYNC_MIGRATION_STORAGE = "demo_panel_authority_sync_v1";
+const PERMANENTLY_REMOVED_TRANSACTION_KEYS = new Set(["1787510111534"]);
 
 const hostname = window.location.hostname.toLowerCase();
 const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
@@ -11,6 +11,46 @@ const isAdminPath =
   window.location.pathname === "/admin" ||
   window.location.pathname === "/admin/";
 const isAdminRoute = isAdminHost || isAdminPath;
+
+function transactionKey(transaction: any) {
+  return String(
+    transaction?.transactionNumber ??
+      transaction?.id ??
+      `${transaction?.date ?? ""}|${transaction?.time ?? ""}|${transaction?.amount ?? ""}|${transaction?.title ?? ""}`,
+  );
+}
+
+function sanitizeTransaction(transaction: any) {
+  if (!transaction || typeof transaction !== "object") return transaction;
+
+  const cleaned = { ...transaction };
+  const recipientName = String(cleaned.recipientName ?? "").toLocaleUpperCase("tr-TR");
+
+  if (recipientName.includes("MUAMMER TATAR") && typeof cleaned.description === "string") {
+    cleaned.description = cleaned.description
+      .replace(/\bdeneme\b/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  }
+
+  return cleaned;
+}
+
+function sanitizeSharedState(data: any) {
+  if (!data || typeof data !== "object") return data;
+
+  return {
+    ...data,
+    transactions: Array.isArray(data.transactions)
+      ? data.transactions
+          .filter(
+            (transaction: any) =>
+              !PERMANENTLY_REMOVED_TRANSACTION_KEYS.has(transactionKey(transaction)),
+          )
+          .map(sanitizeTransaction)
+      : data.transactions,
+  };
+}
 
 function isSharedStateGet(input: RequestInfo | URL, init?: RequestInit) {
   const method = String(init?.method || (input instanceof Request ? input.method : "GET"))
@@ -31,21 +71,10 @@ function applyPanelRevision(data: any) {
   const revision = Number(data?.revision);
   if (!Number.isFinite(revision)) return;
 
-  const nextRevision = String(revision);
-  const previousRevision = localStorage.getItem(PANEL_REVISION_STORAGE);
-  const migrationDone =
-    localStorage.getItem(PANEL_SYNC_MIGRATION_STORAGE) === "1";
-
-  const firstAuthoritativeSync = !migrationDone;
-  const panelPublishedNewRevision =
-    previousRevision !== null && previousRevision !== nextRevision;
-
-  if (firstAuthoritativeSync || panelPublishedNewRevision) {
-    localStorage.removeItem(DELETED_KEYS_STORAGE);
-    localStorage.setItem(PANEL_SYNC_MIGRATION_STORAGE, "1");
-  }
-
-  localStorage.setItem(PANEL_REVISION_STORAGE, nextRevision);
+  // Silinen dekont anahtarları artık panel revizyonu değiştiğinde temizlenmiyor.
+  // Böylece uygulamada silinen bir hareket sayfa yenilense de geri gelmiyor.
+  localStorage.setItem(PANEL_SYNC_MIGRATION_STORAGE, "1");
+  localStorage.setItem(PANEL_REVISION_STORAGE, String(revision));
 }
 
 if (!isAdminRoute) {
@@ -56,10 +85,19 @@ if (!isAdminRoute) {
 
     if (response.ok && isSharedStateGet(input, init)) {
       try {
-        const data = await response.clone().json();
+        const data = sanitizeSharedState(await response.clone().json());
         applyPanelRevision(data);
+
+        const headers = new Headers(response.headers);
+        headers.delete("content-length");
+
+        return new Response(JSON.stringify(data), {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
       } catch {
-        // Keep the existing local state if the control response is malformed.
+        // Keep the original response if the control response is malformed.
       }
     }
 
