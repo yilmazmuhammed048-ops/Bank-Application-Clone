@@ -37,6 +37,13 @@ function customLogoTextX() {
   return logoWidth > 0 ? LOGO_X + logoWidth + LOGO_TEXT_GAP : 72;
 }
 
+function isReceiptPdfCanvas(canvas: HTMLCanvasElement | null | undefined) {
+  return !!canvas && (
+    (canvas.width === 2550 && canvas.height === 3300) ||
+    (canvas.width === 3400 && canvas.height === 4400)
+  );
+}
+
 CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
   const canvas = this.canvas;
   const x = Number(args[1]);
@@ -45,8 +52,7 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
   const h = Number(args[4]);
 
   if (
-    canvas?.width === 2550 &&
-    canvas?.height === 3300 &&
+    isReceiptPdfCanvas(canvas) &&
     x === 21.6 &&
     y === 7.2 &&
     h === 24
@@ -94,8 +100,7 @@ CanvasRenderingContext2D.prototype.fillRect = function (...args: any[]) {
   const h = Number(args[3]);
 
   if (
-    canvas?.width === 2550 &&
-    canvas?.height === 3300 &&
+    isReceiptPdfCanvas(canvas) &&
     x === 21.6 &&
     y === 8 &&
     w === 10 &&
