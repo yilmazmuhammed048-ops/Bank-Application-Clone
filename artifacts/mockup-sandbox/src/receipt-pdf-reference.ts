@@ -381,7 +381,7 @@ async function canvasFor(transaction: ReceiptTx, fee: Fees) {
   roundRect(ctx, 153, 744, 306, 24, 4);
   ctx.fillStyle = "rgba(255,255,255,.97)";
   ctx.fill();
-  ctx.strokeStyle = "#b00020";
+  
   ctx.lineWidth = 0.9;
   ctx.stroke();
   ctx.fillStyle = "#b00020";
