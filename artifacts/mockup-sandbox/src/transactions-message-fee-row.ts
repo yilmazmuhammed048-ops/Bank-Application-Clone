@@ -9,7 +9,7 @@ const LAST_THREE_DATES_BOTTOM_UP = [
 ];
 
 function parseMoney(text: string) {
-  const normalized = text
+  const normalized = String(text || "")
     .replace(/TL|TRY/gi, "")
     .replace(/\s/g, "")
     .replace(/\./g, "")
@@ -45,31 +45,16 @@ function accountMovementList() {
   return list instanceof HTMLElement ? list : null;
 }
 
-function isFastMovement(row: HTMLButtonElement) {
-  if (row.dataset.messageFeeRow === "true") return false;
-  const text = row.innerText || row.textContent || "";
-  return /\bFAST\b/i.test(text);
-}
-
 function findBalanceBox(row: HTMLElement) {
   return Array.from(row.querySelectorAll<HTMLElement>("div")).find((element) =>
     /Kalan\s+Bakiye/i.test(element.textContent || ""),
   );
 }
 
-function movementSignature(row: HTMLButtonElement) {
-  const clone = row.cloneNode(true) as HTMLButtonElement;
-  const balance = findBalanceBox(clone);
-  balance?.remove();
-  const text = (clone.innerText || clone.textContent || "").replace(/\s+/g, " ").trim();
-  return hash(text);
-}
-
 function findAmountBox(row: HTMLElement) {
   return Array.from(row.children).find((element): element is HTMLElement => {
     if (!(element instanceof HTMLElement)) return false;
-    const text = (element.textContent || "").trim();
-    return /^[+-]\s*[\d.]+,\d{2}\s*TL$/i.test(text);
+    return /^[+-]\s*[\d.]+,\d{2}\s*TL$/i.test((element.textContent || "").trim());
   });
 }
 
@@ -88,61 +73,55 @@ function findDateBox(row: HTMLElement) {
   });
 }
 
+function isFastMovement(row: HTMLButtonElement) {
+  if (row.dataset.messageFeeRow === "true") return false;
+  return /\bFAST\b/i.test(row.innerText || row.textContent || "");
+}
+
+function movementSignature(row: HTMLButtonElement) {
+  const clone = row.cloneNode(true) as HTMLButtonElement;
+  findBalanceBox(clone)?.remove();
+  return hash((clone.innerText || clone.textContent || "").replace(/\s+/g, " ").trim());
+}
+
 function pinRequestedDates(rows: HTMLButtonElement[]) {
   const normalRows = rows.filter((row) => row.dataset.messageFeeRow !== "true");
-
-  // Kullanıcının "ilk" derken kastettiği en eski/sondaki hareketler:
-  // listenin en altından yukarı doğru 7, 11 ve 17 Ağustos.
   LAST_THREE_DATES_BOTTOM_UP.forEach((requested, index) => {
     const row = normalRows[normalRows.length - 1 - index];
     if (!row) return;
-
     const dateBox = findDateBox(row);
     if (!dateBox) return;
-
     const spans = Array.from(dateBox.querySelectorAll("span"));
-    if (spans[0] && spans[0].textContent !== requested.day) {
-      spans[0].textContent = requested.day;
-    }
-    if (spans[1] && spans[1].textContent !== requested.month) {
-      spans[1].textContent = requested.month;
-    }
+    if (spans[0]) spans[0].textContent = requested.day;
+    if (spans[1]) spans[1].textContent = requested.month;
   });
 }
 
 function syncFeeTimestamp(original: HTMLButtonElement, feeRow: HTMLButtonElement) {
-  const originalDateBox = findDateBox(original);
-  const feeDateBox = findDateBox(feeRow);
-  if (!originalDateBox || !feeDateBox) return;
-
-  const source = Array.from(originalDateBox.querySelectorAll("span"));
-  const target = Array.from(feeDateBox.querySelectorAll("span"));
-  for (let i = 0; i < Math.min(3, source.length, target.length); i += 1) {
-    if (target[i].textContent !== source[i].textContent) {
-      target[i].textContent = source[i].textContent;
-    }
+  const sourceBox = findDateBox(original);
+  const targetBox = findDateBox(feeRow);
+  if (!sourceBox || !targetBox) return;
+  const source = Array.from(sourceBox.querySelectorAll("span"));
+  const target = Array.from(targetBox.querySelectorAll("span"));
+  for (let i = 0; i < Math.min(source.length, target.length, 3); i += 1) {
+    target[i].textContent = source[i].textContent;
   }
 }
 
-function updateFeeAmount(feeRow: HTMLButtonElement) {
-  const amountBox = findAmountBox(feeRow);
+function updateFeeAmount(row: HTMLButtonElement) {
+  const amountBox = findAmountBox(row);
   if (!amountBox) return;
-
-  const expected = formatMoney(-MESSAGE_FEE);
-  if (amountBox.textContent !== expected) amountBox.textContent = expected;
+  amountBox.textContent = formatMoney(-MESSAGE_FEE);
   amountBox.classList.remove("text-[#24934c]");
   amountBox.classList.add("text-[#303a40]");
 }
 
 function setRowBalance(row: HTMLButtonElement, value: number) {
-  const balanceBox = findBalanceBox(row);
-  if (!balanceBox) return;
-  const spans = Array.from(balanceBox.querySelectorAll("span"));
+  const box = findBalanceBox(row);
+  if (!box) return;
+  const spans = Array.from(box.querySelectorAll("span"));
   const valueSpan = spans.at(-1);
-  if (!valueSpan) return;
-
-  const expected = formatMoney(value);
-  if (valueSpan.textContent !== expected) valueSpan.textContent = expected;
+  if (valueSpan) valueSpan.textContent = formatMoney(value);
 }
 
 function currentAccountBalance() {
@@ -152,8 +131,15 @@ function currentAccountBalance() {
       return parseMoney(String(account.balance));
     }
   } catch {}
-
   return parseMoney(localStorage.getItem("demo_balance") || "0");
+}
+
+function signedAmount(row: HTMLButtonElement) {
+  const text = (findAmountBox(row)?.textContent || "0").trim();
+  const amount = Math.abs(parseMoney(text));
+  if (text.startsWith("-")) return -amount;
+  if (text.startsWith("+")) return amount;
+  return parseMoney(text);
 }
 
 function reconcileMovementBalances(list: HTMLElement) {
@@ -163,24 +149,14 @@ function reconcileMovementBalances(list: HTMLElement) {
   );
   if (!rows.length) return;
 
-  // Tek ve değişmez referans ana sayfadaki hesap bakiyesidir. Ekrandaki eski/stale
-  // bir satır bakiyesini asla kaynak olarak kullanmıyoruz; böylece React yeniden
-  // render etse veya PDF düğmesine basılsa da zincir başka bir rakama kayamaz.
-  let newerBalance = roundMoney(currentAccountBalance());
-  if (!Number.isFinite(newerBalance)) return;
+  // Ana sayfadaki bakiye işlem zincirinin BAŞLANGIÇ bakiyesidir.
+  // Her satır kendi işaretini uygular: '-' düşer, '+' eklenir.
+  let runningBalance = roundMoney(currentAccountBalance());
+  if (!Number.isFinite(runningBalance)) return;
 
-  const signedAmounts = rows.map((row) =>
-    parseMoney(findAmountBox(row)?.textContent || "0"),
-  );
-
-  // Liste en yeni hareketten en eskiye gider. En üstteki Kalan Bakiye her zaman
-  // ana sayfa bakiyesidir. Bir alt/eskideki bakiyeye geçerken üstteki işlemi geri
-  // alırız: olderBalance = newerBalance - newerAmount.
-  setRowBalance(rows[0], newerBalance);
-
-  for (let index = 1; index < rows.length; index += 1) {
-    newerBalance = roundMoney(newerBalance - signedAmounts[index - 1]);
-    setRowBalance(rows[index], newerBalance);
+  for (const row of rows) {
+    runningBalance = roundMoney(runningBalance + signedAmount(row));
+    setRowBalance(row, runningBalance);
   }
 }
 
@@ -195,7 +171,6 @@ function makeFeeRow(original: HTMLButtonElement, signature: string) {
   if (details) {
     details.replaceChildren();
     details.className = "min-w-0 flex-1 py-[12px] pl-3 pr-[106px]";
-
     const title = document.createElement("p");
     title.className = "truncate leading-[1.15]";
     title.textContent = MESSAGE_FEE_TITLE;
@@ -211,16 +186,13 @@ function removeOrphanFeeRows(list: HTMLElement) {
   const feeRows = Array.from(
     list.querySelectorAll<HTMLButtonElement>('button[data-message-fee-row="true"]'),
   );
-
   for (const feeRow of feeRows) {
     const previous = feeRow.previousElementSibling;
     if (!(previous instanceof HTMLButtonElement) || !isFastMovement(previous)) {
       feeRow.remove();
       continue;
     }
-
-    const signature = movementSignature(previous);
-    if (feeRow.dataset.messageFeeFor !== signature) feeRow.remove();
+    if (feeRow.dataset.messageFeeFor !== movementSignature(previous)) feeRow.remove();
   }
 }
 
@@ -231,7 +203,6 @@ function applyMessageFeeRows() {
   let movements = Array.from(list.children).filter(
     (element): element is HTMLButtonElement => element instanceof HTMLButtonElement,
   );
-
   pinRequestedDates(movements);
   removeOrphanFeeRows(list);
 
@@ -241,7 +212,6 @@ function applyMessageFeeRows() {
 
   for (const movement of movements) {
     if (!isFastMovement(movement)) continue;
-
     const signature = movementSignature(movement);
     const next = movement.nextElementSibling;
     if (
@@ -253,7 +223,6 @@ function applyMessageFeeRows() {
       syncFeeTimestamp(movement, next);
       continue;
     }
-
     movement.after(makeFeeRow(movement, signature));
   }
 
@@ -271,23 +240,9 @@ function scheduleApply() {
 }
 
 const observer = new MutationObserver(scheduleApply);
-observer.observe(document.documentElement, {
-  childList: true,
-  subtree: true,
-  characterData: true,
-});
+observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 
 document.addEventListener("DOMContentLoaded", scheduleApply);
 window.addEventListener("storage", scheduleApply);
-
-// PDF/dekont düğmesinin kendi click handler'ından önce DOM'daki tarih ve bakiye
-// değerlerini kesin olarak son hale getir. Böylece PDF eski React değerlerini okuyamaz.
-document.addEventListener(
-  "click",
-  () => {
-    applyMessageFeeRows();
-  },
-  true,
-);
-
+document.addEventListener("click", applyMessageFeeRows, true);
 scheduleApply();
