@@ -64,6 +64,7 @@ function writePanelStateToApp(data: any) {
   const clean = sanitizeSharedState(data);
   applyPanelRevision(clean);
 
+  // Bakiye / hesap bilgisi panelden her zaman canlı gelsin.
   if (clean?.account && typeof clean.account === "object") {
     localStorage.setItem("demo_account", JSON.stringify(clean.account));
     if (clean.account.balance !== undefined && clean.account.balance !== null) {
@@ -71,18 +72,19 @@ function writePanelStateToApp(data: any) {
     }
   }
 
-  if (Array.isArray(clean?.transactions)) {
+  // ÖNEMLİ: Panel yalnızca bakiye değiştirirken boş transaction dizisi dönebilir.
+  // Bu durumda uygulamadaki mevcut hareketleri SİLME. Dolu bir liste gelirse panel
+  // hareket komutlarını uygula. Ana state yükleyicisi arşiv/restore hareketlerini
+  // ayrıca birleştirip localStorage'a yazmaya devam eder.
+  if (Array.isArray(clean?.transactions) && clean.transactions.length > 0) {
     localStorage.setItem("demo_transactions", JSON.stringify(clean.transactions));
   }
 
-  // Aynı sekmede localStorage olayı kendiliğinden oluşmadığı için uygulamayı hemen yenile.
   window.dispatchEvent(new Event("storage"));
   return clean;
 }
 
 if (!isAdminRoute) {
-  // Panel verisini uygulamaya taşıyan bağımsız canlı senkronizasyon.
-  // Diğer fetch yamalarından etkilenmemesi için ilk native fetch referansını kullanır.
   const syncFromPanel = async () => {
     try {
       const response = await nativeFetch(`${SHARED_API}?t=${Date.now()}`, { cache: "no-store" });
@@ -94,7 +96,6 @@ if (!isAdminRoute) {
   syncFromPanel();
   window.setInterval(syncFromPanel, 1000);
 
-  // Mevcut state yükleyicilerinin aldığı GET yanıtını da aynı temizlikten geçir.
   window.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const response = await nativeFetch(input, init);
     if (response.ok && isSharedStateGet(input, init)) {
