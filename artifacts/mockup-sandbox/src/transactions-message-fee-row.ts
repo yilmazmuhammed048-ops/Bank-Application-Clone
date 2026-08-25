@@ -145,16 +145,6 @@ function setRowBalance(row: HTMLButtonElement, value: number) {
   if (valueSpan.textContent !== expected) valueSpan.textContent = expected;
 }
 
-function readRowBalance(row: HTMLButtonElement) {
-  const balanceBox = findBalanceBox(row);
-  if (!balanceBox) return null;
-  const spans = Array.from(balanceBox.querySelectorAll("span"));
-  const text = spans.at(-1)?.textContent || balanceBox.textContent || "";
-  if (!/[\d]/.test(text)) return null;
-  const value = parseMoney(text);
-  return Number.isFinite(value) ? value : null;
-}
-
 function currentAccountBalance() {
   try {
     const account = JSON.parse(localStorage.getItem("demo_account") || "null");
@@ -173,26 +163,19 @@ function reconcileMovementBalances(list: HTMLElement) {
   );
   if (!rows.length) return;
 
-  // React'in en üst/güncel satıra verdiği bakiye, Transactions bileşenine ana
-  // sayfadan gelen balance değeridir. Bu yüzden mümkün olduğunda doğrudan onu
-  // referans al; DOM henüz hazır değilse localStorage'daki aynı hesap bakiyesine düş.
-  const visibleHomeBalance = readRowBalance(rows[0]);
-  const storedHomeBalance = currentAccountBalance();
-  const currentBalance = roundMoney(
-    visibleHomeBalance !== null ? visibleHomeBalance : storedHomeBalance,
-  );
-  if (!Number.isFinite(currentBalance)) return;
+  // Tek ve değişmez referans ana sayfadaki hesap bakiyesidir. Ekrandaki eski/stale
+  // bir satır bakiyesini asla kaynak olarak kullanmıyoruz; böylece React yeniden
+  // render etse veya PDF düğmesine basılsa da zincir başka bir rakama kayamaz.
+  let newerBalance = roundMoney(currentAccountBalance());
+  if (!Number.isFinite(newerBalance)) return;
 
   const signedAmounts = rows.map((row) =>
     parseMoney(findAmountBox(row)?.textContent || "0"),
   );
 
-  // Ekran en yeni hareketi üstte gösteriyor. En güncel satırın Kalan Bakiye'si
-  // ana sayfadaki bakiye ile BİREBİR aynı kalmalı. Daha eski satırlar ise görsel
-  // sırada bir üstteki (daha yeni) işlemin tutarı geri alınarak hesaplanır.
-  // Böylece kronolojik olarak alttan üste okunduğunda:
-  // eski bakiye + o eski satırın tutarı = bir sonraki/yeni satırın bakiyesi.
-  let newerBalance = currentBalance;
+  // Liste en yeni hareketten en eskiye gider. En üstteki Kalan Bakiye her zaman
+  // ana sayfa bakiyesidir. Bir alt/eskideki bakiyeye geçerken üstteki işlemi geri
+  // alırız: olderBalance = newerBalance - newerAmount.
   setRowBalance(rows[0], newerBalance);
 
   for (let index = 1; index < rows.length; index += 1) {
