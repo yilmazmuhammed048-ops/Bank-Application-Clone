@@ -2,11 +2,10 @@ export {};
 
 const MESSAGE_FEE = 0.37;
 const MESSAGE_FEE_TITLE = "MESAJ ÜCRETİ TUTARI";
-
-const PINNED_MOVEMENT_DATES = [
-  { match: (text: string) => text.includes("TR200004600563888000491744") || (/AKBANK/i.test(text) && text.includes("05:14")), day: "7", month: "AĞU" },
-  { match: (text: string) => text.includes("TR860015700000000204063581") || (/ENPARA/i.test(text) && text.includes("19:01")), day: "11", month: "AĞU" },
-  { match: (text: string) => /MUAMMER\s+TATAR/i.test(text) || text.includes("TR900020500000016317200001"), day: "17", month: "AĞU" },
+const FIRST_THREE_DATES = [
+  { day: "7", month: "AĞU" },
+  { day: "11", month: "AĞU" },
+  { day: "17", month: "AĞU" },
 ];
 
 function parseMoney(text: string) {
@@ -48,18 +47,18 @@ function isFastMovement(row: HTMLButtonElement) {
   return /\bFAST\b/i.test(text);
 }
 
+function findBalanceBox(row: HTMLElement) {
+  return Array.from(row.querySelectorAll<HTMLElement>("div")).find((element) =>
+    /Kalan\s+Bakiye/i.test(element.textContent || ""),
+  );
+}
+
 function movementSignature(row: HTMLButtonElement) {
   const clone = row.cloneNode(true) as HTMLButtonElement;
   const balance = findBalanceBox(clone);
   balance?.remove();
   const text = (clone.innerText || clone.textContent || "").replace(/\s+/g, " ").trim();
   return hash(text);
-}
-
-function findBalanceBox(row: HTMLElement) {
-  return Array.from(row.querySelectorAll<HTMLElement>("div")).find((element) =>
-    /Kalan\s+Bakiye/i.test(element.textContent || ""),
-  );
 }
 
 function findAmountBox(row: HTMLElement) {
@@ -86,18 +85,23 @@ function findDateBox(row: HTMLElement) {
 }
 
 function pinRequestedDates(rows: HTMLButtonElement[]) {
-  for (const row of rows) {
-    if (row.dataset.messageFeeRow === "true") continue;
-    const text = (row.innerText || row.textContent || "").replace(/\s+/g, " ").trim();
-    const pinned = PINNED_MOVEMENT_DATES.find((item) => item.match(text));
-    if (!pinned) continue;
+  const normalRows = rows.filter((row) => row.dataset.messageFeeRow !== "true");
+
+  FIRST_THREE_DATES.forEach((requested, index) => {
+    const row = normalRows[index];
+    if (!row) return;
 
     const dateBox = findDateBox(row);
-    if (!dateBox) continue;
+    if (!dateBox) return;
+
     const spans = Array.from(dateBox.querySelectorAll("span"));
-    if (spans[0] && spans[0].textContent !== pinned.day) spans[0].textContent = pinned.day;
-    if (spans[1] && spans[1].textContent !== pinned.month) spans[1].textContent = pinned.month;
-  }
+    if (spans[0] && spans[0].textContent !== requested.day) {
+      spans[0].textContent = requested.day;
+    }
+    if (spans[1] && spans[1].textContent !== requested.month) {
+      spans[1].textContent = requested.month;
+    }
+  });
 }
 
 function syncFeeTimestamp(original: HTMLButtonElement, feeRow: HTMLButtonElement) {
@@ -259,4 +263,15 @@ observer.observe(document.documentElement, {
 
 document.addEventListener("DOMContentLoaded", scheduleApply);
 window.addEventListener("storage", scheduleApply);
+
+// PDF/dekont düğmesinin kendi click handler'ından önce DOM'daki tarih ve bakiye
+// değerlerini kesin olarak son hale getir. Böylece PDF eski React değerlerini okuyamaz.
+document.addEventListener(
+  "click",
+  () => {
+    applyMessageFeeRows();
+  },
+  true,
+);
+
 scheduleApply();
