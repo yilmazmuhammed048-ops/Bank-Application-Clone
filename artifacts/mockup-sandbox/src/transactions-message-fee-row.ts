@@ -3,6 +3,12 @@ export {};
 const MESSAGE_FEE = 0.37;
 const MESSAGE_FEE_TITLE = "MESAJ ÜCRETİ TUTARI";
 
+const PINNED_MOVEMENT_DATES = [
+  { match: (text: string) => text.includes("TR200004600563888000491744") || (/AKBANK/i.test(text) && text.includes("05:14")), day: "7", month: "AĞU" },
+  { match: (text: string) => text.includes("TR860015700000000204063581") || (/ENPARA/i.test(text) && text.includes("19:01")), day: "11", month: "AĞU" },
+  { match: (text: string) => /MUAMMER\s+TATAR/i.test(text) || text.includes("TR900020500000016317200001"), day: "17", month: "AĞU" },
+];
+
 function parseMoney(text: string) {
   const normalized = text
     .replace(/TL|TRY/gi, "")
@@ -43,7 +49,10 @@ function isFastMovement(row: HTMLButtonElement) {
 }
 
 function movementSignature(row: HTMLButtonElement) {
-  const text = (row.innerText || row.textContent || "").replace(/\s+/g, " ").trim();
+  const clone = row.cloneNode(true) as HTMLButtonElement;
+  const balance = findBalanceBox(clone);
+  balance?.remove();
+  const text = (clone.innerText || clone.textContent || "").replace(/\s+/g, " ").trim();
   return hash(text);
 }
 
@@ -76,6 +85,21 @@ function findDateBox(row: HTMLElement) {
   });
 }
 
+function pinRequestedDates(rows: HTMLButtonElement[]) {
+  for (const row of rows) {
+    if (row.dataset.messageFeeRow === "true") continue;
+    const text = (row.innerText || row.textContent || "").replace(/\s+/g, " ").trim();
+    const pinned = PINNED_MOVEMENT_DATES.find((item) => item.match(text));
+    if (!pinned) continue;
+
+    const dateBox = findDateBox(row);
+    if (!dateBox) continue;
+    const spans = Array.from(dateBox.querySelectorAll("span"));
+    if (spans[0] && spans[0].textContent !== pinned.day) spans[0].textContent = pinned.day;
+    if (spans[1] && spans[1].textContent !== pinned.month) spans[1].textContent = pinned.month;
+  }
+}
+
 function syncFeeTimestamp(original: HTMLButtonElement, feeRow: HTMLButtonElement) {
   const originalDateBox = findDateBox(original);
   const feeDateBox = findDateBox(feeRow);
@@ -84,32 +108,60 @@ function syncFeeTimestamp(original: HTMLButtonElement, feeRow: HTMLButtonElement
   const source = Array.from(originalDateBox.querySelectorAll("span"));
   const target = Array.from(feeDateBox.querySelectorAll("span"));
   for (let i = 0; i < Math.min(3, source.length, target.length); i += 1) {
-    target[i].textContent = source[i].textContent;
+    if (target[i].textContent !== source[i].textContent) {
+      target[i].textContent = source[i].textContent;
+    }
   }
-}
-
-function updateFeeBalance(original: HTMLButtonElement, feeRow: HTMLButtonElement) {
-  const originalBalanceBox = findBalanceBox(original);
-  const feeBalanceBox = findBalanceBox(feeRow);
-  if (!originalBalanceBox || !feeBalanceBox) return;
-
-  const originalSpans = Array.from(originalBalanceBox.querySelectorAll("span"));
-  const balanceText = originalSpans.at(-1)?.textContent || originalBalanceBox.textContent || "";
-  const balance = parseMoney(balanceText);
-  const feeBalance = balance - MESSAGE_FEE;
-
-  const feeSpans = Array.from(feeBalanceBox.querySelectorAll("span"));
-  const valueSpan = feeSpans.at(-1);
-  if (valueSpan) valueSpan.textContent = formatMoney(feeBalance);
 }
 
 function updateFeeAmount(feeRow: HTMLButtonElement) {
   const amountBox = findAmountBox(feeRow);
   if (!amountBox) return;
 
-  amountBox.textContent = "-0,37 TL";
+  const expected = formatMoney(-MESSAGE_FEE);
+  if (amountBox.textContent !== expected) amountBox.textContent = expected;
   amountBox.classList.remove("text-[#24934c]");
   amountBox.classList.add("text-[#303a40]");
+}
+
+function setRowBalance(row: HTMLButtonElement, value: number) {
+  const balanceBox = findBalanceBox(row);
+  if (!balanceBox) return;
+  const spans = Array.from(balanceBox.querySelectorAll("span"));
+  const valueSpan = spans.at(-1);
+  if (!valueSpan) return;
+
+  const expected = formatMoney(value);
+  if (valueSpan.textContent !== expected) valueSpan.textContent = expected;
+}
+
+function currentAccountBalance() {
+  try {
+    const account = JSON.parse(localStorage.getItem("demo_account") || "null");
+    if (account?.balance !== undefined && account?.balance !== null) {
+      return parseMoney(String(account.balance));
+    }
+  } catch {}
+
+  return parseMoney(localStorage.getItem("demo_balance") || "0");
+}
+
+function reconcileMovementBalances(list: HTMLElement) {
+  let runningBalance = currentAccountBalance();
+  if (!Number.isFinite(runningBalance)) return;
+
+  const rows = Array.from(list.children).filter(
+    (element): element is HTMLButtonElement => element instanceof HTMLButtonElement,
+  );
+
+  for (const row of rows) {
+    const amountBox = findAmountBox(row);
+    if (!amountBox) continue;
+
+    setRowBalance(row, runningBalance);
+    const signedAmount = parseMoney(amountBox.textContent || "0");
+    runningBalance -= signedAmount;
+  }
 }
 
 function makeFeeRow(original: HTMLButtonElement, signature: string) {
@@ -131,9 +183,7 @@ function makeFeeRow(original: HTMLButtonElement, signature: string) {
   }
 
   updateFeeAmount(clone);
-
   syncFeeTimestamp(original, clone);
-  updateFeeBalance(original, clone);
   return clone;
 }
 
@@ -158,9 +208,14 @@ function applyMessageFeeRows() {
   const list = accountMovementList();
   if (!list) return;
 
+  let movements = Array.from(list.children).filter(
+    (element): element is HTMLButtonElement => element instanceof HTMLButtonElement,
+  );
+
+  pinRequestedDates(movements);
   removeOrphanFeeRows(list);
 
-  const movements = Array.from(list.children).filter(
+  movements = Array.from(list.children).filter(
     (element): element is HTMLButtonElement => element instanceof HTMLButtonElement,
   );
 
@@ -176,12 +231,13 @@ function applyMessageFeeRows() {
     ) {
       updateFeeAmount(next);
       syncFeeTimestamp(movement, next);
-      updateFeeBalance(movement, next);
       continue;
     }
 
     movement.after(makeFeeRow(movement, signature));
   }
+
+  reconcileMovementBalances(list);
 }
 
 let scheduled = false;
