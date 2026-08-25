@@ -40,7 +40,7 @@ const MY_ACCOUNT = "4000/104120627-5001";
 const ADDRESS_1 = "FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 / 3";
 const ADDRESS_2 = "ÜRGÜP";
 const ADDRESS_3 = "NEVŞEHİR";
-const DEMO_LABEL = "DEMO / ÖRNEK - GERÇEK BANKA BELGESİ DEĞİLDİR";
+
 
 const ONES = ["", "BİR", "İKİ", "ÜÇ", "DÖRT", "BEŞ", "ALTI", "YEDİ", "SEKİZ", "DOKUZ"];
 const TENS = ["", "ON", "YİRMİ", "OTUZ", "KIRK", "ELLİ", "ALTMIŞ", "YETMİŞ", "SEKSEN", "DOKSAN"];
