@@ -56,7 +56,13 @@ function syncOpenReceiptToStorage(screen: HTMLElement) {
   const recipientIban = pick(text, /Alıcı\s+Hesap\s*:\s*(TR[\d\s*]+)/i);
   const receiverName = pick(text, /Alıcı\s*:\s*([^\n]+)/i);
   const senderName = pick(text, /Gönderen\s*:\s*([^\n]+)/i);
-  const dateTime = text.match(/İŞLEM\s+TARİHİ\s*:?\s*(\d{1,2}\s+[^\s]+\s+\d{4})\s+(\d{2}:\d{2})/i);
+  const numericDateTime = text.match(
+    /İŞLEM\s+TARİHİ\s*:?\s*(\d{1,2}[./-]\d{1,2}[./-]\d{4})\s*-\s*(\d{1,2}:\d{2})(?::\d{2})?/i,
+  );
+  const longDateTime = text.match(
+    /İŞLEM\s+TARİHİ\s*:?\s*(\d{1,2}\s+[^\s]+\s+\d{4})\s+(\d{1,2}:\d{2})/i,
+  );
+  const dateTime = numericDateTime || longDateTime;
 
   const incoming = /HESABA\s+GELEN\s+FAST/i.test(text);
   const recipientName = incoming ? senderName : receiverName;
