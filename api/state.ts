@@ -10,7 +10,8 @@ type State = {
 
 const STATE_PATH = "bank-demo/state.json";
 const BLOB_API_VERSION = "12";
-const STATE_SCHEMA_VERSION = 2;
+const STATE_SCHEMA_VERSION = 3;
+const PERMANENTLY_REMOVED_TRANSACTION_KEYS = new Set(["1787510111534"]);
 
 const initial: State = {
   schemaVersion: STATE_SCHEMA_VERSION,
@@ -62,6 +63,48 @@ function setCors(req: any, res: any) {
   res.setHeader("Cache-Control", "no-store");
 }
 
+function transactionKey(transaction: any) {
+  return String(
+    transaction?.transactionNumber ??
+      transaction?.id ??
+      `${transaction?.date ?? ""}|${transaction?.time ?? ""}|${transaction?.amount ?? ""}|${transaction?.title ?? ""}`,
+  );
+}
+
+function sanitizeTransactions(value: unknown[]) {
+  const seenIds = new Set<string>();
+
+  return value
+    .filter(
+      (transaction: any) =>
+        !PERMANENTLY_REMOVED_TRANSACTION_KEYS.has(transactionKey(transaction)),
+    )
+    .map((transaction: any) => {
+      if (!transaction || typeof transaction !== "object") return transaction;
+
+      const cleaned = { ...transaction };
+      const recipientName = String(cleaned.recipientName ?? "").toLocaleUpperCase("tr-TR");
+
+      if (recipientName.includes("MUAMMER TATAR") && typeof cleaned.description === "string") {
+        cleaned.description = cleaned.description
+          .replace(/\bdeneme\b/gi, "")
+          .replace(/\s{2,}/g, " ")
+          .trim();
+      }
+
+      const id = String(cleaned.id ?? "");
+      if (id && seenIds.has(id) && cleaned.transactionNumber != null) {
+        const uniqueId = Number(cleaned.transactionNumber);
+        cleaned.id = Number.isFinite(uniqueId)
+          ? uniqueId
+          : String(cleaned.transactionNumber);
+      }
+
+      seenIds.add(String(cleaned.id ?? ""));
+      return cleaned;
+    });
+}
+
 function normalizeState(value: any): State {
   return {
     schemaVersion: STATE_SCHEMA_VERSION,
@@ -71,31 +114,9 @@ function normalizeState(value: any): State {
         ? value.account
         : initial.account,
     transactions: Array.isArray(value?.transactions)
-      ? value.transactions
+      ? sanitizeTransactions(value.transactions)
       : initial.transactions,
   };
-}
-
-function transactionKey(transaction: any) {
-  return String(
-    transaction?.transactionNumber ??
-      transaction?.id ??
-      `${transaction?.date ?? ""}|${transaction?.time ?? ""}|${transaction?.amount ?? ""}|${transaction?.title ?? ""}`,
-  );
-}
-
-function mergeTransactions(currentTransactions: unknown[], incomingTransactions: unknown[]) {
-  const merged = new Map<string, unknown>();
-
-  for (const transaction of currentTransactions) {
-    merged.set(transactionKey(transaction), transaction);
-  }
-
-  for (const transaction of incomingTransactions) {
-    merged.set(transactionKey(transaction), transaction);
-  }
-
-  return Array.from(merged.values());
 }
 
 function blobAuth() {
@@ -152,7 +173,8 @@ async function readState(): Promise<State> {
 
   if (
     Number(raw?.schemaVersion) !== STATE_SCHEMA_VERSION ||
-    !Number.isFinite(Number(raw?.revision))
+    !Number.isFinite(Number(raw?.revision)) ||
+    JSON.stringify(raw?.transactions ?? []) !== JSON.stringify(current.transactions)
   ) {
     await writeState(current);
   }
@@ -189,8 +211,10 @@ export default async function handler(req: any, res: any) {
           body.account && typeof body.account === "object"
             ? body.account
             : current.account,
+        // Admin panelindeki liste artık otoriter: listeden silinen hareketler
+        // eski blob ile birleştirilip geri getirilmiyor.
         transactions: Array.isArray(body.transactions)
-          ? mergeTransactions(current.transactions, body.transactions)
+          ? sanitizeTransactions(body.transactions)
           : current.transactions,
       };
 
