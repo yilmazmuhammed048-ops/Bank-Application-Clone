@@ -1,3 +1,4 @@
+import "./permanent-transaction-removals";
 import "./panel-authority-sync";
 import "./receipt-description-display";
 import "./receipt-pdf-description-line";
