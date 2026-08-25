@@ -17,7 +17,7 @@ const CW = Math.round(PTW * PX);
 const CH = Math.round(PTH * PX);
 const FONT = '"Times New Roman", Times, serif';
 const UI_FONT = 'Arial, Helvetica, sans-serif';
-const DEMO_LABEL = "DEMO / ÖRNEK - GERÇEK BANKA BELGESİ DEĞİLDİR";
+
 
 const MONTHS: Record<string, string> = {
   OCA: "01", OCAK: "01", ŞUB: "02", ŞUBAT: "02", SUB: "02", SUBAT: "02",
