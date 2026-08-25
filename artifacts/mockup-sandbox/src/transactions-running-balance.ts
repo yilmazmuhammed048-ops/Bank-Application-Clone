@@ -1,5 +1,7 @@
 export {};
 
+const OPENING_BALANCE = 70000;
+
 function parseMoney(text: string) {
   const normalized = String(text || "").replace(/TL|TRY/gi, "").replace(/\s/g, "").replace(/\./g, "").replace(",", ".").replace(/[^\d+.-]/g, "");
   const value = Number(normalized);
@@ -7,10 +9,6 @@ function parseMoney(text: string) {
 }
 function formatMoney(value: number) { return `${value.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL`; }
 function roundMoney(value: number) { return Math.round((value + Number.EPSILON) * 100) / 100; }
-function currentAccountBalance() {
-  try { const account = JSON.parse(localStorage.getItem("demo_account") || "null"); if (account?.balance != null) return parseMoney(String(account.balance)); } catch {}
-  return parseMoney(localStorage.getItem("demo_balance") || "0");
-}
 function accountMovementList() { const filter = document.querySelector<HTMLButtonElement>('button[aria-label="Filtre"]'); const list = filter?.parentElement?.nextElementSibling; return list instanceof HTMLElement ? list : null; }
 function findAmountBox(row: HTMLElement) { return Array.from(row.children).find((element): element is HTMLElement => element instanceof HTMLElement && /^[+-]\s*[\d.]+,\d{2}\s*TL$/i.test((element.textContent || "").trim())); }
 function findBalanceBox(row: HTMLElement) { return Array.from(row.querySelectorAll<HTMLElement>("div")).find((element) => /Kalan\s+Bakiye/i.test(element.textContent || "")); }
@@ -21,11 +19,14 @@ function reconcileRunningBalance() {
   const list = accountMovementList(); if (!list) return;
   const rows = Array.from(list.children).filter((e): e is HTMLButtonElement => e instanceof HTMLButtonElement && findAmountBox(e) !== undefined);
   if (!rows.length) return;
-  let balance = roundMoney(currentAccountBalance());
+
   const chronological = [...rows].reverse();
-  // En eski dekont başlangıç bakiyesini aynen gösterir; kendi tutarı burada uygulanmaz.
+  let balance = OPENING_BALANCE;
+
+  // En sondaki/en eski hareketin Kalan Bakiye değeri tam 70.000,00 TL'dir.
   setRowBalance(chronological[0], balance);
-  // Sonraki dekontlardan itibaren - düşer, + eklenir.
+
+  // Ondan sonra kronolojik olarak gelen her harekette '-' düşer, '+' eklenir.
   for (let i = 1; i < chronological.length; i += 1) {
     balance = roundMoney(balance + signedAmount(chronological[i]));
     setRowBalance(chronological[i], balance);
