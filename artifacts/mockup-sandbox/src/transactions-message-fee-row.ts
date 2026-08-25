@@ -149,12 +149,13 @@ function reconcileMovementBalances(list: HTMLElement) {
   );
   if (!rows.length) return;
 
-  // Ana sayfadaki bakiye işlem zincirinin BAŞLANGIÇ bakiyesidir.
-  // Her satır kendi işaretini uygular: '-' düşer, '+' eklenir.
+  // Başlangıç en eski/ilk harekettedir. Ekran yeni -> eski görünse de hesaplama
+  // listenin altından üstüne, yani eski -> yeni yapılır. Ücret satırları da tam
+  // bulundukları kronolojik noktada aynı zincire dahil edilir.
   let runningBalance = roundMoney(currentAccountBalance());
   if (!Number.isFinite(runningBalance)) return;
 
-  for (const row of rows) {
+  for (const row of [...rows].reverse()) {
     runningBalance = roundMoney(runningBalance + signedAmount(row));
     setRowBalance(row, runningBalance);
   }
