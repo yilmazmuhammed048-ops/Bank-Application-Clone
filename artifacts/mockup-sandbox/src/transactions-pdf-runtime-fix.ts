@@ -19,6 +19,17 @@ const FONT = '"Times New Roman", Times, serif';
 const UI_FONT = 'Arial, Helvetica, sans-serif';
 const DEMO_LABEL = "DEMO / ÖRNEK - GERÇEK BANKA BELGESİ DEĞİLDİR";
 
+// Reference-tuned statement layout. The demo safety label is intentionally kept.
+const INFO_FONT_SIZE = 8.25;
+const HEADER_FONT_SIZE = 8.25;
+const BODY_FONT_SIZE = 7.9;
+const TOTAL_FONT_SIZE = 8.25;
+const FOOTER_FONT_SIZE = 4.9;
+const DESCRIPTION_WIDTH = 296;
+const ROW_SINGLE = 15.15;
+const ROW_DOUBLE = 20.9;
+const ROW_LINE_GAP = 9.1;
+
 const MONTHS: Record<string, string> = {
   OCA: "01", OCAK: "01", ŞUB: "02", ŞUBAT: "02", SUB: "02", SUBAT: "02",
   MAR: "03", MART: "03", NİS: "04", NİSAN: "04", NIS: "04", NISAN: "04",
@@ -137,8 +148,10 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, width: number) {
 }
 
 function rowHeight(ctx: CanvasRenderingContext2D, row: Row) {
-  ctx.font = `400 7.2px ${FONT}`;
-  return wrap(ctx, `${row.description}${row.time ? ` / ${row.time}` : ""}`, 313).length > 1 ? 18.7 : 13.9;
+  ctx.font = `400 ${BODY_FONT_SIZE}px ${FONT}`;
+  return wrap(ctx, `${row.description}${row.time ? ` / ${row.time}` : ""}`, DESCRIPTION_WIDTH).length > 1
+    ? ROW_DOUBLE
+    : ROW_SINGLE;
 }
 
 function paginate(all: Row[]) {
@@ -146,7 +159,7 @@ function paginate(all: Row[]) {
   const pages: Row[][] = [];
   let current: Row[] = [];
   let used = 0;
-  const maxBody = 425;
+  const maxBody = 421;
 
   for (const row of all) {
     const height = rowHeight(scratch, row);
@@ -179,115 +192,115 @@ async function renderPage(
 
   const logo = await image("/ziraat-amblem.jpg");
   if (logo && logo.naturalWidth > 0 && logo.naturalHeight > 0) {
-    const h = 25;
+    const h = 27.3;
     const w = h * (logo.naturalWidth / logo.naturalHeight);
-    ctx.drawImage(logo, 23, 14, w, h);
+    ctx.drawImage(logo, 23, 15.7, w, h);
     ctx.fillStyle = "#111";
-    ctx.font = `700 15.2px ${UI_FONT}`;
-    ctx.fillText("Ziraat Bankası", 24 + w + 2.5, 31.5);
+    ctx.font = `700 16.4px ${UI_FONT}`;
+    ctx.fillText("Ziraat Bankası", 24 + w + 2.8, 34.4);
   } else {
     ctx.fillStyle = "#d4001d";
-    ctx.fillRect(23, 16, 6, 23);
+    ctx.fillRect(23, 17.3, 6.5, 25.2);
     ctx.fillStyle = "#111";
-    ctx.font = `700 15.2px ${UI_FONT}`;
-    ctx.fillText("Ziraat Bankası", 32, 31.5);
+    ctx.font = `700 16.4px ${UI_FONT}`;
+    ctx.fillText("Ziraat Bankası", 33, 34.4);
   }
 
-  ctx.strokeStyle = "#4b4b4b";
-  ctx.lineWidth = 0.75;
-  ctx.strokeRect(22, 59.2, 551.5, 73.2);
+  ctx.strokeStyle = "#444";
+  ctx.lineWidth = 0.88;
+  ctx.strokeRect(22, 61, 551.5, 76.2);
 
   ctx.fillStyle = "#111";
-  ctx.font = `700 7.7px ${FONT}`;
+  ctx.font = `700 ${INFO_FONT_SIZE}px ${FONT}`;
   const bold: Array<[string, number, number]> = [
-    ["Sayın", 24.8, 71.8], ["Adres", 24.8, 96.4],
-    ["Şube Kodu", 341, 71.8], ["Müşteri/Hesap No", 341, 84.3],
-    ["IBAN", 341, 96.8], ["Döviz Cinsi", 341, 109.3], ["Dönem", 341, 121.8],
+    ["Sayın", 24.8, 74.2], ["Adres", 24.8, 99.8],
+    ["Şube Kodu", 343, 74.2], ["Müşteri/Hesap No", 343, 87.2],
+    ["IBAN", 343, 100.2], ["Döviz Cinsi", 343, 113.2], ["Dönem", 343, 126.2],
   ];
   bold.forEach(([text, x, y]) => ctx.fillText(text, x, y));
 
-  ctx.font = `400 7.7px ${FONT}`;
+  ctx.font = `400 ${INFO_FONT_SIZE}px ${FONT}`;
   const normal: Array<[string, number, number]> = [
-    [":  MUHAMMED YILMAZ", 60.3, 71.8],
-    [":  FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 /3 ÜRGÜP", 60.3, 96.4],
-    ["   NEVŞEHİR", 60.3, 108.5],
-    [":  ZİRAAT SÜPER ŞUBE", 421, 71.8],
-    [":  104120627-5001", 421, 84.3],
-    [":  TR31000110412062705001", 421, 96.8],
-    [":  TRY", 421, 109.3],
-    [`:  ${period}`, 421, 121.8],
+    [":  MUHAMMED YILMAZ", 61.2, 74.2],
+    [":  FATİH MAH. HÜSEYİN TERZİOĞLU CAD. NO: 5 /3 ÜRGÜP", 61.2, 99.8],
+    ["   NEVŞEHİR", 61.2, 112.6],
+    [":  ZİRAAT SÜPER ŞUBE", 422.5, 74.2],
+    [":  104120627-5001", 422.5, 87.2],
+    [":  TR31000110412062705001", 422.5, 100.2],
+    [":  TRY", 422.5, 113.2],
+    [`:  ${period}`, 422.5, 126.2],
   ];
   normal.forEach(([text, x, y]) => ctx.fillText(text, x, y));
 
   const tableX = 22;
-  const tableY = 144;
+  const tableY = 147.5;
   const tableW = 551.5;
-  const headerH = 15;
-  ctx.fillStyle = "#d7d7d7";
+  const headerH = 16.2;
+  ctx.fillStyle = "#d2d2d2";
   ctx.fillRect(tableX, tableY, tableW, headerH);
-  ctx.strokeStyle = "#4b4b4b";
+  ctx.strokeStyle = "#444";
+  ctx.lineWidth = 0.88;
   ctx.strokeRect(tableX, tableY, tableW, headerH);
   ctx.fillStyle = "#111";
-  ctx.font = `700 7.7px ${FONT}`;
-  [["Tarih", 24.8], ["Fiş No", 79.5], ["Açıklama", 144], ["Tutar", 492], ["Bakiye", 542]].forEach(([t, x]) => {
-    ctx.fillText(String(t), Number(x), tableY + 10.7);
+  ctx.font = `700 ${HEADER_FONT_SIZE}px ${FONT}`;
+  [["Tarih", 24.8], ["Fiş No", 79.5], ["Açıklama", 143], ["Tutar", 487], ["Bakiye", 540]].forEach(([t, x]) => {
+    ctx.fillText(String(t), Number(x), tableY + 11.5);
   });
 
   let y = tableY + headerH;
   for (const row of pageRows) {
-    ctx.font = `400 7.2px ${FONT}`;
-    const lines = wrap(ctx, `${row.description}${row.time ? ` / ${row.time}` : ""}`, 313);
-    const height = lines.length > 1 ? 18.7 : 13.9;
-    const baseline = y + 9.2;
+    ctx.font = `400 ${BODY_FONT_SIZE}px ${FONT}`;
+    const lines = wrap(ctx, `${row.description}${row.time ? ` / ${row.time}` : ""}`, DESCRIPTION_WIDTH);
+    const height = lines.length > 1 ? ROW_DOUBLE : ROW_SINGLE;
+    const baseline = y + 10.25;
     ctx.fillText(row.date, 24.8, baseline);
     ctx.fillText(row.receiptNo, 79.5, baseline);
-    lines.forEach((line, index) => ctx.fillText(line, 144, baseline + index * 8.2));
+    lines.forEach((line, index) => ctx.fillText(line, 143, baseline + index * ROW_LINE_GAP));
     ctx.textAlign = "right";
-    ctx.fillText(row.amount, 527, baseline);
+    ctx.fillText(row.amount, 522, baseline);
     ctx.fillText(row.balance, 567, baseline);
     ctx.textAlign = "left";
     y += height;
   }
 
   if (isLast) {
-    y += 2;
-    ctx.font = `700 7.7px ${FONT}`;
-    ctx.fillText("Borç:", 79.5, y + 10);
-    ctx.fillText("Alacak:", 79.5, y + 21.5);
+    y += 2.4;
+    ctx.font = `700 ${TOTAL_FONT_SIZE}px ${FONT}`;
+    ctx.fillText("Borç:", 79.5, y + 10.8);
+    ctx.fillText("Alacak:", 79.5, y + 23);
     ctx.textAlign = "right";
-    ctx.fillText(`-${money(totals.debit)}`, 527, y + 10);
-    ctx.fillText(money(totals.credit), 527, y + 21.5);
+    ctx.fillText(`-${money(totals.debit)}`, 522, y + 10.8);
+    ctx.fillText(money(totals.credit), 522, y + 23);
     ctx.textAlign = "left";
-    y += 26;
+    y += 28;
   }
 
-  ctx.strokeStyle = "#4b4b4b";
-  ctx.strokeRect(tableX, tableY, tableW, Math.max(16, y - tableY));
+  ctx.strokeStyle = "#444";
+  ctx.lineWidth = 0.88;
+  ctx.strokeRect(tableX, tableY, tableW, Math.max(17, y - tableY));
 
-  const footerY = Math.min(745, y + 20);
+  const footerY = Math.min(745, y + 18);
   ctx.fillStyle = "#171717";
-  ctx.font = `400 4.4px ${FONT}`;
+  ctx.font = `400 ${FOOTER_FONT_SIZE}px ${FONT}`;
   ctx.fillText(
     "Taraflar arasında tüm uyuşmazlıklarda, Banka'nın defter kayıtları ve belgeleri, müstenitli olsun olmasın, kesin ve aksi ileri sürülemez delil niteliğindedir.",
     22,
     footerY,
     552,
   );
-  ctx.fillText("Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye İstanbul", 22, footerY + 7);
-  ctx.fillText("Ticaret Sicil No: 475225-5", 22, footerY + 14);
-  ctx.fillText("www.ziraatbank.com.tr", 22, footerY + 21);
+  ctx.fillText("Merkez: Finanskent Mahallesi Finans Caddesi No:44A Ümraniye İstanbul", 22, footerY + 7.8);
+  ctx.fillText("Ticaret Sicil No: 475225-5", 22, footerY + 15.6);
+  ctx.fillText("www.ziraatbank.com.tr", 22, footerY + 23.4);
 
   ctx.save();
   roundedRect(ctx, 150, 795, 295, 25, 4);
   ctx.fillStyle = "rgba(255,255,255,.96)";
   ctx.fill();
-  
-  
- 
+
+  // The actual demo label is drawn by transactions-pdf-safety-label.ts during export.
   ctx.fillStyle = "#b00020";
   ctx.textAlign = "center";
   ctx.font = `700 8.5px ${UI_FONT}`;
-  
   ctx.restore();
 
   return canvas;
