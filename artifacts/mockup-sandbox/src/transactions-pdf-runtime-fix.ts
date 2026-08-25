@@ -283,7 +283,7 @@ async function renderPage(
   ctx.fill();
   
   ctx.lineWidth = 1;
-  ctx.stroke();
+ 
   ctx.fillStyle = "#b00020";
   ctx.textAlign = "center";
   ctx.font = `700 8.5px ${UI_FONT}`;
