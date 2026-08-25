@@ -6,7 +6,7 @@ const DPI = 300;
 const PX = DPI / 72;
 const CW = Math.round(PTW * PX);
 const CH = Math.round(PTH * PX);
-const DEMO_LABEL = "DEMO / ÖRNEK - GERÇEK BANKA BELGESİ DEĞİLDİR";
+const 
 const FONT = 'Arial, "Helvetica Neue", Helvetica, sans-serif';
 
 const nativeToDataURL = HTMLCanvasElement.prototype.toDataURL;
