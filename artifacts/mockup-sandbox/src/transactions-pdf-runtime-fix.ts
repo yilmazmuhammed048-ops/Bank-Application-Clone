@@ -281,7 +281,7 @@ async function renderPage(
   roundedRect(ctx, 150, 795, 295, 25, 4);
   ctx.fillStyle = "rgba(255,255,255,.96)";
   ctx.fill();
-  ctx.strokeStyle = "#b00020";
+  
   ctx.lineWidth = 1;
   ctx.stroke();
   ctx.fillStyle = "#b00020";
