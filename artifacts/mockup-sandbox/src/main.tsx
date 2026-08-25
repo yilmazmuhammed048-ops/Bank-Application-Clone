@@ -126,11 +126,83 @@ const ARCHIVE_TRANSACTIONS = [
   },
 ];
 
+const TURKISH_MONTHS: Record<string, number> = {
+  OCAK: 1,
+  ŞUBAT: 2,
+  SUBAT: 2,
+  MART: 3,
+  NİSAN: 4,
+  NISAN: 4,
+  MAYIS: 5,
+  HAZİRAN: 6,
+  HAZIRAN: 6,
+  TEMMUZ: 7,
+  AĞUSTOS: 8,
+  AGUSTOS: 8,
+  EYLÜL: 9,
+  EYLUL: 9,
+  EKİM: 10,
+  EKIM: 10,
+  KASIM: 11,
+  ARALIK: 12,
+};
+
 function transactionKey(transaction: any) {
   return String(
     transaction?.transactionNumber ??
       `${transaction?.id ?? ""}|${transaction?.date ?? ""}|${transaction?.time ?? ""}|${transaction?.amount ?? ""}`,
   );
+}
+
+function parseTransactionDateTime(transaction: any) {
+  const dateText = String(transaction?.date ?? "").trim();
+  const timeText = String(transaction?.time ?? "00:00").trim();
+
+  let year = 0;
+  let month = 0;
+  let day = 0;
+
+  const numeric = dateText.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+  if (numeric) {
+    day = Number(numeric[1]);
+    month = Number(numeric[2]);
+    year = Number(numeric[3]);
+  } else {
+    const written = dateText.match(/^(\d{1,2})\s+([^\s]+)\s+(\d{4})$/);
+    if (written) {
+      day = Number(written[1]);
+      const monthKey = written[2].toLocaleUpperCase("tr-TR");
+      month = TURKISH_MONTHS[monthKey] ?? 0;
+      year = Number(written[3]);
+    }
+  }
+
+  const time = timeText.match(/^(\d{1,2}):(\d{2})/);
+  const hour = Number(time?.[1] ?? 0);
+  const minute = Number(time?.[2] ?? 0);
+
+  if (!year || !month || !day) return null;
+
+  return (((((year * 100) + month) * 100 + day) * 100 + hour) * 100) + minute;
+}
+
+function stableTieBreaker(transaction: any) {
+  const value = transactionKey(transaction);
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (Math.imul(hash, 31) + value.charCodeAt(index)) | 0;
+  }
+  return Math.abs(hash) % 1000;
+}
+
+function withChronologicalDisplayIds(transactions: any[]) {
+  return transactions.map((transaction, index) => {
+    const chronological = parseTransactionDateTime(transaction);
+    if (chronological === null) return transaction;
+
+    const id = chronological * 1000 + stableTieBreaker(transaction) + (index % 3);
+    return { ...transaction, id };
+  });
 }
 
 function parseStateAmount(value: unknown) {
@@ -207,11 +279,18 @@ async function loadSharedState() {
       ? new Set<string>()
       : new Set(readDeletedKeys());
 
-    const visibleTransactions = isAdminRoute
+    const filteredTransactions = isAdminRoute
       ? sourceTransactions
       : sourceTransactions.filter(
           (transaction) => !deletedSet.has(transactionKey(transaction)),
         );
+
+    // App.tsx hareketleri numeric id ile sıralıyor. Banka ekranında id'yi gerçek
+    // tarih+saatten türeterek aynı gün içindeki işlemlerin de doğru kronolojik
+    // sırada kalmasını sağlıyoruz. Admin tarafındaki gerçek id'lere dokunmuyoruz.
+    const visibleTransactions = isAdminRoute
+      ? filteredTransactions
+      : withChronologicalDisplayIds(filteredTransactions);
 
     if (data.account) {
       const account = { ...data.account };
