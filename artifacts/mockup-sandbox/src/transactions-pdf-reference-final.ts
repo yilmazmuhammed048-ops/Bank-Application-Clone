@@ -2,6 +2,8 @@ import "./panel-authority-sync";
 import "./receipt-description-display";
 import "./receipt-pdf-description-line";
 import "./receipt-pdf-hires";
+import "./transactions-pdf-balance-consistency";
+import "./transactions-pdf-safety-label";
 import "./transactions-pdf-runtime-fix";
 import "./transactions-pdf-footer-text-patch";
 import "./transactions-pdf-file-save";
