@@ -1,12 +1,15 @@
 export {};
 
-// Tek başlangıç noktası ana sayfadaki hesap bakiyesidir. Hareketler yukarıdan
-// aşağı işlenir ve HER satır kendi işaretli tutarını kalan bakiyeye uygular.
-// Eksi ile başlayan tutar düşülür, artı ile başlayan tutar eklenir.
+// Bakiye zinciri EN ESKİ (ilk gelen) hareketten başlar.
+// Ana sayfadaki bakiye başlangıç bakiyesidir; ardından hareketler kronolojik
+// olarak eskiden yeniye doğru uygulanır. Eksi düşer, artı eklenir.
+// Ekran yeni -> eski sıralı kalsa bile hesaplama ters yönde, eski -> yeni yapılır.
 //
 // Örnek:
-// 100.000 -> -20.000 = 80.000 -> -5.000 = 75.000 -> +8.600 = 83.600
-// Böylece hiçbir satır başka bir işlemin tutarını kullanmaz.
+// Başlangıç 100.000
+// en eski -20.000 => 80.000
+// sonraki -5.000 => 75.000
+// sonraki +8.600 => 83.600
 
 function parseMoney(text: string) {
   const normalized = String(text || "")
@@ -95,9 +98,11 @@ function reconcileRunningBalance() {
   let runningBalance = roundMoney(currentAccountBalance());
   if (!Number.isFinite(runningBalance)) return;
 
-  // Ana sayfa bakiyesi işlem öncesi başlangıç değeridir. İlk satır dahil her
-  // hareket kendi işaretine göre bu bakiyeyi değiştirir.
-  for (const row of rows) {
+  // DOM listesi en yeni -> en eski. Hesap ise kullanıcının istediği gibi
+  // en eski (listenin en altı) -> en yeni (listenin en üstü) yapılır.
+  const chronologicalRows = [...rows].reverse();
+
+  for (const row of chronologicalRows) {
     runningBalance = roundMoney(runningBalance + signedAmountForRow(row));
     setRowBalance(row, runningBalance);
   }
@@ -113,7 +118,6 @@ function scheduleReconcile() {
   });
 }
 
-// Hareketler, ücret satırları veya admin bakiyesi değiştiği anda zinciri tekrar kur.
 const observer = new MutationObserver(scheduleReconcile);
 observer.observe(document.documentElement, {
   childList: true,
