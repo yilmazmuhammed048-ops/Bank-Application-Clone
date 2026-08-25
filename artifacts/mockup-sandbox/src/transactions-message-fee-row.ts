@@ -26,6 +26,10 @@ function formatMoney(value: number) {
   })} TL`;
 }
 
+function roundMoney(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
 function hash(value: string) {
   let h = 2166136261;
   for (let i = 0; i < value.length; i += 1) {
@@ -153,20 +157,30 @@ function currentAccountBalance() {
 }
 
 function reconcileMovementBalances(list: HTMLElement) {
-  let runningBalance = currentAccountBalance();
-  if (!Number.isFinite(runningBalance)) return;
+  const currentBalance = currentAccountBalance();
+  if (!Number.isFinite(currentBalance)) return;
 
   const rows = Array.from(list.children).filter(
-    (element): element is HTMLButtonElement => element instanceof HTMLButtonElement,
+    (element): element is HTMLButtonElement =>
+      element instanceof HTMLButtonElement && findAmountBox(element) !== undefined,
+  );
+  if (!rows.length) return;
+
+  const signedAmounts = rows.map((row) =>
+    parseMoney(findAmountBox(row)?.textContent || "0"),
   );
 
-  for (const row of rows) {
-    const amountBox = findAmountBox(row);
-    if (!amountBox) continue;
+  // Liste ekranda en yeniden en eskiye gidiyor. Kullanıcının istediği matematik
+  // zinciri ise en eski işlemden güncele doğru okunuyor: bir satırdaki bakiye +
+  // o satırdaki imzalı tutar = kronolojik olarak bir sonraki satırın bakiyesi.
+  // Güncel hesap bakiyesini son nokta olarak koruyup açılış bakiyesini geriye
+  // doğru buluyor, sonra en alttaki/eski satırdan yukarı doğru bütün zinciri kuruyoruz.
+  const totalSigned = signedAmounts.reduce((sum, amount) => roundMoney(sum + amount), 0);
+  let runningBalance = roundMoney(currentBalance - totalSigned);
 
-    setRowBalance(row, runningBalance);
-    const signedAmount = parseMoney(amountBox.textContent || "0");
-    runningBalance -= signedAmount;
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    setRowBalance(rows[index], runningBalance);
+    runningBalance = roundMoney(runningBalance + signedAmounts[index]);
   }
 }
 
