@@ -68,7 +68,7 @@ function rowsFromScreen(screen: HTMLElement): Row[] {
   const list = filter?.parentElement?.nextElementSibling as HTMLElement | null;
   if (!list) return [];
 
-  return Array.from(list.children)
+  const rows = Array.from(list.children)
     .filter((element): element is HTMLButtonElement => element instanceof HTMLButtonElement)
     .map((button, index) => {
       const divs = Array.from(button.children).filter(
@@ -101,6 +101,23 @@ function rowsFromScreen(screen: HTMLElement): Row[] {
       } satisfies Row;
     })
     .filter((row): row is Row => !!row);
+
+  // Ekran en yeni hareketi üstte gösteriyor. En üstte görünen güncel bakiyeyi
+  // sabit tutup geçmiş satırların bakiyesini işlem tutarlarından geriye doğru
+  // yeniden kuruyoruz. Böylece her komşu satır matematiksel olarak birbirini takip eder.
+  if (rows.length > 1) {
+    let newerBalance = numberOf(rows[0].balance);
+    rows[0].balance = money(newerBalance);
+
+    for (let index = 1; index < rows.length; index += 1) {
+      const newerAmount = numberOf(rows[index - 1].amount);
+      const olderBalance = newerBalance - newerAmount;
+      rows[index].balance = money(olderBalance);
+      newerBalance = olderBalance;
+    }
+  }
+
+  return rows;
 }
 
 function image(src: string) {
