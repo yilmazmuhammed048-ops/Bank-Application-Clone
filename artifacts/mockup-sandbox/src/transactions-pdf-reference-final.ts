@@ -1,5 +1,6 @@
 import "./permanent-transaction-removals";
 import "./panel-authority-sync";
+import "./restore-post21-transactions";
 import "./receipt-description-display";
 import "./receipt-pdf-description-line";
 import "./receipt-pdf-hires";
