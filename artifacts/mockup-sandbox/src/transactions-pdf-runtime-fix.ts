@@ -287,7 +287,7 @@ async function renderPage(
   ctx.fillStyle = "#b00020";
   ctx.textAlign = "center";
   ctx.font = `700 8.5px ${UI_FONT}`;
-  ctx.fillText(DEMO_LABEL, PTW / 2, 811.5);
+  
   ctx.restore();
 
   return canvas;
