@@ -64,7 +64,11 @@ function writePanelStateToApp(data: any) {
   const clean = sanitizeSharedState(data);
   applyPanelRevision(clean);
 
-  // Bakiye / hesap bilgisi panelden her zaman canlı gelsin.
+  // Bu poller yalnızca hesap/bakiye bilgisini canlı tutsun.
+  // Hareket listesinin tek sahibi main.tsx'teki loadSharedState() olsun.
+  // Aksi halde bu 1 saniyelik poller ham sunucu listesini yazarken main.tsx
+  // arşiv/restore ile birleştirilmiş listeyi 1.5 saniyede bir yazıyor ve ekran
+  // eski hareketler var/yok şeklinde sürekli gidip geliyor.
   if (clean?.account && typeof clean.account === "object") {
     localStorage.setItem("demo_account", JSON.stringify(clean.account));
     if (clean.account.balance !== undefined && clean.account.balance !== null) {
@@ -72,15 +76,9 @@ function writePanelStateToApp(data: any) {
     }
   }
 
-  // ÖNEMLİ: Panel yalnızca bakiye değiştirirken boş transaction dizisi dönebilir.
-  // Bu durumda uygulamadaki mevcut hareketleri SİLME. Dolu bir liste gelirse panel
-  // hareket komutlarını uygula. Ana state yükleyicisi arşiv/restore hareketlerini
-  // ayrıca birleştirip localStorage'a yazmaya devam eder.
-  if (Array.isArray(clean?.transactions) && clean.transactions.length > 0) {
-    localStorage.setItem("demo_transactions", JSON.stringify(clean.transactions));
-  }
-
-  window.dispatchEvent(new Event("storage"));
+  // transactions burada bilinçli olarak yazılmıyor.
+  // main.tsx paneldeki güncel hareketleri zaten okuyup arşiv/restore kayıtlarıyla
+  // tek seferde birleştirerek localStorage'a yazıyor.
   return clean;
 }
 
