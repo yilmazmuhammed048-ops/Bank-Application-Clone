@@ -72,7 +72,7 @@
   overflow: hidden !important;
   padding-top: 10px !important;
   padding-bottom: 10px !important;
-  padding-right: 88px !important;
+  padding-right: 104px !important;
 }
 
 .min-h-screen:has(button[aria-label="Filtre"]) > div:last-child > button > div:nth-of-type(2) p,
