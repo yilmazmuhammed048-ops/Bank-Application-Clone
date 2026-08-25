@@ -56,18 +56,18 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
     return originalDrawImage.apply(this, alignedArgs as any);
   }
 
-  if (
+  const isReceiptHeaderLogo =
     canvas?.width === 1240 &&
     canvas?.height === 1754 &&
     x === 48 &&
     y === 42 &&
-    w === 290 &&
-    h === 76
-  ) {
+    ((w === 290 && h === 76) || (w === 288 && h === 64));
+
+  if (isReceiptHeaderLogo) {
     this.save();
 
     this.fillStyle = "#fff";
-    originalFillRect.call(this, 44, 36, 390, 94);
+    originalFillRect.call(this, 40, 30, 390, 94);
 
     if (!drawCustomLogo(this)) {
       originalDrawImage.apply(this, args as any);
@@ -78,10 +78,6 @@ CanvasRenderingContext2D.prototype.drawImage = function (...args: any[]) {
     this.textBaseline = "alphabetic";
     this.font = '700 29px Arial, "Helvetica Neue", Helvetica, sans-serif';
     originalFillText.call(this, "Ziraat Bankası", customLogoTextX(), LOGO_TEXT_Y);
-
-    this.fillStyle = "#c6001d";
-    this.textAlign = "right";
-    this.font = "700 20px Arial, sans-serif";
 
     this.restore();
     return;
