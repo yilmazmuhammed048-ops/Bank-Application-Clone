@@ -282,7 +282,7 @@ async function renderPage(
   ctx.fillStyle = "rgba(255,255,255,.96)";
   ctx.fill();
   
-  ctx.lineWidth = 1;
+  
  
   ctx.fillStyle = "#b00020";
   ctx.textAlign = "center";
