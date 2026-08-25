@@ -145,6 +145,16 @@ function setRowBalance(row: HTMLButtonElement, value: number) {
   if (valueSpan.textContent !== expected) valueSpan.textContent = expected;
 }
 
+function readRowBalance(row: HTMLButtonElement) {
+  const balanceBox = findBalanceBox(row);
+  if (!balanceBox) return null;
+  const spans = Array.from(balanceBox.querySelectorAll("span"));
+  const text = spans.at(-1)?.textContent || balanceBox.textContent || "";
+  if (!/[\d]/.test(text)) return null;
+  const value = parseMoney(text);
+  return Number.isFinite(value) ? value : null;
+}
+
 function currentAccountBalance() {
   try {
     const account = JSON.parse(localStorage.getItem("demo_account") || "null");
@@ -157,30 +167,37 @@ function currentAccountBalance() {
 }
 
 function reconcileMovementBalances(list: HTMLElement) {
-  const currentBalance = currentAccountBalance();
-  if (!Number.isFinite(currentBalance)) return;
-
   const rows = Array.from(list.children).filter(
     (element): element is HTMLButtonElement =>
       element instanceof HTMLButtonElement && findAmountBox(element) !== undefined,
   );
   if (!rows.length) return;
 
+  // React'in en üst/güncel satıra verdiği bakiye, Transactions bileşenine ana
+  // sayfadan gelen balance değeridir. Bu yüzden mümkün olduğunda doğrudan onu
+  // referans al; DOM henüz hazır değilse localStorage'daki aynı hesap bakiyesine düş.
+  const visibleHomeBalance = readRowBalance(rows[0]);
+  const storedHomeBalance = currentAccountBalance();
+  const currentBalance = roundMoney(
+    visibleHomeBalance !== null ? visibleHomeBalance : storedHomeBalance,
+  );
+  if (!Number.isFinite(currentBalance)) return;
+
   const signedAmounts = rows.map((row) =>
     parseMoney(findAmountBox(row)?.textContent || "0"),
   );
 
-  // Liste ekranda en yeniden en eskiye gidiyor. Kullanıcının istediği matematik
-  // zinciri ise en eski işlemden güncele doğru okunuyor: bir satırdaki bakiye +
-  // o satırdaki imzalı tutar = kronolojik olarak bir sonraki satırın bakiyesi.
-  // Güncel hesap bakiyesini son nokta olarak koruyup açılış bakiyesini geriye
-  // doğru buluyor, sonra en alttaki/eski satırdan yukarı doğru bütün zinciri kuruyoruz.
-  const totalSigned = signedAmounts.reduce((sum, amount) => roundMoney(sum + amount), 0);
-  let runningBalance = roundMoney(currentBalance - totalSigned);
+  // Ekran en yeni hareketi üstte gösteriyor. En güncel satırın Kalan Bakiye'si
+  // ana sayfadaki bakiye ile BİREBİR aynı kalmalı. Daha eski satırlar ise görsel
+  // sırada bir üstteki (daha yeni) işlemin tutarı geri alınarak hesaplanır.
+  // Böylece kronolojik olarak alttan üste okunduğunda:
+  // eski bakiye + o eski satırın tutarı = bir sonraki/yeni satırın bakiyesi.
+  let newerBalance = currentBalance;
+  setRowBalance(rows[0], newerBalance);
 
-  for (let index = rows.length - 1; index >= 0; index -= 1) {
-    setRowBalance(rows[index], runningBalance);
-    runningBalance = roundMoney(runningBalance + signedAmounts[index]);
+  for (let index = 1; index < rows.length; index += 1) {
+    newerBalance = roundMoney(newerBalance - signedAmounts[index - 1]);
+    setRowBalance(rows[index], newerBalance);
   }
 }
 
