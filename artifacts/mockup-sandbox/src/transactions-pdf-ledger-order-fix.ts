@@ -102,6 +102,14 @@ function setRowBalance(row: HTMLButtonElement, value: number) {
   valueSpan.textContent = formatMoney(value);
 }
 
+function signedAmount(row: HTMLButtonElement) {
+  const text = (findAmountBox(row)?.textContent || "0").trim();
+  const amount = Math.abs(parseMoney(text));
+  if (text.startsWith("-")) return -amount;
+  if (text.startsWith("+")) return amount;
+  return parseMoney(text);
+}
+
 function normalizeLedgerForPdf() {
   const list = accountMovementList();
   if (!list) return;
@@ -111,8 +119,7 @@ function normalizeLedgerForPdf() {
   );
   if (!rows.length) return;
 
-  // Referanstaki ekstre mantığı: satırlar gerçek tarih+saat ile en yeniden en eskiye.
-  // Aynı zaman damgasındaki sentetik ücret satırlarının mevcut göreli sırasını koruyoruz.
+  // Görsel sıralama en yeni -> en eski kalır.
   const ordered = rows
     .map((row, index) => ({ row, index, timestamp: rowTimestamp(row) }))
     .sort((a, b) => b.timestamp - a.timestamp || a.index - b.index)
@@ -128,16 +135,14 @@ function normalizeLedgerForPdf() {
   const ledgerRows = ordered.filter((row) => findAmountBox(row) !== undefined);
   if (!ledgerRows.length) return;
 
-  // Tek referans ana sayfadaki güncel bakiye. Sonra ikinci örnekteki formülle
-  // her eski satır hesaplanır: olderBalance = newerBalance - newerAmount.
-  let newerBalance = roundMoney(currentAccountBalance());
-  if (!Number.isFinite(newerBalance)) return;
+  // Bakiye hesabı ilk gelen/en eski hareketten başlar. Ana sayfadaki bakiye
+  // başlangıç değeridir; sonra '-' düşer, '+' eklenir ve güncele doğru ilerler.
+  let runningBalance = roundMoney(currentAccountBalance());
+  if (!Number.isFinite(runningBalance)) return;
 
-  setRowBalance(ledgerRows[0], newerBalance);
-  for (let index = 1; index < ledgerRows.length; index += 1) {
-    const newerAmount = parseMoney(findAmountBox(ledgerRows[index - 1])?.textContent || "0");
-    newerBalance = roundMoney(newerBalance - newerAmount);
-    setRowBalance(ledgerRows[index], newerBalance);
+  for (const row of [...ledgerRows].reverse()) {
+    runningBalance = roundMoney(runningBalance + signedAmount(row));
+    setRowBalance(row, runningBalance);
   }
 }
 
@@ -148,9 +153,6 @@ document.addEventListener(
     if (!(target instanceof Element)) return;
     const button = target.closest<HTMLButtonElement>('button[aria-label="Mesajlar"]');
     if (!button) return;
-
-    // PDF üreticisinin capture handler'ı çalışmadan hemen önce nihai sırayı ve
-    // bakiye zincirini kur. Böylece DOM/React sırası ne olursa olsun PDF deterministik olur.
     normalizeLedgerForPdf();
   },
   true,
