@@ -1,13 +1,12 @@
 export {};
 
-// Tek kaynak ana sayfadaki güncel hesap bakiyesidir. İlk görünen satır bu
-// bakiyeyi taşır; bundan sonraki her satır ise SADECE kendi işlem tutarını
-// bir önceki satırın kalan bakiyesine uygular.
+// Tek başlangıç noktası ana sayfadaki hesap bakiyesidir. Hareketler yukarıdan
+// aşağı işlenir ve HER satır kendi işaretli tutarını kalan bakiyeye uygular.
+// Eksi ile başlayan tutar düşülür, artı ile başlayan tutar eklenir.
 //
 // Örnek:
-// 100.000 -> -20.000 = 80.000 -> -5.000 = 75.000
-// Böylece hiçbir satır bir üstteki/başka bir işlemin tutarını yanlışlıkla
-// tekrar uygulamaz.
+// 100.000 -> -20.000 = 80.000 -> -5.000 = 75.000 -> +8.600 = 83.600
+// Böylece hiçbir satır başka bir işlemin tutarını kullanmaz.
 
 function parseMoney(text: string) {
   const normalized = String(text || "")
@@ -74,6 +73,15 @@ function setRowBalance(row: HTMLButtonElement, value: number) {
   if (valueSpan.textContent !== next) valueSpan.textContent = next;
 }
 
+function signedAmountForRow(row: HTMLButtonElement) {
+  const text = (findAmountBox(row)?.textContent || "0").trim();
+  const amount = Math.abs(parseMoney(text));
+
+  if (text.startsWith("-")) return -amount;
+  if (text.startsWith("+")) return amount;
+  return parseMoney(text);
+}
+
 function reconcileRunningBalance() {
   const list = accountMovementList();
   if (!list) return;
@@ -87,15 +95,11 @@ function reconcileRunningBalance() {
   let runningBalance = roundMoney(currentAccountBalance());
   if (!Number.isFinite(runningBalance)) return;
 
-  // En üst satır ana sayfadaki güncel bakiye ile kilitlenir.
-  setRowBalance(rows[0], runningBalance);
-
-  // Sonraki satırın bakiyesi = bir önceki satırın kalan bakiyesi +
-  // BU satırın işaretli tutarı. Önceki satırın tutarı burada kullanılmaz.
-  for (let index = 1; index < rows.length; index += 1) {
-    const ownAmount = parseMoney(findAmountBox(rows[index])?.textContent || "0");
-    runningBalance = roundMoney(runningBalance + ownAmount);
-    setRowBalance(rows[index], runningBalance);
+  // Ana sayfa bakiyesi işlem öncesi başlangıç değeridir. İlk satır dahil her
+  // hareket kendi işaretine göre bu bakiyeyi değiştirir.
+  for (const row of rows) {
+    runningBalance = roundMoney(runningBalance + signedAmountForRow(row));
+    setRowBalance(row, runningBalance);
   }
 }
 
