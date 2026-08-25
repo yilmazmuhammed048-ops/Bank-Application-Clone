@@ -76,6 +76,28 @@ function normalizeState(value: any): State {
   };
 }
 
+function transactionKey(transaction: any) {
+  return String(
+    transaction?.transactionNumber ??
+      transaction?.id ??
+      `${transaction?.date ?? ""}|${transaction?.time ?? ""}|${transaction?.amount ?? ""}|${transaction?.title ?? ""}`,
+  );
+}
+
+function mergeTransactions(currentTransactions: unknown[], incomingTransactions: unknown[]) {
+  const merged = new Map<string, unknown>();
+
+  for (const transaction of currentTransactions) {
+    merged.set(transactionKey(transaction), transaction);
+  }
+
+  for (const transaction of incomingTransactions) {
+    merged.set(transactionKey(transaction), transaction);
+  }
+
+  return Array.from(merged.values());
+}
+
 function blobAuth() {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (!token) throw new Error("BLOB_READ_WRITE_TOKEN is missing");
@@ -168,7 +190,7 @@ export default async function handler(req: any, res: any) {
             ? body.account
             : current.account,
         transactions: Array.isArray(body.transactions)
-          ? body.transactions
+          ? mergeTransactions(current.transactions, body.transactions)
           : current.transactions,
       };
 
