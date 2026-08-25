@@ -41,6 +41,11 @@ type View =
   | "menu"
   | "transactions";
 
+type ReceiptDetail = {
+  label: string;
+  value: string;
+};
+
 type AdminTransaction = {
   id: string | number;
   title: string;
@@ -53,6 +58,10 @@ type AdminTransaction = {
   recipientBank?: string;
   transactionNumber?: string;
   type?: "income" | "expense";
+  balanceAfter?: string | number;
+  details?: ReceiptDetail[];
+  hideCounterparty?: boolean;
+  charges?: string;
 };
 
 type Transaction = {
@@ -67,88 +76,424 @@ type Transaction = {
   recipientIban: string;
   recipientBank: string;
   transactionNumber: string;
+  balanceAfter?: number;
+  details: ReceiptDetail[];
+  hideCounterparty: boolean;
+  charges?: string;
 };
 
-const DEFAULT_BALANCE = 125000;
+const DEFAULT_BALANCE = 1601.16;
 
 const DEFAULT_TRANSACTIONS: AdminTransaction[] = [
   {
-    id: 6,
-    title: "FAST Gelen",
-    description: "FAST PARA TRANSFERİ",
-    amount: "8.750,00",
-    date: "18 Ağustos 2026",
-    time: "09:41",
-    recipientName: "Burak Aydın",
-    recipientIban: "TR71 5468 2319 7842 6531 2948 37",
-    recipientBank: "Türkiye İş Bankası A.Ş.",
-    transactionNumber: "20260818498317",
-    type: "income",
-  },
-  {
-    id: 5,
-    title: "Kart Ödemesi",
-    description: "POS HARCAMASI - MARKET",
-    amount: "1.286,45",
-    date: "18 Ağustos 2026",
-    time: "08:12",
-    recipientName: "Güneş Market",
-    recipientIban: "TR36 8241 5973 2618 4735 9126 58",
-    recipientBank: "Akbank T.A.Ş.",
-    transactionNumber: "20260818276194",
-    type: "expense",
-  },
-  {
-    id: 4,
+    id: 140,
     title: "FAST Giden",
-    description: "FAST PARA TRANSFERİ",
-    amount: "2.350,00",
-    date: "17 Ağustos 2026",
-    time: "21:06",
-    recipientName: "Ece Yalçın",
-    recipientIban: "TR58 3174 9628 4513 7862 5941 26",
-    recipientBank: "Garanti BBVA",
-    transactionNumber: "20260817421683",
+    description: "Kuveyt Türk Katılım Bankası A.Ş. FAST işlemi",
+    amount: "5.500,00",
+    date: "24 Ağustos 2026",
+    time: "19:37",
+    recipientName: "Kuveyt Türk Katılım Bankası A.Ş.",
+    recipientIban: "TR970020500009923879…",
+    recipientBank: "Kuveyt Türk Katılım Bankası A.Ş.",
+    transactionNumber: "20260824193755",
+    balanceAfter: "1.601,16",
     type: "expense",
   },
   {
-    id: 3,
-    title: "Havale Gelen",
-    description: "HAVALE",
-    amount: "12.500,00",
-    date: "17 Ağustos 2026",
-    time: "14:32",
-    recipientName: "Mert Karaca",
-    recipientIban: "TR24 6931 4857 3126 8495 7312 64",
-    recipientBank: "Yapı ve Kredi Bankası A.Ş.",
-    transactionNumber: "20260817384621",
+    id: 139,
+    title: "ATM Para Çekme",
+    description: "ATM PARA ÇEKME KART",
+    amount: "4.000,00",
+    date: "24 Ağustos 2026",
+    time: "19:30",
+    recipientName: "ATM PARA ÇEKME KART",
+    transactionNumber: "20260824193040",
+    balanceAfter: "7.101,16",
+    details: [
+      { label: "Kart No", value: "650083******1816" },
+      { label: "ATM", value: "Z0215002" },
+      { label: "Journal No", value: "12…" },
+    ],
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 138,
+    title: "ATM QR ile Para Çekme",
+    description: "ATM QR İLE PARA ÇEKME",
+    amount: "7.500,00",
+    date: "24 Ağustos 2026",
+    time: "19:29",
+    recipientName: "ATM QR İLE PARA ÇEKME",
+    transactionNumber: "20260824192975",
+    balanceAfter: "11.101,16",
+    details: [
+      { label: "Hesap No", value: "4038-104120627-5001…" },
+      { label: "İşlem Kanalı", value: "ATM QR" },
+    ],
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 137,
+    title: "ATM Para Çekme",
+    description: "ATM PARA ÇEKME KART",
+    amount: "8.000,00",
+    date: "24 Ağustos 2026",
+    time: "19:28",
+    recipientName: "ATM PARA ÇEKME KART",
+    transactionNumber: "20260824192880",
+    balanceAfter: "18.601,16",
+    details: [
+      { label: "Kart No", value: "650083******1816" },
+      { label: "ATM", value: "Z0215001" },
+      { label: "Journal No", value: "0…" },
+    ],
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 136,
+    title: "Ziraat Mobil Havale",
+    description: "Ziraat Mobil Havale",
+    amount: "25.000,00",
+    date: "24 Ağustos 2026",
+    time: "19:27",
+    recipientName: "ZEKİ CANKURT",
+    recipientBank: "Ziraat Bankası",
+    transactionNumber: "20260824192725",
+    balanceAfter: "26.601,16",
     type: "income",
   },
   {
-    id: 2,
-    title: "Akaryakıt",
-    description: "KARTLI ÖDEME",
-    amount: "1.950,00",
+    id: 135,
+    title: "MESAJ ÜCRETİ TUTARI",
+    description: "MESAJ ÜCRETİ TUTARI",
+    amount: "0,37",
+    date: "24 Ağustos 2026",
+    time: "15:50",
+    recipientName: "MESAJ ÜCRETİ TUTARI",
+    transactionNumber: "20260824155037",
+    balanceAfter: "1.601,16",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 134,
+    title: "BSMV TUTARI",
+    description: "BSMV TUTARI",
+    amount: "0,18",
+    date: "24 Ağustos 2026",
+    time: "15:50",
+    recipientName: "BSMV TUTARI",
+    transactionNumber: "20260824155018",
+    balanceAfter: "1.601,53",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 133,
+    title: "FAST Gelen",
+    description: "0062-Türkiye Garanti Bankası A.Ş. FAST işlemi",
+    amount: "105,00",
     date: "16 Ağustos 2026",
-    time: "18:46",
-    recipientName: "Petrol İstasyonu",
-    recipientIban: "TR83 1547 9263 4812 7359 2648 17",
-    recipientBank: "QNB",
-    transactionNumber: "20260816291847",
+    time: "01:36",
+    recipientName: "REMZİHAN ÇILINÇLI",
+    recipientBank: "Türkiye Garanti Bankası A.Ş.",
+    transactionNumber: "20260816013605",
+    balanceAfter: "270,82",
+    type: "income",
+  },
+  {
+    id: 132,
+    title: "FAST Giden",
+    description: "297-GÜVEN MARKET / FAST işlemi",
+    amount: "130,00",
+    date: "15 Ağustos 2026",
+    time: "12:27",
+    recipientName: "GÜVEN MARKET",
+    recipientIban: "TR0800006701000000045543297",
+    recipientBank: "Yapı ve Kredi Bankası A.Ş.",
+    transactionNumber: "20260815122730",
+    balanceAfter: "165,82",
     type: "expense",
   },
   {
-    id: 1,
-    title: "Maaş",
-    description: "MAAŞ ÖDEMESİ",
-    amount: "35.000,00",
-    date: "15 Ağustos 2026",
-    time: "09:17",
-    recipientName: "Atlas Teknoloji A.Ş.",
-    recipientIban: "TR47 9286 3157 8421 6935 2748 61",
-    recipientBank: "Türkiye Finans Katılım Bankası A.Ş.",
-    transactionNumber: "20260815173594",
+    id: 131,
+    title: "MESAJ ÜCRETİ TUTARI",
+    description: "MESAJ ÜCRETİ TUTARI",
+    amount: "0,37",
+    date: "14 Ağustos 2026",
+    time: "20:25",
+    recipientName: "MESAJ ÜCRETİ TUTARI",
+    transactionNumber: "20260814202537",
+    balanceAfter: "295,82",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 130,
+    title: "BSMV TUTARI",
+    description: "BSMV TUTARI",
+    amount: "0,18",
+    date: "14 Ağustos 2026",
+    time: "20:25",
+    recipientName: "BSMV TUTARI",
+    transactionNumber: "20260814202518",
+    balanceAfter: "296,19",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 129,
+    title: "KOMİSYON TUTARI",
+    description: "KOMİSYON TUTARI",
+    amount: "3,63",
+    date: "14 Ağustos 2026",
+    time: "20:25",
+    recipientName: "KOMİSYON TUTARI",
+    transactionNumber: "20260814202563",
+    balanceAfter: "296,37",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 128,
+    title: "FAST Giden",
+    description: "FAST para transferi",
+    amount: "2.200,00",
+    date: "14 Ağustos 2026",
+    time: "20:25",
+    recipientName: "osman can yiğit",
+    recipientIban: "TR470006200104100006660801",
+    recipientBank: "Türkiye Garanti Bankası A.Ş.",
+    transactionNumber: "20260814202522",
+    balanceAfter: "300,00",
+    type: "expense",
+  },
+  {
+    id: 127,
+    title: "FAST Gelen",
+    description: "0046-Akbank T.A.Ş. FAST işlemi",
+    amount: "2.500,00",
+    date: "14 Ağustos 2026",
+    time: "20:01",
+    recipientName: "DOĞUKAN YILDIRIM",
+    recipientBank: "Akbank T.A.Ş.",
+    transactionNumber: "20260814200125",
+    balanceAfter: "2.500,00",
     type: "income",
+  },
+
+  {
+    id: 126,
+    title: "ATM Para Çekme",
+    description: "ATM PARA ÇEKME KART",
+    amount: "1.250,00",
+    date: "19 Ağustos 2026",
+    time: "18:42",
+    recipientName: "ATM PARA ÇEKME KART",
+    transactionNumber: "20260819184212",
+    balanceAfter: "1.520,27",
+    details: [
+      { label: "Kart No", value: "650083******1816" },
+      { label: "ATM", value: "Z0215004" },
+      { label: "Journal No", value: "1842…" },
+    ],
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 125,
+    title: "FAST Gelen",
+    description: "0046-Akbank T.A.Ş. FAST işlemi",
+    amount: "2.500,00",
+    date: "18 Ağustos 2026",
+    time: "17:14",
+    recipientName: "DOĞUKAN YILDIRIM",
+    recipientBank: "Akbank T.A.Ş.",
+    transactionNumber: "20260818171425",
+    balanceAfter: "2.770,82",
+    type: "income",
+  },
+  {
+    id: 124,
+    title: "MESAJ ÜCRETİ TUTARI",
+    description: "MESAJ ÜCRETİ TUTARI",
+    amount: "0,37",
+    date: "18 Ağustos 2026",
+    time: "17:13",
+    recipientName: "MESAJ ÜCRETİ TUTARI",
+    transactionNumber: "20260818171337",
+    balanceAfter: "270,82",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 123,
+    title: "BSMV TUTARI",
+    description: "BSMV TUTARI",
+    amount: "0,18",
+    date: "18 Ağustos 2026",
+    time: "17:13",
+    recipientName: "BSMV TUTARI",
+    transactionNumber: "20260818171318",
+    balanceAfter: "271,19",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 122,
+    title: "ATM QR ile Para Çekme",
+    description: "ATM QR İLE PARA ÇEKME",
+    amount: "900,00",
+    date: "12 Ağustos 2026",
+    time: "13:26",
+    recipientName: "ATM QR İLE PARA ÇEKME",
+    transactionNumber: "20260812132690",
+    balanceAfter: "3.245,44",
+    details: [
+      { label: "Hesap No", value: "4038-104120627-5001…" },
+      { label: "İşlem Kanalı", value: "ATM QR" },
+    ],
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 121,
+    title: "MESAJ ÜCRETİ TUTARI",
+    description: "MESAJ ÜCRETİ TUTARI",
+    amount: "0,37",
+    date: "12 Ağustos 2026",
+    time: "13:25",
+    recipientName: "MESAJ ÜCRETİ TUTARI",
+    transactionNumber: "20260812132537",
+    balanceAfter: "4.145,44",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 120,
+    title: "BSMV TUTARI",
+    description: "BSMV TUTARI",
+    amount: "0,18",
+    date: "12 Ağustos 2026",
+    time: "13:25",
+    recipientName: "BSMV TUTARI",
+    transactionNumber: "20260812132518",
+    balanceAfter: "4.145,81",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 119,
+    title: "FAST Giden",
+    description: "297-GÜVEN MARKET / FAST işlemi",
+    amount: "650,00",
+    date: "10 Ağustos 2026",
+    time: "21:08",
+    recipientName: "GÜVEN MARKET",
+    recipientIban: "TR0800006701000000045543297",
+    recipientBank: "Yapı ve Kredi Bankası A.Ş.",
+    transactionNumber: "20260810210865",
+    balanceAfter: "4.146,00",
+    type: "expense",
+  },
+  {
+    id: 118,
+    title: "Ziraat Mobil Havale",
+    description: "Ziraat Mobil Havale",
+    amount: "7.000,00",
+    date: "8 Ağustos 2026",
+    time: "16:32",
+    recipientName: "ZEKİ CANKURT",
+    recipientBank: "Ziraat Bankası",
+    transactionNumber: "20260808163270",
+    balanceAfter: "4.796,00",
+    type: "income",
+  },
+  {
+    id: 117,
+    title: "MESAJ ÜCRETİ TUTARI",
+    description: "MESAJ ÜCRETİ TUTARI",
+    amount: "0,37",
+    date: "8 Ağustos 2026",
+    time: "16:31",
+    recipientName: "MESAJ ÜCRETİ TUTARI",
+    transactionNumber: "20260808163137",
+    balanceAfter: "-2.204,00",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 116,
+    title: "BSMV TUTARI",
+    description: "BSMV TUTARI",
+    amount: "0,18",
+    date: "8 Ağustos 2026",
+    time: "16:31",
+    recipientName: "BSMV TUTARI",
+    transactionNumber: "20260808163118",
+    balanceAfter: "-2.203,63",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 115,
+    title: "ATM Para Çekme",
+    description: "ATM PARA ÇEKME KART",
+    amount: "2.000,00",
+    date: "5 Ağustos 2026",
+    time: "11:47",
+    recipientName: "ATM PARA ÇEKME KART",
+    transactionNumber: "20260805114720",
+    balanceAfter: "4.796,55",
+    details: [
+      { label: "Kart No", value: "650083******1816" },
+      { label: "ATM", value: "Z0215003" },
+      { label: "Journal No", value: "1147…" },
+    ],
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 114,
+    title: "FAST Gelen",
+    description: "0062-Türkiye Garanti Bankası A.Ş. FAST işlemi",
+    amount: "105,00",
+    date: "2 Ağustos 2026",
+    time: "09:36",
+    recipientName: "REMZİHAN ÇILINÇLI",
+    recipientBank: "Türkiye Garanti Bankası A.Ş.",
+    transactionNumber: "20260802093605",
+    balanceAfter: "6.796,55",
+    type: "income",
+  },
+  {
+    id: 113,
+    title: "MESAJ ÜCRETİ TUTARI",
+    description: "MESAJ ÜCRETİ TUTARI",
+    amount: "0,37",
+    date: "2 Ağustos 2026",
+    time: "09:35",
+    recipientName: "MESAJ ÜCRETİ TUTARI",
+    transactionNumber: "20260802093537",
+    balanceAfter: "6.691,55",
+    hideCounterparty: true,
+    type: "expense",
+  },
+  {
+    id: 112,
+    title: "BSMV TUTARI",
+    description: "BSMV TUTARI",
+    amount: "0,18",
+    date: "2 Ağustos 2026",
+    time: "09:35",
+    recipientName: "BSMV TUTARI",
+    transactionNumber: "20260802093518",
+    balanceAfter: "6.691,92",
+    hideCounterparty: true,
+    type: "expense",
   },
 ];
 
@@ -226,6 +571,21 @@ function getAdminTransactions(): AdminTransaction[] {
   }
 }
 
+function transactionSortValue(item: { date: string; time: string }) {
+  const months: Record<string, number> = {
+    ocak: 0, şubat: 1, mart: 2, nisan: 3, mayıs: 4, haziran: 5,
+    temmuz: 6, ağustos: 7, eylül: 8, ekim: 9, kasım: 10, aralık: 11,
+  };
+  const parts = item.date.trim().split(/\s+/);
+  const day = Number(parts[0]) || 1;
+  const month = months[(parts[1] || "").toLocaleLowerCase("tr-TR")] ?? 0;
+  const year = Number(parts[2]) || 2026;
+  const timeMatch = String(item.time || "00:00").match(/^(\d{1,2})[:.](\d{1,2})/);
+  const hour = Number(timeMatch?.[1] || 0);
+  const minute = Number(timeMatch?.[2] || 0);
+  return new Date(year, month, day, hour, minute).getTime();
+}
+
 function convertTransactions(items: AdminTransaction[]): Transaction[] {
   return items
     .map((item) => {
@@ -243,13 +603,17 @@ function convertTransactions(items: AdminTransaction[]): Transaction[] {
         date: item.date || "18 Ağustos 2026",
         time: item.time || demoTime(item.id),
         recipientName: item.recipientName || item.title || "Belirtilmemiş",
-        recipientIban:
-          item.recipientIban || "TR57 2948 6317 4852 7193 8641 25",
-        recipientBank: item.recipientBank || "Banka Bilgisi",
+        recipientIban: item.recipientIban || "",
+        recipientBank: item.recipientBank || "",
         transactionNumber: item.transactionNumber || String(item.id),
+        balanceAfter:
+          item.balanceAfter === undefined ? undefined : parseAmount(item.balanceAfter),
+        details: Array.isArray(item.details) ? item.details : [],
+        hideCounterparty: Boolean(item.hideCounterparty),
+        charges: item.charges,
       };
     })
-    .sort((a, b) => Number(b.id) - Number(a.id));
+    .sort((a, b) => transactionSortValue(b) - transactionSortValue(a));
 }
 
 function readAccountData() {
@@ -353,12 +717,12 @@ export default function ZiratMobile() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen(true)}
-              className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#969b9d]"
+              className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#777]"
             >
-              <User size={22} strokeWidth={1.7} fill="currentColor" />
+              <User size={21} />
             </button>
 
-            <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/45 bg-black/10 px-4">
+            <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/40 bg-white/10 px-4">
               <Search size={17} />
               <span className="text-sm">Ziraat Mobil&apos;de Ara</span>
             </div>
@@ -429,16 +793,16 @@ export default function ZiratMobile() {
                   </h2>
 
                   <div className="mt-3 flex items-center gap-3">
-                    <span className="rounded-[8px] bg-[#a99a60] px-2.5 py-1 text-[11px] font-bold text-white">
+                    <span className="rounded-lg bg-[#b7a66d] px-3 py-1.5 text-xs font-bold text-white">
                       Vadesiz TL
                     </span>
-                    <span className="text-[13px] font-medium tracking-[-0.015em] text-[#444]">{MY_ACCOUNT}</span>
+                    <span className="text-sm text-[#555]">{MY_ACCOUNT}</span>
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
                     <span className="truncate text-xs text-[#777]">{MY_IBAN}</span>
-                    <button className="grid h-8 w-8 place-items-center text-[#d3132b]" aria-label="IBAN paylaş">
-                      <Share2 size={20} strokeWidth={2.2} />
+                    <button className="text-[#d3132b]">
+                      <Share2 size={18} />
                     </button>
                   </div>
 
@@ -590,166 +954,95 @@ function Transactions({
   onBack: () => void;
   onSelect: (transaction: Transaction) => void;
 }) {
-  const monthMap: Record<string, string> = {
-    OCAK: "OCA",
-    ŞUBAT: "ŞUB",
-    MART: "MAR",
-    NİSAN: "NİS",
-    MAYIS: "MAY",
-    HAZİRAN: "HAZ",
-    TEMMUZ: "TEM",
-    AĞUSTOS: "AĞU",
-    EYLÜL: "EYL",
-    EKİM: "EKİ",
-    KASIM: "KAS",
-    ARALIK: "ARA",
-  };
-
   const rows = useMemo(() => {
     let runningBalance = balance;
 
     return transactions.map((tx) => {
-      const balanceAfter = runningBalance;
-
-      runningBalance =
-        tx.kind === "credit"
-          ? runningBalance - tx.amount
-          : runningBalance + tx.amount;
-
+      const balanceAfter = tx.balanceAfter ?? runningBalance;
+      runningBalance = tx.kind === "credit"
+        ? balanceAfter - tx.amount
+        : balanceAfter + tx.amount;
       return { ...tx, balanceAfter };
     });
   }, [transactions, balance]);
 
   return (
-    <div className="min-h-screen bg-[#f2f3f4] pb-6 text-[#364047]">
-      <header className="bg-[#d90b17] text-white shadow-[0_1px_0_rgba(0,0,0,0.06)]">
-        <div className="relative flex h-[58px] items-center px-2.5">
-          <button
-            onClick={onBack}
-            className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-white/10"
-            aria-label="Geri"
-          >
-            <ArrowLeft size={25} strokeWidth={1.9} />
+    <div className="min-h-screen bg-[#f3f3f3] pb-24">
+      <header className="bg-[#e30620] px-3 pb-3 pt-4 text-white">
+        <div className="flex items-center">
+          <button onClick={onBack} className="grid h-10 w-10 place-items-center">
+            <ArrowLeft size={24} />
           </button>
 
-          <h1 className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap text-[18px] font-semibold tracking-[-0.01em]">
-            Hesap Hareketleri
-          </h1>
+          <h1 className="flex-1 text-center text-[18px] font-semibold">Hesap Hareketleri</h1>
 
-          <div className="ml-auto flex items-center gap-1">
-            <button
-              className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-white/10"
-              aria-label="Mesajlar"
-            >
-              <Mail size={23} strokeWidth={1.8} />
-            </button>
+          <button className="grid h-10 w-10 place-items-center">
+            <MessageSquare size={20} />
+          </button>
 
-            <button
-              onClick={onBack}
-              className="grid h-10 w-10 place-items-center rounded-full transition-colors active:bg-white/10"
-              aria-label="Ana sayfa"
-            >
-              <Home size={23} strokeWidth={1.8} />
-            </button>
-          </div>
+          <button onClick={onBack} className="grid h-10 w-10 place-items-center">
+            <Home size={21} />
+          </button>
         </div>
       </header>
 
-      <div className="flex gap-2.5 px-3 py-3">
-        <button className="flex h-[50px] flex-1 items-center justify-between rounded-[8px] border border-[#92999d] bg-white px-4 text-[15px] font-medium text-[#3f484e]">
-          <span>Son 1 ay</span>
-          <ChevronDown size={17} className="text-[#626b70]" />
+      <div className="flex gap-2 bg-white px-3 py-3 shadow-sm">
+        <button className="flex h-11 flex-1 items-center justify-between rounded-lg border border-[#d9d9d9] bg-white px-4 text-[13px] font-medium text-[#333]">
+          Son 1 ay
+          <ChevronDown size={17} className="text-[#777]" />
         </button>
 
-        <button
-          className="grid h-[50px] w-[50px] place-items-center rounded-[8px] border border-[#92999d] bg-white text-[#343d42]"
-          aria-label="Filtre"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M4 7h16M7 12h10M10 17h4"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
+        <button className="grid h-11 w-11 place-items-center rounded-lg border border-[#d9d9d9] bg-white">
+          <MoreVertical size={18} />
         </button>
       </div>
 
-      <div className="space-y-[5px] px-3">
+      <div className="space-y-2 px-2.5 py-2.5">
         {rows.map((tx) => {
-          const parts = tx.date.trim().split(/\s+/);
-          const day = parts[0] || "--";
-          const monthKey = (parts[1] || "").toLocaleUpperCase("tr-TR");
-          const month = monthMap[monthKey] || monthKey.slice(0, 3);
-          const compactIban = tx.recipientIban.replace(/\s/g, "");
+          const dateParts = tx.date.split(" ");
 
           return (
-            <button
-              key={tx.id}
-              onClick={() => onSelect(tx)}
-              className="relative flex min-h-[104px] w-full overflow-hidden rounded-[9px] border border-[#e4e6e7] bg-white text-left shadow-[0_1px_1px_rgba(20,28,34,0.025)] transition-colors active:bg-[#fafafa]"
-            >
-              <div className="flex w-[67px] shrink-0 flex-col items-center justify-center border-r border-[#eceeef] bg-[#fcfcfc]">
-                <span className="text-[27px] font-light leading-none tracking-[-0.04em] text-[#303a40]">
-                  {day}
-                </span>
-                <span className="mt-1 text-[10px] font-bold tracking-[0.1em] text-[#697277]">
-                  {month}
-                </span>
-                <span className="mt-1 text-[10px] tabular-nums text-[#8a9195]">
-                  {tx.time}
-                </span>
-              </div>
+            <button key={tx.id} onClick={() => onSelect(tx)} className="w-full overflow-hidden rounded-[14px] bg-white text-left shadow-[0_1px_5px_rgba(0,0,0,0.11)]">
+              <div className="flex min-h-[124px]">
+                <div className="flex w-[76px] shrink-0 flex-col items-center justify-center border-r border-[#ececec] px-1">
+                  <span className="text-[28px] font-semibold leading-none text-[#2b2b2b]">{dateParts[0]}</span>
+                  <span className="mt-1 text-center text-[11px] leading-tight text-[#777]">{dateParts.slice(1).join(" ")}</span>
+                  <span className="mt-1 text-[11px] font-medium text-[#555]">{tx.time}</span>
+                </div>
 
-              <div className="min-w-0 flex-1 py-[12px] pl-3 pr-[106px]">
-                {tx.kind === "credit" ? (
-                  <>
-                    <p className="truncate text-[12px] font-medium leading-[1.25] text-[#333d43]">
-                      Gönd: {tx.recipientName.toLocaleUpperCase("tr-TR")}
+                <div className="min-w-0 flex-1 px-3 py-3">
+                  <p className="truncate text-[13px] font-semibold text-[#252525]">
+                    {tx.kind === "credit" && !tx.hideCounterparty ? "Gönd: " : ""}
+                    {tx.recipientName || tx.title}
+                  </p>
+                  {(tx.subtitle || tx.recipientBank) && (
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.35] text-[#666]">
+                      {[tx.subtitle, tx.recipientBank].filter(Boolean).join(" · ")}
                     </p>
-                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.recipientBank} FAST işlemi
-                    </p>
-                    <p className="mt-1 truncate text-[10px] tracking-[0.01em] text-[#8a9195]">
-                      {compactIban}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
-                      {tx.recipientBank}/
-                    </p>
-                    <p className="mt-1 truncate text-[10px] text-[#7b8489]">
-                      {compactIban}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.recipientName} — {tx.subtitle}
-                    </p>
-                  </>
-                )}
-              </div>
+                  )}
+                  {tx.recipientIban && (
+                    <p className="mt-1 truncate text-[10px] text-[#8a8a8a]">{tx.recipientIban}</p>
+                  )}
+                  {tx.transactionNumber && (
+                    <p className="mt-1 text-[10px] text-[#999]">İşlem No: {tx.transactionNumber}</p>
+                  )}
+                </div>
 
-              <div
-                className={`absolute right-3 top-3 whitespace-nowrap text-[12px] font-bold tabular-nums ${
-                  tx.kind === "credit" ? "text-[#24934c]" : "text-[#303a40]"
-                }`}
-              >
-                {tx.kind === "credit" ? "+" : "-"}
-                {formatMoney(tx.amount)}
-              </div>
+                <div className="flex w-[118px] shrink-0 flex-col items-end px-3 py-3">
+                  <span className={`text-[14px] font-bold ${tx.kind === "credit" ? "text-[#16803c]" : "text-[#222]"}`}>
+                    {tx.kind === "credit" ? "+" : "-"}{formatMoney(tx.amount)}
+                  </span>
 
-              <ReceiptText
-                size={17}
-                strokeWidth={1.7}
-                className="absolute right-3 top-[42px] text-[#5f686d]"
-              />
+                  <div className="mt-auto flex items-center gap-1 text-[#e30620]">
+                    <ReceiptText size={18} />
+                    <span className="text-[10px] font-semibold">Dekont</span>
+                  </div>
 
-              <div className="absolute bottom-[11px] right-3 text-right leading-none">
-                <span className="block text-[8px] font-medium uppercase tracking-[0.04em] text-[#a0a6a9]">Kalan Bakiye</span>
-                <span className="mt-1 block text-[10px] font-semibold tabular-nums text-[#505a5f]">
-                  {formatMoney(tx.balanceAfter)}
-                </span>
+                  <div className="mt-2 text-right">
+                    <p className="text-[9px] text-[#999]">Kalan Bakiye</p>
+                    <p className="text-[11px] font-semibold text-[#4a4a4a]">{formatMoney(tx.balanceAfter)}</p>
+                  </div>
+                </div>
               </div>
             </button>
           );
@@ -761,16 +1054,26 @@ function Transactions({
 
 function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: () => void; }) {
   const [masked, setMasked] = useState(false);
+  const receiptDisplayTime = useMemo(() => {
+    const raw = String(transaction.time || "00:00").trim();
+    const match = raw.match(/^(\d{1,2})[:.](\d{1,2})(?:[:.](\d{1,2}))?$/);
+    const hour = String(Number(match?.[1] ?? 0)).padStart(2, "0");
+    const minute = String(Number(match?.[2] ?? 0)).padStart(2, "0");
+    const second = String(Math.floor(Math.random() * 60)).padStart(2, "0");
+    return `${hour}.${minute}.${second}`;
+  }, [transaction.id, transaction.time]);
 
-  const displayedIban = masked
-    ? `${transaction.recipientIban.slice(0, 7)} **** **** **** **** ${transaction.recipientIban.slice(-5)}`
-    : transaction.recipientIban;
+  const displayedIban = !transaction.recipientIban
+    ? ""
+    : masked
+      ? `${transaction.recipientIban.slice(0, 7)} **** **** **** **** ${transaction.recipientIban.slice(-5)}`
+      : transaction.recipientIban;
   const displayedName = masked
     ? `${transaction.recipientName.charAt(0)}${"*".repeat(Math.max(5, transaction.recipientName.length - 1))}`
     : transaction.recipientName.toLocaleUpperCase("tr-TR");
   const senderName = transaction.kind === "credit" ? displayedName : MY_NAME.toLocaleUpperCase("tr-TR");
   const receiverName = transaction.kind === "credit" ? MY_NAME.toLocaleUpperCase("tr-TR") : displayedName;
-  const directionTitle = transaction.kind === "credit" ? "HESABA GELEN FAST" : "HESAPTAN FAST";
+  const directionTitle = transaction.kind === "credit" ? "HESABA GELEN İŞLEM" : "HESAPTAN İŞLEM";
   const signedAmount = `${transaction.kind === "credit" ? "+" : "-"}${formatMoney(transaction.amount)}`;
   const commission = calculateCommission(transaction);
   const formattedCommission = formatMoney(commission).replace("TL", "TRY");
@@ -806,7 +1109,7 @@ function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: 
                 <DocumentRow label="HESAP NUMARASI" value={MY_ACCOUNT} />
                 <DocumentRow label="VERGİ DAİRESİ" value="-" />
                 <DocumentRow label="VERGİ KİMLİK NO" value="10067921118" />
-                <DocumentRow label="İŞLEM TARİHİ" value={`${transaction.date} ${transaction.time}`} />
+                <DocumentRow label="İŞLEM TARİHİ" value={`${transaction.date} ${receiptDisplayTime}`} />
                 <DocumentRow label="VALÖR" value={transaction.date} />
                 <DocumentRow label="İŞLEM YERİ" value="ZİRAAT MOBİL" />
               </div>
@@ -819,19 +1122,19 @@ function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: 
             </div>
 
             <div className="px-2 pt-2 text-[9px] leading-[1.22]">
-              <p>Fast Mesaj Kodu : A01 Fast Sorgu No : {transaction.transactionNumber}</p>
-              <p>Gönderen : <strong>{senderName}</strong></p>
-              <p>Alan Banka : {transaction.recipientBank}</p>
-              <p className="break-words">Alıcı Hesap : {displayedIban} Alıcı : <strong>{receiverName}</strong></p>
+              <p>İşlem No : {transaction.transactionNumber}</p>
+              {!transaction.hideCounterparty && <p>Gönderen : <strong>{senderName}</strong></p>}
+              {transaction.recipientBank && <p>Alan Banka : {transaction.recipientBank}</p>}
+              {displayedIban && <p className="break-words">Alıcı Hesap : {displayedIban} Alıcı : <strong>{receiverName}</strong></p>}
+              {transaction.details.map((detail) => <p key={`${detail.label}-${detail.value}`}>{detail.label} : {detail.value}</p>)}
               <p>İşlem Tutarı : {formatMoney(transaction.amount).replace("TL", "TRY")}</p>
-              <p>Komisyon : {formattedCommission} BSMV : 0,00 TRY Mesaj Ücreti : 0,00 TRY</p>
-              <p>Toplam Masraf : {formattedCommission}</p>
-              <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>
+              {!transaction.hideCounterparty && <p>Komisyon / Masraf : {transaction.charges || formattedCommission}</p>}
+              <p className="mt-1">{transaction.subtitle}</p>
 
               <div className="mt-5 flex items-end justify-between border-b border-[#444] pb-1">
                 <div>
-                  <p>Hesabınızdan {signedAmount} tutarında işlem yapılmıştır.</p>
-                  <p className="mt-1">{transaction.date} {transaction.time} EFTTGIDD INTERNET</p>
+                  <p>Hesabınızda {signedAmount} tutarında işlem yapılmıştır.</p>
+                  <p className="mt-1">{transaction.date} {receiptDisplayTime} INTERNET</p>
                   <p>INTERNET</p>
                 </div>
                 <div className="pb-1 text-right text-[6px] font-bold leading-tight">
@@ -841,9 +1144,7 @@ function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: 
                 </div>
               </div>
 
-              <p className="mt-1 text-[6.5px] leading-relaxed">Taraflar arasında tüm uyuşmazlıklarda, Banka&apos;nın defter kayıtları ve belgeleri kesin delil niteliğindedir.</p>
-              <p className="mt-1 text-[6.5px]">Merkez: Finans Kent Mahallesi Finans Caddesi No:44A Ümraniye/İstanbul</p>
-              <p className="mt-1 text-[6.5px]">www.ziraatbank.com.tr</p>
+              <p className="mt-1 text-[6.5px] leading-relaxed">Bu belge uygulama içi örnek verilerden üretilmiştir; resmi banka belgesi değildir.</p>
             </div>
           </div>
 
@@ -873,9 +1174,9 @@ function DocumentRow({ label, value }: { label: string; value: string }) {
 
 function ReceiptLine({ label, value, strong = false, green = false }: { label: string; value: string; strong?: boolean; green?: boolean; }) {
   return (
-    <div className="border-b border-[#eef0f1] py-2.5">
-      <p className="text-[9px] font-medium uppercase tracking-[0.06em] text-[#9aa0a4]">{label}</p>
-      <p className={`mt-1 text-[11px] leading-[1.4] ${strong ? "font-bold" : "font-medium"} ${green ? "text-[#16803c]" : "text-[#343d42]"}`}>{value}</p>
+    <div className="border-b border-[#ececec] py-3">
+      <p className="text-[10px] text-[#999]">{label}</p>
+      <p className={`mt-1 text-[12px] ${strong ? "font-bold" : "font-semibold"} ${green ? "text-[#16803c]" : "text-[#333]"}`}>{value}</p>
     </div>
   );
 }
