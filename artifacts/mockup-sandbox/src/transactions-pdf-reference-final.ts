@@ -2,6 +2,7 @@ import "./panel-authority-sync";
 import "./receipt-description-display";
 import "./receipt-pdf-description-line";
 import "./receipt-pdf-hires";
+import "./receipt-pdf-time-from-screen";
 import "./transactions-pdf-balance-consistency";
 import "./transactions-pdf-safety-label";
 import "./transactions-pdf-runtime-fix";
