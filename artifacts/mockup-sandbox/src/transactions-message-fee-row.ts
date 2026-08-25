@@ -11,8 +11,8 @@ function findAmountBox(r:HTMLElement){return Array.from(r.children).find((e):e i
 function findDetailsBox(r:HTMLElement){return Array.from(r.children).find((e):e is HTMLElement=>e instanceof HTMLElement&&e.querySelector("p")!==null);}
 function isFastMovement(r:HTMLButtonElement){return r.dataset.messageFeeRow!=="true"&&/\bFAST\b/i.test(r.innerText||r.textContent||"");}
 function signature(r:HTMLButtonElement){const c=r.cloneNode(true) as HTMLButtonElement;findBalanceBox(c)?.remove();return (c.innerText||c.textContent||"").replace(/\s+/g," ").trim();}
-function applyAmountColor(r:HTMLElement){const a=findAmountBox(r);if(!a)return;const t=(a.textContent||"").trim();if(t.startsWith("+")){a.style.color="#49a96f";}else{a.style.color="#56616a";}}
-function updateFeeAmount(r:HTMLButtonElement){const a=findAmountBox(r);if(a){a.textContent=formatMoney(-MESSAGE_FEE);a.style.color="#56616a";}}
+function applyAmountColor(r:HTMLElement){const a=findAmountBox(r);if(!a)return;const t=(a.textContent||"").trim();if(t.startsWith("+")){a.style.setProperty("color","#49a96f","important");}else{a.style.setProperty("color","#56616a","important");}}
+function updateFeeAmount(r:HTMLButtonElement){const a=findAmountBox(r);if(a){a.textContent=formatMoney(-MESSAGE_FEE);a.style.setProperty("color","#56616a","important");}}
 function setRowBalance(r:HTMLButtonElement,v:number){const b=findBalanceBox(r);const s=b?Array.from(b.querySelectorAll("span")).at(-1):null;if(s)s.textContent=formatMoney(v);}
 function signedAmount(r:HTMLButtonElement){const t=(findAmountBox(r)?.textContent||"0").trim();const a=Math.abs(parseMoney(t));return t.startsWith("-")?-a:t.startsWith("+")?a:parseMoney(t);}
 function reconcile(list:HTMLElement){const rows=Array.from(list.children).filter((e):e is HTMLButtonElement=>e instanceof HTMLButtonElement&&findAmountBox(e)!==undefined);if(!rows.length)return;for(const row of rows)applyAmountColor(row);const chronological=[...rows].reverse();let b=OPENING_BALANCE;setRowBalance(chronological[0],b);for(let i=1;i<chronological.length;i++){b=roundMoney(b+signedAmount(chronological[i]));setRowBalance(chronological[i],b);}}
