@@ -21,15 +21,15 @@ function reconcileRunningBalance() {
   const list = accountMovementList(); if (!list) return;
   const rows = Array.from(list.children).filter((e): e is HTMLButtonElement => e instanceof HTMLButtonElement && findAmountBox(e) !== undefined);
   if (!rows.length) return;
-  // Ekran yeni -> eski. EN ALTTAKİ/EN ESKİ satır başlangıç bakiyesini aynen gösterir.
-  // O başlangıç satırının tutarı tekrar uygulanmaz. Ondan sonra yukarı doğru gelen
-  // her yeni işlem kendi işaretiyle uygulanır: - düşer, + eklenir.
+
+  // Başlangıç bakiyesi en eski işlemin ÖNCESİNDEKİ bakiyedir.
+  // Bu yüzden en alttaki/en eski dekont da kendi tutarını uygular.
+  // Sonra yukarı doğru her yeni dekont sırayla devam eder.
   let balance = roundMoney(currentAccountBalance());
   const chronological = [...rows].reverse();
-  setRowBalance(chronological[0], balance);
-  for (let i = 1; i < chronological.length; i += 1) {
-    balance = roundMoney(balance + signedAmount(chronological[i]));
-    setRowBalance(chronological[i], balance);
+  for (const row of chronological) {
+    balance = roundMoney(balance + signedAmount(row));
+    setRowBalance(row, balance);
   }
 }
 let scheduled = false;
