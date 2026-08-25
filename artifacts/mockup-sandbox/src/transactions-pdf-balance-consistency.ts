@@ -53,13 +53,14 @@ function normalizeStatementBalances(screen: HTMLElement) {
 
   if (!rows.length) return;
 
-  // Liste yeniden eskiye sıralı: ilk bakiye güncel bakiyedir.
-  // Geçmişe giderken her işlemi tersine çevirerek önceki bakiyeyi buluruz.
-  let runningBalance = numberOf(rows[0].balanceSpan.textContent || "0");
+  // Domino hesap: en eski (en alttaki) satırın mevcut bakiyesini başlangıç kabul et.
+  // O satırın tutarını uygula ve çıkan sonucu bir sonraki (bir üstteki) satıra taşı.
+  let runningBalance = numberOf(rows[rows.length - 1].balanceSpan.textContent || "0");
 
-  for (const row of rows) {
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const row = rows[index];
     row.balanceSpan.textContent = `${money(runningBalance)} TL`;
-    runningBalance -= row.amount;
+    runningBalance += row.amount;
   }
 }
 
