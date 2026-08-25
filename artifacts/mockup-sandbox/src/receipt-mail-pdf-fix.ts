@@ -114,12 +114,7 @@ document.addEventListener(
     const text = receiptScreen.innerText || receiptScreen.textContent || "";
     if (!text.includes("Fast Mesaj Kodu") || !text.includes("İşlem Tutarı")) return;
 
-    const header = button.closest("header");
-    if (!header) return;
-
-    const headerButtons = Array.from(header.querySelectorAll<HTMLButtonElement>("button"));
-    const isReceiptHeaderAction =
-      headerButtons.length > 0 && button === headerButtons[headerButtons.length - 1];
+    const isReceiptHeaderAction = button.getAttribute("aria-label") === "Mesajlar";
     if (!isReceiptHeaderAction) return;
 
     const pdfButton = receiptScreen.querySelector<HTMLButtonElement>(
