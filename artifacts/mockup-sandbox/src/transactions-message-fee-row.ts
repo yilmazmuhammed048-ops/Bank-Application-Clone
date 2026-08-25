@@ -2,7 +2,7 @@ export {};
 
 const MESSAGE_FEE = 0.37;
 const MESSAGE_FEE_TITLE = "MESAJ ÜCRETİ TUTARI";
-const FIRST_THREE_DATES = [
+const LAST_THREE_DATES_BOTTOM_UP = [
   { day: "7", month: "AĞU" },
   { day: "11", month: "AĞU" },
   { day: "17", month: "AĞU" },
@@ -87,8 +87,10 @@ function findDateBox(row: HTMLElement) {
 function pinRequestedDates(rows: HTMLButtonElement[]) {
   const normalRows = rows.filter((row) => row.dataset.messageFeeRow !== "true");
 
-  FIRST_THREE_DATES.forEach((requested, index) => {
-    const row = normalRows[index];
+  // Kullanıcının "ilk" derken kastettiği en eski/sondaki hareketler:
+  // listenin en altından yukarı doğru 7, 11 ve 17 Ağustos.
+  LAST_THREE_DATES_BOTTOM_UP.forEach((requested, index) => {
+    const row = normalRows[normalRows.length - 1 - index];
     if (!row) return;
 
     const dateBox = findDateBox(row);
