@@ -62,6 +62,19 @@ function correctSerializedTransactions(serialized: string, receipt: { time: stri
   }
 }
 
+function persistVisibleReceiptTime() {
+  const receipt = visibleReceiptTime();
+  if (!receipt) return;
+
+  const stored = originalGetItem.call(window.localStorage, "demo_transactions");
+  if (!stored) return;
+
+  const corrected = correctSerializedTransactions(stored, receipt);
+  if (corrected !== stored) {
+    originalSetItem.call(window.localStorage, "demo_transactions", corrected);
+  }
+}
+
 Storage.prototype.getItem = function receiptPdfTimeGetItem(key: string) {
   const stored = originalGetItem.call(this, key);
   if (this !== window.localStorage || key !== "demo_transactions" || !stored) return stored;
@@ -84,3 +97,19 @@ Storage.prototype.setItem = function receiptPdfTimeSetItem(key: string, value: s
 
   return originalSetItem.call(this, key, nextValue);
 };
+
+window.addEventListener(
+  "click",
+  (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const button = target?.closest<HTMLButtonElement>('button[aria-label="Dekontu paylaş"]');
+    if (!button) return;
+    if (!button.closest<HTMLElement>(".fixed.inset-0")) return;
+
+    // Window capture runs before the PDF generator's document capture listener.
+    // Persist the exact HH:MM currently visible on the receipt so the PDF
+    // generator cannot fall back to an older 00:00 value from storage.
+    persistVisibleReceiptTime();
+  },
+  true,
+);
