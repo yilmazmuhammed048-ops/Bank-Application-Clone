@@ -382,8 +382,7 @@ async function canvasFor(transaction: ReceiptTx, fee: Fees) {
   ctx.fillStyle = "rgba(255,255,255,.97)";
   ctx.fill();
   
-  ctx.lineWidth = 0.9;
-  ctx.stroke();
+  
   ctx.fillStyle = "#b00020";
   ctx.textAlign = "center";
   ctx.font = `700 8.7px ${FONT}`;
