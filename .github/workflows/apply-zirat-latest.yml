@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Keep homepage balance synchronized with account movements
+      - name: Synchronize homepage balance safely
         shell: bash
         run: |
           python3 - <<'PY'
@@ -22,62 +22,16 @@ jobs:
           path = Path('artifacts/mockup-sandbox/src/App.tsx')
           text = path.read_text()
 
-          old_refresh = '''  const refreshFromAdmin = () => {
-    const data = readAccountData();
-    setBalance(data.balance);
-    setTransactions(data.transactions);
-  };'''
-
-          new_refresh = '''  const refreshFromAdmin = () => {
-    const data = readAccountData();
-
-    setBalance((current) =>
-      current === data.balance ? current : data.balance,
-    );
-
-    setTransactions((current) => {
-      const currentSignature = JSON.stringify(current);
-      const nextSignature = JSON.stringify(data.transactions);
-      return currentSignature === nextSignature ? current : data.transactions;
-    });
-  };'''
+          old_refresh = '  const refreshFromAdmin = () => {\n    const data = readAccountData();\n    setBalance(data.balance);\n    setTransactions(data.transactions);\n  };'
+          new_refresh = '  const refreshFromAdmin = () => {\n    const data = readAccountData();\n\n    setBalance((current) =>\n      current === data.balance ? current : data.balance,\n    );\n\n    setTransactions((current) => {\n      const currentSignature = JSON.stringify(current);\n      const nextSignature = JSON.stringify(data.transactions);\n      return currentSignature === nextSignature ? current : data.transactions;\n    });\n  };'
 
           if old_refresh in text:
               text = text.replace(old_refresh, new_refresh, 1)
           elif new_refresh not in text:
               raise SystemExit('refreshFromAdmin block not found')
 
-          old_effect = '''  useEffect(() => {
-    const handleStorage = () => refreshFromAdmin();
-    window.addEventListener("storage", handleStorage);
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-    };
-  }, []);'''
-
-          new_effect = '''  useEffect(() => {
-    const handleStorage = () => refreshFromAdmin();
-    const handleFocus = () => refreshFromAdmin();
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        refreshFromAdmin();
-      }
-    };
-
-    refreshFromAdmin();
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener("focus", handleFocus);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    const timer = window.setInterval(refreshFromAdmin, 1000);
-
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.clearInterval(timer);
-    };
-  }, []);'''
+          old_effect = '  useEffect(() => {\n    const handleStorage = () => refreshFromAdmin();\n    window.addEventListener("storage", handleStorage);\n    return () => {\n      window.removeEventListener("storage", handleStorage);\n    };\n  }, []);'
+          new_effect = '  useEffect(() => {\n    const handleStorage = () => refreshFromAdmin();\n    const handleFocus = () => refreshFromAdmin();\n    const handleVisibilityChange = () => {\n      if (document.visibilityState === "visible") {\n        refreshFromAdmin();\n      }\n    };\n\n    refreshFromAdmin();\n    window.addEventListener("storage", handleStorage);\n    window.addEventListener("focus", handleFocus);\n    document.addEventListener("visibilitychange", handleVisibilityChange);\n    const timer = window.setInterval(refreshFromAdmin, 1000);\n\n    return () => {\n      window.removeEventListener("storage", handleStorage);\n      window.removeEventListener("focus", handleFocus);\n      document.removeEventListener("visibilitychange", handleVisibilityChange);\n      window.clearInterval(timer);\n    };\n  }, []);'
 
           if old_effect in text:
               text = text.replace(old_effect, new_effect, 1)
