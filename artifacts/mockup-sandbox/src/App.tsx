@@ -280,15 +280,38 @@ export default function ZiratMobile() {
 
   const refreshFromAdmin = () => {
     const data = readAccountData();
-    setBalance(data.balance);
-    setTransactions(data.transactions);
+
+    setBalance((current) =>
+      current === data.balance ? current : data.balance,
+    );
+
+    setTransactions((current) => {
+      const currentSignature = JSON.stringify(current);
+      const nextSignature = JSON.stringify(data.transactions);
+      return currentSignature === nextSignature ? current : data.transactions;
+    });
   };
 
   useEffect(() => {
     const handleStorage = () => refreshFromAdmin();
+    const handleFocus = () => refreshFromAdmin();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refreshFromAdmin();
+      }
+    };
+
+    refreshFromAdmin();
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    const timer = window.setInterval(refreshFromAdmin, 1000);
+
     return () => {
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.clearInterval(timer);
     };
   }, []);
 
