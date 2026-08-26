@@ -683,12 +683,15 @@ function Transactions({
           const monthKey = (parts[1] || "").toLocaleUpperCase("tr-TR");
           const month = monthMap[monthKey] || monthKey.slice(0, 3);
           const compactIban = tx.recipientIban.replace(/\s/g, "");
+          const isFeeMovement = /MESAJ ÜCRETİ TUTARI|BSMV TUTARI/i.test(
+            `${tx.title} ${tx.subtitle} ${tx.recipientName}`,
+          );
 
           return (
             <button
               key={tx.id}
               onClick={() => onSelect(tx)}
-              className="relative flex min-h-[104px] w-full overflow-hidden rounded-[9px] border border-[#e4e6e7] bg-white text-left shadow-[0_1px_1px_rgba(20,28,34,0.025)] transition-colors active:bg-[#fafafa]"
+              className="relative flex h-[96px] w-full overflow-hidden rounded-[9px] border border-[#e4e6e7] bg-white text-left shadow-[0_1px_1px_rgba(20,28,34,0.025)] transition-colors active:bg-[#fafafa]"
             >
               <div className="flex w-[67px] shrink-0 flex-col items-center justify-center border-r border-[#eceeef] bg-[#fcfcfc]">
                 <span className="text-[27px] font-light leading-none tracking-[-0.04em] text-[#303a40]">
@@ -702,7 +705,7 @@ function Transactions({
                 </span>
               </div>
 
-              <div className="min-w-0 flex-1 py-[12px] pl-3 pr-[106px]">
+              <div className="min-w-0 flex-1 py-[10px] pl-3 pr-[106px]">
                 {tx.kind === "credit" ? (
                   <>
                     <p className="truncate text-[12px] font-medium leading-[1.25] text-[#333d43]">
@@ -718,13 +721,17 @@ function Transactions({
                 ) : (
                   <>
                     <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
-                      {tx.recipientBank}/
+                      {isFeeMovement ? null : `${tx.recipientBank}/`}
                     </p>
                     <p className="mt-1 truncate text-[10px] text-[#7b8489]">
-                      {compactIban}
+                      {isFeeMovement ? null : compactIban}
                     </p>
-                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.recipientName} — {tx.subtitle}
+                    <p className="mt-1 line-clamp-1 text-[11px] font-medium leading-[1.3] text-[#5f696e]">
+                      {isFeeMovement
+                        ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
+                        : tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
+                          ? tx.subtitle
+                          : `${tx.recipientName} — ${tx.subtitle}`}
                     </p>
                   </>
                 )}
