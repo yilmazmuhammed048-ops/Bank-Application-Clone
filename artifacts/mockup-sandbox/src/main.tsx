@@ -19,6 +19,7 @@ import "./transactions-pdf-reference-final";
 import "./receipt-mail-pdf-fix";
 import "./receipt-fee-policy";
 import "./login-safearea-reference";
+import "./home-header-reference-final";
 
 const hostname = window.location.hostname.toLowerCase();
 const isAdminHost = hostname.startsWith("banka-yonetim-paneli");
