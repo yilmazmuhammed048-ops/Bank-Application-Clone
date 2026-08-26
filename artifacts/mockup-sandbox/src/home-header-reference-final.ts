@@ -8,9 +8,9 @@ function installHomeHeaderReferenceFinal() {
   style.id = HOME_HEADER_REFERENCE_FINAL_ID;
   style.textContent = `
     /*
-      Do not redraw the home header. The repository already contains the exact
-      supplied 1170x429 reference crop. Lock that bitmap as the complete header
-      so later CSS cannot replace it with gradients, SVG waves or pseudo layers.
+      Use the COMPLETE supplied reference header bitmap verbatim.
+      It owns the red artwork, status bar, avatar, search, message and greeting.
+      Do not redraw or layer over it.
     */
     main > div:has(> div.pb-24) > header {
       position: relative !important;
@@ -18,43 +18,39 @@ function installHomeHeaderReferenceFinal() {
       overflow: hidden !important;
       box-sizing: border-box !important;
       width: 100% !important;
-      height: min(157.67px, 36.6667vw) !important;
-      min-height: min(157.67px, 36.6667vw) !important;
-      max-height: 157.67px !important;
+      height: min(158px, 36.7442vw) !important;
+      min-height: min(158px, 36.7442vw) !important;
+      max-height: 158px !important;
       margin: 0 !important;
       padding: 0 !important;
       border: 0 !important;
       background-color: #e30620 !important;
-      background-image: url('/header-background-reference.jpg?exact=20260826') !important;
+      background-image: url('/header-top-reference-full.jpg?exact=20260826-v4') !important;
       background-repeat: no-repeat !important;
       background-position: center top !important;
       background-size: 100% 100% !important;
       background-blend-mode: normal !important;
     }
 
-    /* The bitmap already contains the exact avatar, search, message and greeting artwork. */
-    main > div:has(> div.pb-24) > header > div:first-child,
-    main > div:has(> div.pb-24) > header > p {
-      opacity: 0 !important;
-      visibility: visible !important;
-    }
-
-    /* Keep the transparent avatar/search/message hit area available without repainting it. */
-    main > div:has(> div.pb-24) > header > div:first-child {
-      pointer-events: auto !important;
-    }
-
-    main > div:has(> div.pb-24) > header > p {
-      pointer-events: none !important;
-    }
-
-    /* Kill every older synthetic wave/geometric layer. */
+    /* Remove every older synthetic gradient / SVG / pseudo layer. */
     main > div:has(> div.pb-24) > header::before,
-    main > div:has(> div.pb-24) > header::after {
+    main > div:has(> div.pb-24) > header::after,
+    main > div:has(> div.pb-24) > header[class]::before,
+    main > div:has(> div.pb-24) > header[class]::after {
       content: none !important;
       display: none !important;
       background: none !important;
       background-image: none !important;
+      filter: none !important;
+      transform: none !important;
+    }
+
+    /* The bitmap owns the complete visible header. Hide duplicate live DOM artwork. */
+    main > div:has(> div.pb-24) > header > div:first-child,
+    main > div:has(> div.pb-24) > header > p {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
   `;
 
