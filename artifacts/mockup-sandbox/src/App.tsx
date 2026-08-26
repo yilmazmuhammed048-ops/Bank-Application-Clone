@@ -389,7 +389,7 @@ export default function ZiratMobile() {
           </div>
 
           <p className="mt-3 text-sm">
-            İyi Günler <strong>{MY_NAME}</strong>
+            İyi günler <strong>{MY_NAME}</strong>
           </p>
         </header>
         )}
