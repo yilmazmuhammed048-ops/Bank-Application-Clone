@@ -149,11 +149,27 @@ function applyIncomingAmountColor() {
     });
 }
 
+function applyHomepageGreeting() {
+  document.querySelectorAll<HTMLElement>("header p").forEach((greeting) => {
+    const name = greeting.querySelector("strong");
+    if (!name || name.textContent?.trim() !== "Muhammed Yılmaz") return;
+
+    const firstNode = greeting.firstChild;
+    if (firstNode?.nodeType === Node.TEXT_NODE) {
+      firstNode.textContent = "İyi günler ";
+    }
+  });
+}
+
 installTransactionTypographyReference();
 applyIncomingAmountColor();
+applyHomepageGreeting();
 
 const observer = new MutationObserver(() => {
-  window.requestAnimationFrame(applyIncomingAmountColor);
+  window.requestAnimationFrame(() => {
+    applyIncomingAmountColor();
+    applyHomepageGreeting();
+  });
 });
 
 observer.observe(document.body, {
