@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Stabilize homepage balance
+      - name: Fix empty descriptions and repeated FAST labels
         shell: bash
         run: |
           python3 - <<'PY'
@@ -22,32 +22,49 @@ jobs:
           path = Path('artifacts/mockup-sandbox/src/App.tsx')
           text = path.read_text()
 
-          old = '''  useEffect(() => {
-    const handleStorage = () => refreshFromAdmin();
-    window.addEventListener("storage", handleStorage);
-    const timer = window.setInterval(refreshFromAdmin, 1000);
+          text = text.replace(
+              '        subtitle: item.description || "İşlem açıklaması",',
+              '        subtitle: item.description?.trim() || "",',
+              1,
+          )
 
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.clearInterval(timer);
-    };
-  }, []);'''
+          old_debit = '''                      {isFeeMovement
+                        ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
+                        : tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
+                          ? tx.subtitle
+                          : `${tx.recipientName} — ${tx.subtitle}`}'''
+          new_debit = '''                      {isFeeMovement
+                        ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
+                        : tx.subtitle.trim()
+                          ? tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
+                            ? tx.subtitle
+                            : `${tx.recipientName} — ${tx.subtitle}`
+                          : tx.recipientName}'''
+          if old_debit not in text:
+              raise SystemExit('debit description block not found')
+          text = text.replace(old_debit, new_debit, 1)
 
-          new = '''  useEffect(() => {
-    const handleStorage = () => refreshFromAdmin();
-    window.addEventListener("storage", handleStorage);
+          old_credit = '''                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
+                      {tx.recipientBank} FAST işlemi
+                    </p>'''
+          new_credit = '''                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
+                      {tx.subtitle.trim() && !/^FAST(?:\\s+FAST)*(?:\\s+işlemi)?$/i.test(tx.subtitle.trim())
+                        ? tx.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")
+                        : "FAST işlemi"}
+                    </p>'''
+          if old_credit not in text:
+              raise SystemExit('credit FAST block not found')
+          text = text.replace(old_credit, new_credit, 1)
 
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-    };
-  }, []);'''
+          old_receipt = '''              <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>'''
+          new_receipt = '''              {transaction.subtitle.trim() && (
+                <p className="mt-1">İşlem Açıklaması : {transaction.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")}</p>
+              )}
+              <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")} işleminin yapılmasını talep ederim.</p>'''
+          if old_receipt not in text:
+              raise SystemExit('receipt description anchor not found')
+          text = text.replace(old_receipt, new_receipt, 1)
 
-          if old not in text:
-              if 'window.setInterval(refreshFromAdmin, 1000)' in text:
-                  raise SystemExit('balance poller block changed unexpectedly')
-              raise SystemExit('balance poller block not found')
-
-          text = text.replace(old, new, 1)
           path.write_text(text)
           PY
 
@@ -55,5 +72,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add artifacts/mockup-sandbox/src/App.tsx
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: stop homepage balance from flickering'
+          git commit -m 'fix: hide empty descriptions and dedupe FAST labels'
           git push origin HEAD:main
