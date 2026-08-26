@@ -1,5 +1,16 @@
 {
   "installCommand": "pnpm install --no-frozen-lockfile",
+  "headers": [
+    {
+      "source": "/home-header-reference-exact.webp",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "image/jpeg"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/admin",
