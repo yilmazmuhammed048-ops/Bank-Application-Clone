@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply transaction text and balance fixes
+      - name: Apply transaction text and balance fixes safely
         shell: bash
         run: |
           python3 - <<'PY'
@@ -29,16 +29,8 @@ jobs:
               1,
           )
 
-          text = text.replace(
-              '    const timer = window.setInterval(refreshFromAdmin, 1000);\n\n',
-              '',
-              1,
-          )
-          text = text.replace(
-              '      window.clearInterval(timer);\n',
-              '',
-              1,
-          )
+          text = text.replace('    const timer = window.setInterval(refreshFromAdmin, 1000);\n\n', '', 1)
+          text = text.replace('      window.clearInterval(timer);\n', '', 1)
 
           debit_pattern = re.compile(
               r'''\{isFeeMovement\s*\n\s*\? \(tx\.title \|\| tx\.subtitle\)\.toLocaleUpperCase\("tr-TR"\)\s*\n\s*: tx\.recipientName\.trim\(\)\.toLocaleUpperCase\("tr-TR"\) === tx\.subtitle\.trim\(\)\.toLocaleUpperCase\("tr-TR"\)\s*\n\s*\? tx\.subtitle\s*\n\s*: `\$\{tx\.recipientName\} — \$\{tx\.subtitle\}`}'''
@@ -50,20 +42,15 @@ jobs:
                             ? tx.subtitle
                             : `${tx.recipientName} — ${tx.subtitle}`
                           : tx.recipientName}'''
-          text, n = debit_pattern.subn(debit_replacement, text, count=1)
+          text, n = debit_pattern.subn(lambda m: debit_replacement, text, count=1)
           if n != 1 and ': tx.subtitle.trim()' not in text:
               raise SystemExit('debit description patch failed')
 
-          credit_pattern = re.compile(
-              r'''\{tx\.recipientBank\} FAST işlemi'''
-          )
-          text, n = credit_pattern.subn(
-              '''{tx.subtitle.trim() && !/^FAST(?:\\s+FAST)*(?:\\s+işlemi)?$/i.test(tx.subtitle.trim())
+          credit_pattern = re.compile(r'''\{tx\.recipientBank\} FAST işlemi''')
+          credit_replacement = '''{tx.subtitle.trim() && !/^FAST(?:\\s+FAST)*(?:\\s+işlemi)?$/i.test(tx.subtitle.trim())
                         ? tx.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")
-                        : "FAST işlemi"}''',
-              text,
-              count=1,
-          )
+                        : "FAST işlemi"}'''
+          text, n = credit_pattern.subn(lambda m: credit_replacement, text, count=1)
           if n != 1 and 'tx.subtitle.replace(/\\bFAST' not in text:
               raise SystemExit('FAST label patch failed')
 
