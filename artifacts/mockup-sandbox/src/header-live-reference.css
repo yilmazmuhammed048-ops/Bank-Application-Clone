@@ -174,7 +174,7 @@ main > div:has(> div.pb-24) > header > p {
 }
 
 main > div:has(> div.pb-24) > header > p::before {
-  content: "İyi Geceler " !important;
+  content: "İyi günler " !important;
   color: #fff !important;
   font-size: 15.8px !important;
   line-height: 1.05 !important;
