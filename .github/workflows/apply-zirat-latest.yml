@@ -13,11 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fix empty descriptions and repeated FAST labels
+      - name: Apply transaction text and balance fixes
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('artifacts/mockup-sandbox/src/App.tsx')
           text = path.read_text()
@@ -28,42 +29,53 @@ jobs:
               1,
           )
 
-          old_debit = '''                      {isFeeMovement
-                        ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
-                        : tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
-                          ? tx.subtitle
-                          : `${tx.recipientName} — ${tx.subtitle}`}'''
-          new_debit = '''                      {isFeeMovement
+          text = text.replace(
+              '    const timer = window.setInterval(refreshFromAdmin, 1000);\n\n',
+              '',
+              1,
+          )
+          text = text.replace(
+              '      window.clearInterval(timer);\n',
+              '',
+              1,
+          )
+
+          debit_pattern = re.compile(
+              r'''\{isFeeMovement\s*\n\s*\? \(tx\.title \|\| tx\.subtitle\)\.toLocaleUpperCase\("tr-TR"\)\s*\n\s*: tx\.recipientName\.trim\(\)\.toLocaleUpperCase\("tr-TR"\) === tx\.subtitle\.trim\(\)\.toLocaleUpperCase\("tr-TR"\)\s*\n\s*\? tx\.subtitle\s*\n\s*: `\$\{tx\.recipientName\} — \$\{tx\.subtitle\}`}'''
+          )
+          debit_replacement = '''{isFeeMovement
                         ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
                         : tx.subtitle.trim()
                           ? tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
                             ? tx.subtitle
                             : `${tx.recipientName} — ${tx.subtitle}`
                           : tx.recipientName}'''
-          if old_debit not in text:
-              raise SystemExit('debit description block not found')
-          text = text.replace(old_debit, new_debit, 1)
+          text, n = debit_pattern.subn(debit_replacement, text, count=1)
+          if n != 1 and ': tx.subtitle.trim()' not in text:
+              raise SystemExit('debit description patch failed')
 
-          old_credit = '''                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.recipientBank} FAST işlemi
-                    </p>'''
-          new_credit = '''                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.subtitle.trim() && !/^FAST(?:\\s+FAST)*(?:\\s+işlemi)?$/i.test(tx.subtitle.trim())
+          credit_pattern = re.compile(
+              r'''\{tx\.recipientBank\} FAST işlemi'''
+          )
+          text, n = credit_pattern.subn(
+              '''{tx.subtitle.trim() && !/^FAST(?:\\s+FAST)*(?:\\s+işlemi)?$/i.test(tx.subtitle.trim())
                         ? tx.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")
-                        : "FAST işlemi"}
-                    </p>'''
-          if old_credit not in text:
-              raise SystemExit('credit FAST block not found')
-          text = text.replace(old_credit, new_credit, 1)
+                        : "FAST işlemi"}''',
+              text,
+              count=1,
+          )
+          if n != 1 and 'tx.subtitle.replace(/\\bFAST' not in text:
+              raise SystemExit('FAST label patch failed')
 
-          old_receipt = '''              <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>'''
-          new_receipt = '''              {transaction.subtitle.trim() && (
+          receipt_old = '<p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>'
+          receipt_new = '''{transaction.subtitle.trim() && (
                 <p className="mt-1">İşlem Açıklaması : {transaction.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")}</p>
               )}
               <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")} işleminin yapılmasını talep ederim.</p>'''
-          if old_receipt not in text:
-              raise SystemExit('receipt description anchor not found')
-          text = text.replace(old_receipt, new_receipt, 1)
+          if receipt_old in text:
+              text = text.replace(receipt_old, receipt_new, 1)
+          elif 'İşlem Açıklaması : {transaction.subtitle' not in text:
+              raise SystemExit('receipt patch failed')
 
           path.write_text(text)
           PY
@@ -72,5 +84,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add artifacts/mockup-sandbox/src/App.tsx
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: hide empty descriptions and dedupe FAST labels'
+          git commit -m 'fix: hide empty descriptions dedupe FAST and stabilize balance'
           git push origin HEAD:main
