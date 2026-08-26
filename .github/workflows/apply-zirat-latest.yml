@@ -13,13 +13,78 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace app source and push
+      - name: Compact transaction cards and remove duplicate fee text
         shell: bash
         run: |
-          cat .github/app_payload/c*.txt | base64 -d | gzip -d > artifacts/mockup-sandbox/src/App.tsx
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('artifacts/mockup-sandbox/src/App.tsx')
+          text = path.read_text()
+
+          anchor = '          const compactIban = tx.recipientIban.replace(/\\s/g, "");\n'
+          replacement = anchor + '          const isFeeMovement = /MESAJ ÜCRETİ TUTARI|BSMV TUTARI/i.test(\n            `${tx.title} ${tx.subtitle} ${tx.recipientName}`,\n          );\n'
+          if 'const isFeeMovement =' not in text:
+              if anchor not in text:
+                  raise SystemExit('compactIban anchor not found')
+              text = text.replace(anchor, replacement, 1)
+
+          text = text.replace(
+              'className="relative flex min-h-[104px] w-full overflow-hidden rounded-[9px] border border-[#e4e6e7] bg-white text-left shadow-[0_1px_1px_rgba(20,28,34,0.025)] transition-colors active:bg-[#fafafa]"',
+              'className="relative flex h-[96px] w-full overflow-hidden rounded-[9px] border border-[#e4e6e7] bg-white text-left shadow-[0_1px_1px_rgba(20,28,34,0.025)] transition-colors active:bg-[#fafafa]"',
+              1,
+          )
+          text = text.replace(
+              'className="min-w-0 flex-1 py-[12px] pl-3 pr-[106px]"',
+              'className="min-w-0 flex-1 py-[10px] pl-3 pr-[106px]"',
+              1,
+          )
+
+          old = '''                ) : (
+                  <>
+                    <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
+                      {tx.recipientBank}/
+                    </p>
+                    <p className="mt-1 truncate text-[10px] text-[#7b8489]">
+                      {compactIban}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
+                      {tx.recipientName} — {tx.subtitle}
+                    </p>
+                  </>
+                )}'''
+
+          new = '''                ) : isFeeMovement ? (
+                  <p className="line-clamp-2 pr-1 text-[11px] font-medium uppercase leading-[1.35] text-[#333d43]">
+                    {tx.title || tx.subtitle}
+                  </p>
+                ) : (
+                  <>
+                    <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
+                      {tx.recipientBank}/
+                    </p>
+                    <p className="mt-1 truncate text-[10px] text-[#7b8489]">
+                      {compactIban}
+                    </p>
+                    <p className="mt-1 line-clamp-1 text-[11px] leading-[1.3] text-[#5f696e]">
+                      {tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
+                        ? tx.subtitle
+                        : `${tx.recipientName} — ${tx.subtitle}`}
+                    </p>
+                  </>
+                )}'''
+
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif 'isFeeMovement ? (' not in text:
+              raise SystemExit('debit transaction block not found')
+
+          path.write_text(text)
+          PY
+
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add artifacts/mockup-sandbox/src/App.tsx
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: sync transactions and receipt time'
+          git commit -m 'fix: compact transaction cards and remove duplicate fee labels'
           git push origin HEAD:main
