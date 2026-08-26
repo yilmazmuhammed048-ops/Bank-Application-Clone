@@ -13,57 +13,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply transaction text and balance fixes safely
+      - name: Match incoming FAST card to reference
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
 
           path = Path('artifacts/mockup-sandbox/src/App.tsx')
           text = path.read_text()
 
-          text = text.replace(
-              '        subtitle: item.description || "İşlem açıklaması",',
-              '        subtitle: item.description?.trim() || "",',
-              1,
-          )
+          old = '''                {tx.kind === "credit" ? (
+                  <>
+                    <p className="truncate text-[12px] font-medium leading-[1.25] text-[#333d43]">
+                      Gönd: {tx.recipientName.toLocaleUpperCase("tr-TR")}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
+                      {tx.subtitle.trim() && !/^FAST(?:\\s+FAST)*(?:\\s+işlemi)?$/i.test(tx.subtitle.trim())
+              ? tx.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")
+              : "FAST işlemi"}
+                    </p>
+                    <p className="mt-1 truncate text-[10px] tracking-[0.01em] text-[#8a9195]">
+                      {compactIban}
+                    </p>
+                  </>
+                ) : ('''
 
-          text = text.replace('    const timer = window.setInterval(refreshFromAdmin, 1000);\n\n', '', 1)
-          text = text.replace('      window.clearInterval(timer);\n', '', 1)
+          new = '''                {tx.kind === "credit" ? (
+                  <>
+                    <p className="truncate text-[12px] font-medium leading-[1.25] text-[#333d43]">
+                      {/FAST/i.test(`${tx.title} ${tx.subtitle} ${tx.recipientName}`)
+                        ? "Gelen FAST Para Transferi"
+                        : tx.recipientName}
+                    </p>
+                    <p className="mt-1 truncate text-[10px] tracking-[0.01em] text-[#8a9195]">
+                      {compactIban}
+                    </p>
+                  </>
+                ) : ('''
 
-          debit_pattern = re.compile(
-              r'''\{isFeeMovement\s*\n\s*\? \(tx\.title \|\| tx\.subtitle\)\.toLocaleUpperCase\("tr-TR"\)\s*\n\s*: tx\.recipientName\.trim\(\)\.toLocaleUpperCase\("tr-TR"\) === tx\.subtitle\.trim\(\)\.toLocaleUpperCase\("tr-TR"\)\s*\n\s*\? tx\.subtitle\s*\n\s*: `\$\{tx\.recipientName\} — \$\{tx\.subtitle\}`}'''
-          )
-          debit_replacement = '''{isFeeMovement
-                        ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
-                        : tx.subtitle.trim()
-                          ? tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
-                            ? tx.subtitle
-                            : `${tx.recipientName} — ${tx.subtitle}`
-                          : tx.recipientName}'''
-          text, n = debit_pattern.subn(lambda m: debit_replacement, text, count=1)
-          if n != 1 and ': tx.subtitle.trim()' not in text:
-              raise SystemExit('debit description patch failed')
+          if old not in text:
+              raise SystemExit('incoming FAST card block not found')
 
-          credit_pattern = re.compile(r'''\{tx\.recipientBank\} FAST işlemi''')
-          credit_replacement = '''{tx.subtitle.trim() && !/^FAST(?:\\s+FAST)*(?:\\s+işlemi)?$/i.test(tx.subtitle.trim())
-                        ? tx.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")
-                        : "FAST işlemi"}'''
-          text, n = credit_pattern.subn(lambda m: credit_replacement, text, count=1)
-          if n != 1 and 'tx.subtitle.replace(/\\bFAST' not in text:
-              raise SystemExit('FAST label patch failed')
-
-          receipt_old = '<p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>'
-          receipt_new = '''{transaction.subtitle.trim() && (
-                <p className="mt-1">İşlem Açıklaması : {transaction.subtitle.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")}</p>
-              )}
-              <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title.replace(/\\bFAST(?:\\s+FAST)+\\b/gi, "FAST")} işleminin yapılmasını talep ederim.</p>'''
-          if receipt_old in text:
-              text = text.replace(receipt_old, receipt_new, 1)
-          elif 'İşlem Açıklaması : {transaction.subtitle' not in text:
-              raise SystemExit('receipt patch failed')
-
+          text = text.replace(old, new, 1)
           path.write_text(text)
           PY
 
@@ -71,5 +62,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add artifacts/mockup-sandbox/src/App.tsx
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: hide empty descriptions dedupe FAST and stabilize balance'
+          git commit -m 'fix: match incoming FAST card to reference'
           git push origin HEAD:main
