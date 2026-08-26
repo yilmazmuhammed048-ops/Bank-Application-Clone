@@ -237,7 +237,7 @@ function convertTransactions(items: AdminTransaction[]): Transaction[] {
       return {
         id: String(item.id),
         title: item.title || "İşlem",
-        subtitle: item.description || "İşlem açıklaması",
+        subtitle: item.description?.trim() || "",
         amount,
         kind: isCredit ? "credit" : "debit",
         date: item.date || "18 Ağustos 2026",
@@ -287,11 +287,8 @@ export default function ZiratMobile() {
   useEffect(() => {
     const handleStorage = () => refreshFromAdmin();
     window.addEventListener("storage", handleStorage);
-    const timer = window.setInterval(refreshFromAdmin, 1000);
-
     return () => {
       window.removeEventListener("storage", handleStorage);
-      window.clearInterval(timer);
     };
   }, []);
 
@@ -712,7 +709,9 @@ function Transactions({
                       Gönd: {tx.recipientName.toLocaleUpperCase("tr-TR")}
                     </p>
                     <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.recipientBank} FAST işlemi
+                      {tx.subtitle.trim() && !/^FAST(?:\s+FAST)*(?:\s+işlemi)?$/i.test(tx.subtitle.trim())
+              ? tx.subtitle.replace(/\bFAST(?:\s+FAST)+\b/gi, "FAST")
+              : "FAST işlemi"}
                     </p>
                     <p className="mt-1 truncate text-[10px] tracking-[0.01em] text-[#8a9195]">
                       {compactIban}
@@ -728,10 +727,12 @@ function Transactions({
                     </p>
                     <p className="mt-1 line-clamp-1 text-[11px] font-medium leading-[1.3] text-[#5f696e]">
                       {isFeeMovement
-                        ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
-                        : tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
-                          ? tx.subtitle
-                          : `${tx.recipientName} — ${tx.subtitle}`}
+              ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")
+              : tx.subtitle.trim()
+                ? tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
+                  ? tx.subtitle
+                  : `${tx.recipientName} — ${tx.subtitle}`
+                : tx.recipientName}
                     </p>
                   </>
                 )}
@@ -833,7 +834,10 @@ function Receipt({ transaction, onClose }: { transaction: Transaction; onClose: 
               <p>İşlem Tutarı : {formatMoney(transaction.amount).replace("TL", "TRY")}</p>
               <p>Komisyon : {formattedCommission} BSMV : 0,00 TRY Mesaj Ücreti : 0,00 TRY</p>
               <p>Toplam Masraf : {formattedCommission}</p>
-              <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title} işleminin yapılmasını talep ederim.</p>
+              {transaction.subtitle.trim() && (
+      <p className="mt-1">İşlem Açıklaması : {transaction.subtitle.replace(/\bFAST(?:\s+FAST)+\b/gi, "FAST")}</p>
+    )}
+    <p className="mt-1">{formatMoney(transaction.amount).replace("TL", "TRY")} tutarında {transaction.title.replace(/\bFAST(?:\s+FAST)+\b/gi, "FAST")} işleminin yapılmasını talep ederim.</p>
 
               <div className="mt-5 flex items-end justify-between border-b border-[#444] pb-1">
                 <div>
