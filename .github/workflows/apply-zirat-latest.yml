@@ -23,11 +23,11 @@ jobs:
           text = path.read_text()
 
           anchor = '          const compactIban = tx.recipientIban.replace(/\\s/g, "");\n'
-          replacement = anchor + '          const isFeeMovement = /MESAJ ÜCRETİ TUTARI|BSMV TUTARI/i.test(\n            `${tx.title} ${tx.subtitle} ${tx.recipientName}`,\n          );\n'
+          fee_logic = '          const isFeeMovement = /MESAJ ÜCRETİ TUTARI|BSMV TUTARI/i.test(\n            `${tx.title} ${tx.subtitle} ${tx.recipientName}`,\n          );\n'
           if 'const isFeeMovement =' not in text:
               if anchor not in text:
                   raise SystemExit('compactIban anchor not found')
-              text = text.replace(anchor, replacement, 1)
+              text = text.replace(anchor, anchor + fee_logic, 1)
 
           text = text.replace(
               'className="relative flex min-h-[104px] w-full overflow-hidden rounded-[9px] border border-[#e4e6e7] bg-white text-left shadow-[0_1px_1px_rgba(20,28,34,0.025)] transition-colors active:bg-[#fafafa]"',
@@ -39,45 +39,19 @@ jobs:
               'className="min-w-0 flex-1 py-[10px] pl-3 pr-[106px]"',
               1,
           )
+          text = text.replace(
+              '{tx.recipientBank}/',
+              '{isFeeMovement ? null : `${tx.recipientBank}/`}',
+              1,
+          )
+          text = text.replace(
+              '                      {compactIban}\n                    </p>\n                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">\n                      {tx.recipientName} — {tx.subtitle}',
+              '                      {isFeeMovement ? null : compactIban}\n                    </p>\n                    <p className="mt-1 line-clamp-1 text-[11px] font-medium leading-[1.3] text-[#5f696e]">\n                      {isFeeMovement\n                        ? (tx.title || tx.subtitle).toLocaleUpperCase("tr-TR")\n                        : tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")\n                          ? tx.subtitle\n                          : `${tx.recipientName} — ${tx.subtitle}`}',
+              1,
+          )
 
-          old = '''                ) : (
-                  <>
-                    <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
-                      {tx.recipientBank}/
-                    </p>
-                    <p className="mt-1 truncate text-[10px] text-[#7b8489]">
-                      {compactIban}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.recipientName} — {tx.subtitle}
-                    </p>
-                  </>
-                )}'''
-
-          new = '''                ) : isFeeMovement ? (
-                  <p className="line-clamp-2 pr-1 text-[11px] font-medium uppercase leading-[1.35] text-[#333d43]">
-                    {tx.title || tx.subtitle}
-                  </p>
-                ) : (
-                  <>
-                    <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
-                      {tx.recipientBank}/
-                    </p>
-                    <p className="mt-1 truncate text-[10px] text-[#7b8489]">
-                      {compactIban}
-                    </p>
-                    <p className="mt-1 line-clamp-1 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.recipientName.trim().toLocaleUpperCase("tr-TR") === tx.subtitle.trim().toLocaleUpperCase("tr-TR")
-                        ? tx.subtitle
-                        : `${tx.recipientName} — ${tx.subtitle}`}
-                    </p>
-                  </>
-                )}'''
-
-          if old in text:
-              text = text.replace(old, new, 1)
-          elif 'isFeeMovement ? (' not in text:
-              raise SystemExit('debit transaction block not found')
+          if 'min-h-[104px]' in text or '{tx.recipientName} — {tx.subtitle}' in text:
+              raise SystemExit('transaction card patch incomplete')
 
           path.write_text(text)
           PY
