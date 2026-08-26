@@ -704,20 +704,17 @@ function Transactions({
 
               <div className="min-w-0 flex-1 py-[10px] pl-3 pr-[106px]">
                 {tx.kind === "credit" ? (
-                  <>
-                    <p className="truncate text-[12px] font-medium leading-[1.25] text-[#333d43]">
-                      Gönd: {tx.recipientName.toLocaleUpperCase("tr-TR")}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-[11px] leading-[1.3] text-[#5f696e]">
-                      {tx.subtitle.trim() && !/^FAST(?:\s+FAST)*(?:\s+işlemi)?$/i.test(tx.subtitle.trim())
-              ? tx.subtitle.replace(/\bFAST(?:\s+FAST)+\b/gi, "FAST")
-              : "FAST işlemi"}
-                    </p>
-                    <p className="mt-1 truncate text-[10px] tracking-[0.01em] text-[#8a9195]">
-                      {compactIban}
-                    </p>
-                  </>
-                ) : (
+        <>
+          <p className="truncate text-[12px] font-medium leading-[1.25] text-[#333d43]">
+            {/FAST/i.test(`${tx.title} ${tx.subtitle} ${tx.recipientName}`)
+              ? "Gelen FAST Para Transferi"
+              : tx.recipientName}
+          </p>
+          <p className="mt-1 truncate text-[10px] tracking-[0.01em] text-[#8a9195]">
+            {compactIban}
+          </p>
+        </>
+      ) : (
                   <>
                     <p className="line-clamp-1 text-[11px] font-medium leading-[1.25] text-[#333d43]">
                       {isFeeMovement ? null : `${tx.recipientBank}/`}
