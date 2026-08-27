@@ -214,14 +214,13 @@ main > div:has(> div.pb-24) > div.pb-24 > div.px-5 > section h2 {
   }
 }
 
-/* iPhone 13 Home Screen safe-area: keep the red artwork behind the notch,
-   but place avatar/search/message below the camera area. Reference geometry:
-   controls start at ~49px and the full red header ends at ~143px. */
+/* iPhone 13 / 390px viewport: keep the red header fully visible even when Safari
+   reports a zero safe-area value, while still expanding correctly in standalone PWA mode. */
 main > div:has(> div.pb-24) > header {
-  height: max(104px, calc(96px + env(safe-area-inset-top, 0px))) !important;
-  min-height: max(104px, calc(96px + env(safe-area-inset-top, 0px))) !important;
-  max-height: max(104px, calc(96px + env(safe-area-inset-top, 0px))) !important;
-  padding-top: max(10px, calc(2px + env(safe-area-inset-top, 0px))) !important;
+  height: max(143px, calc(104px + env(safe-area-inset-top, 0px))) !important;
+  min-height: max(143px, calc(104px + env(safe-area-inset-top, 0px))) !important;
+  max-height: max(143px, calc(104px + env(safe-area-inset-top, 0px))) !important;
+  padding-top: max(39px, env(safe-area-inset-top, 0px)) !important;
 }
 
 /* Account movements: same iPhone 13 Home Screen safe-area treatment.
